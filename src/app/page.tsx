@@ -81,10 +81,10 @@ export default function Dashboard() {
       color: "bg-yellow-500",
     },
     {
-      title: "Mantenimiento",
+      title: "Talleres",
       description: "Programar y seguir mantenimientos",
       icon: Wrench,
-      href: "/mantenimiento",
+      href: "/talleres",
       color: "bg-indigo-500",
     },
     {
