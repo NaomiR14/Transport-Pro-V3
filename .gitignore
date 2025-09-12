@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Certificate files
+*.key
+*.crt
+
+# IDEs
+*.sublime-project
+*.sublime-workspace
+.vscode/settings.json
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Docker
+.dockerignore
+docker-compose.override.yml
