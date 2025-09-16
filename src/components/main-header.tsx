@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { Bell, LogOut, Menu, Moon, Settings, Sun, User } from "lucide-react"
+import { Bell, LogOut, Menu, Moon, Settings, Sun, User, Truck } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -19,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useSidebar } from "./sidebar-context"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export function MainHeader() {
   const { theme, setTheme } = useTheme()
@@ -99,7 +98,18 @@ export function MainHeader() {
             <Menu className="h-5 w-5" />
           </Button>
 
-          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Sistema de Gestión de Transporte</h1>
+          {/* Botón Volver al Dashboard */}
+          <Link 
+            href="/" 
+            className="flex items-center text-blue-600 hover:text-blue-800 transition-colors mr-4"
+          >
+            <Truck className="h-6 w-6 mr-2" />
+            <span className="text-sm font-medium hidden sm:inline">Volver al Dashboard</span>
+          </Link>
+
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100 hidden md:block">
+            Sistema de Gestión de Transporte
+          </h1>
         </div>
 
         <div className="flex items-center gap-4">
@@ -187,8 +197,7 @@ export function MainHeader() {
                     onSelect={(e) => {
                       console.log("🎯 MenuItem Configuración seleccionado")
                       handleSettingsClick(e as any)
-                    }}
-                  >
+                    }}>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configuración</span>
                   </DropdownMenuItem>
@@ -200,8 +209,7 @@ export function MainHeader() {
                   onSelect={(e) => {
                     console.log("🎯 MenuItem Cerrar sesión seleccionado")
                     handleLogoutClick(e as any)
-                  }}
-                >
+                  }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>

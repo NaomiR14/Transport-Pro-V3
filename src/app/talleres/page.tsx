@@ -163,10 +163,6 @@ export default function MantenimientoPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <Link href="/" className="flex items-center mr-4">
-                <Truck className="h-6 w-6 text-blue-600 mr-2" />
-                <span className="text-sm text-gray-600">Volver al Dashboard</span>
-              </Link>
               <Wrench className="h-8 w-8 text-indigo-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Talleres de Mantenimiento</h1>
             </div>
