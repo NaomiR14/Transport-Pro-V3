@@ -13,7 +13,6 @@ import {
   BarChart3,
 } from "lucide-react"
 import Link from "next/link"
-import { Layout } from "@/components/layout"
 
 export default function Dashboard() {
   const modules = [
@@ -111,7 +110,7 @@ export default function Dashboard() {
   ]
 
   return (
-    <Layout>
+    <>
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">Panel de Control</h2>
         <p className="text-gray-600 dark:text-slate-400">Accede rápidamente a todos los módulos del sistema</p>
@@ -167,6 +166,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </>
   )
 }
