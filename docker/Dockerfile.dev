@@ -1,0 +1,21 @@
+# Usa la imagen oficial de Node.js
+FROM node:18-alpine
+
+# Instala dependencias necesarias
+RUN apk add --no-cache libc6-compat
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Copia package.json e instala dependencias
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copia el resto del código
+COPY . .
+
+# Expone el puerto
+EXPOSE 3000
+
+# Comando para desarrollo con hot reload
+CMD ["npm", "run", "dev"]

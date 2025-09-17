@@ -1,0 +1,63 @@
+
+services:
+  # # PostgreSQL Database
+  # db:
+  #   image: postgres:16
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: Transport_Pro_Db
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5433:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   networks:
+  #     - app-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres -d Transport_Pro_Db"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # # C# API
+  # csharp-api:
+  #   image: carlosdg9/transportproapi:latest
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=Transport_Pro_Db;Username=postgres;Password=postgres
+  #   ports:
+  #     - "5000:8080"
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
+
+  # Next.js Frontend
+  nextjs-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://csharp-api:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+    # depends_on:
+    #   - csharp-api
+    networks:
+      - app-network
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:
