@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,28 +16,45 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Wrench, X, Loader2 } from "lucide-react"
-import { Taller, EditableTallerFields } from "@/types/taller"
-import { useUpdateTaller } from "@/hooks/use-talleres"
+import { Taller } from "@/types/taller-types"
+import { useCreateTaller, useUpdateTaller } from "@/hooks/use-talleres"
 
 interface EditTallerModalProps {
-  taller: Taller
+  taller: Taller | null
   onSave: (taller: Taller) => void
   onClose: () => void
+  isOpen: boolean
 }
 
-export default function EditTallerModal({ taller, onSave, onClose }: EditTallerModalProps) {
-  const [formData, setFormData] = useState<Taller>(taller)
+export default function EditTallerModal({ taller, onSave, onClose, isOpen }: EditTallerModalProps) {
+  const [formData, setFormData] = useState<Partial<Taller>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [nuevaEspecialidad, setNuevaEspecialidad] = useState("")
 
   // Hook de React Query para actualizar taller
+  const createTallerMutation = useCreateTaller()
   const updateTallerMutation = useUpdateTaller()
 
+  // Determinar qué mutation usar
+  const mutation = taller?.id ? updateTallerMutation : createTallerMutation
+  const isPending = mutation.isPending
+
   useEffect(() => {
-    setFormData(taller)
+    if (taller) {
+      setFormData(taller)
+    } else {
+      // Valores por defecto para nuevo taller
+      setFormData({
+        activo: true,
+        calificacion: 0,
+        especialidades: [],
+        telefono_contacto: '',
+        horario_atencion: ''
+      })
+    }
   }, [taller])
 
-  const handleInputChange = (field: EditableTallerFields, value: string | number | boolean | string[]) => {
+  const handleInputChange = (field: keyof Taller, value: string | number | boolean | string[]) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -56,25 +72,22 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.id.trim()) {
-      newErrors.numero_taller = "El número de taller es requerido"
+    if (!formData.name?.trim()) {
+      newErrors.name = "El nombre del taller es requerido"
     }
-    if (!formData.name.trim()) {
-      newErrors.nombre_taller = "El nombre del taller es requerido"
+    if (!formData.address?.trim()) {
+      newErrors.address = "La dirección es requerida"
     }
-    if (!formData.address.trim()) {
-      newErrors.direccion = "La dirección es requerida"
+    if (!formData.phoneNumber?.trim()) {
+      newErrors.phoneNumber = "El teléfono es requerido"
     }
-    if (!formData.phoneNumber.trim()) {
-      newErrors.telefono = "El teléfono es requerido"
-    }
-    if (!formData.email.trim()) {
-      newErrors.correo = "El correo es requerido"
+    if (!formData.email?.trim()) {
+      newErrors.email = "El correo es requerido"
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.correo = "El correo no es válido"
+      newErrors.email = "El correo no es válido"
     }
-    if (!formData.contactPerson.trim()) {
-      newErrors.contacto_principal = "El contacto principal es requerido"
+    if (!formData.contactPerson?.trim()) {
+      newErrors.contactPerson = "El contacto principal es requerido"
     }
     if (
       formData.calificacion === undefined ||
@@ -88,40 +101,29 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    if (!validateForm()) {
-      return
-    }
-
-    try {
-      // Usar React Query mutation para actualizar
-      const updatedTaller = await updateTallerMutation.mutateAsync({
-        id: formData.id,
-        data: {
-          name: formData.name,
-          address: formData.address,
-          phoneNumber: formData.phoneNumber,
-          email: formData.email,
-          contactPerson: formData.contactPerson,
-          telefono_contacto: formData.telefono_contacto,
-          especialidades: formData.especialidades,
-          activo: formData.activo,
-          calificacion: formData.calificacion,
-          horario_atencion: formData.horario_atencion,
-          sitio_web: formData.sitio_web,
-          notas: formData.notas,
-        }
-      })
-
-      // Llamar al callback onSave (opcional, ya que React Query maneja el estado)
-      onSave(updatedTaller)
-    } catch (error) {
-      // Los errores se manejan automáticamente en el hook useUpdateTaller
-      console.error('Error updating taller:', error)
-    }
+  if (!validateForm()) {
+    return
   }
+
+  try {
+    if (taller?.id) {
+      const updatedTaller = await updateTallerMutation.mutateAsync({
+        id: taller.id,
+        data: formData
+      })
+      onSave(updatedTaller)
+    } else {
+      const newTaller = await createTallerMutation.mutateAsync(formData as CreateTallerRequest)
+      onSave(newTaller)
+    }
+  } catch (error) {
+    // Error ya manejado por los hooks, solo log para debugging
+    console.error('Error en el formulario:', error)
+  }
+}
 
   const especialidadesDisponibles = [
     "Motor",
@@ -147,8 +149,8 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
   ]
 
   const agregarEspecialidad = () => {
-    if (nuevaEspecialidad && !(formData.especialidades ?? []).includes(nuevaEspecialidad)) {
-      handleInputChange("especialidades", [...(formData.especialidades ?? []), nuevaEspecialidad])
+    if (nuevaEspecialidad && !formData.especialidades?.includes(nuevaEspecialidad)) {
+      handleInputChange("especialidades", [...(formData.especialidades || []), nuevaEspecialidad])
       setNuevaEspecialidad("")
     }
   }
@@ -156,11 +158,13 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
   const removerEspecialidad = (especialidad: string) => {
     handleInputChange(
       "especialidades",
-      (formData.especialidades ?? []).filter((e) => e !== especialidad),
+      formData.especialidades?.filter((e) => e !== especialidad) || []
     )
   }
 
   const renderStarRating = () => {
+    const calificacion = formData.calificacion || 0
+
     return (
       <div className="flex items-center space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -169,96 +173,102 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
             type="button"
             onClick={() => handleInputChange("calificacion", star)}
             className="focus:outline-none disabled:opacity-50"
-            disabled={updateTallerMutation.isLoading}
+            disabled={updateTallerMutation.isPending}
           >
             <Wrench
               className={`h-6 w-6 ${
-                star <= formData.calificacion
+                star <= calificacion
                   ? "fill-yellow-400 text-yellow-400"
                   : "text-gray-300 hover:text-yellow-400"
               }`}
             />
           </button>
         ))}
-        <span className="ml-2 text-sm font-medium">{formData.calificacion.toFixed(1)}</span>
+        <span className="ml-2 text-sm font-medium">{calificacion.toFixed(1)}</span>
       </div>
     )
   }
 
+  if (!isOpen) return null
+
   return (
-    <Dialog open={true} onOpenChange={() => !updateTallerMutation.isLoading && onClose()}>
+    <Dialog open={isOpen} onOpenChange={() => !updateTallerMutation.isPending && onClose()}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Taller de Mantenimiento</DialogTitle>
-          <DialogDescription>Modifica la información del taller {formData.numero_taller}</DialogDescription>
+          <DialogTitle>
+            {taller ? "Editar Taller de Mantenimiento" : "Crear Nuevo Taller"}
+          </DialogTitle>
+          <DialogDescription>
+            {taller ? `Modifica la información del taller ${formData.numero_taller}` : "Completa la información del nuevo taller"}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Información Básica */}
             <div className="space-y-2">
-              <Label htmlFor="numero_taller">Número de Taller *</Label>
+              <Label htmlFor="numero_taller">Número de Taller</Label>
               <Input
                 id="numero_taller"
-                value={formData.numero_taller}
+                value={formData.numero_taller || ""}
                 onChange={(e) => handleInputChange("numero_taller", e.target.value)}
                 className={errors.numero_taller ? "border-red-500" : ""}
-                disabled={updateTallerMutation.isLoading}
+                disabled={updateTallerMutation.isPending}
               />
               {errors.numero_taller && <p className="text-sm text-red-500">{errors.numero_taller}</p>}
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="nombre_taller">Nombre del Taller *</Label>
+              <Label htmlFor="name">Nombre del Taller *</Label>
               <Input
-                id="nombre_taller"
-                value={formData.nombre_taller}
-                onChange={(e) => handleInputChange("nombre_taller", e.target.value)}
-                className={errors.nombre_taller ? "border-red-500" : ""}
-                disabled={updateTallerMutation.isLoading}
+                id="name"
+                value={formData.name || ""}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+                className={errors.name ? "border-red-500" : ""}
+                disabled={updateTallerMutation.isPending}
               />
-              {errors.nombre_taller && <p className="text-sm text-red-500">{errors.nombre_taller}</p>}
+              {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
             </div>
 
             {/* Dirección - Span full width */}
             <div className="space-y-2 md:col-span-2 lg:col-span-3">
-              <Label htmlFor="direccion">Dirección *</Label>
+              <Label htmlFor="address">Dirección *</Label>
               <Textarea
-                id="direccion"
-                value={formData.direccion}
-                onChange={(e) => handleInputChange("direccion", e.target.value)}
-                className={errors.direccion ? "border-red-500" : ""}
+                id="address"
+                value={formData.address || ""}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+                className={errors.address ? "border-red-500" : ""}
                 rows={2}
-                disabled={updateTallerMutation.isLoading}
+                disabled={updateTallerMutation.isPending}
               />
-              {errors.direccion && <p className="text-sm text-red-500">{errors.direccion}</p>}
+              {errors.address && <p className="text-sm text-red-500">{errors.address}</p>}
             </div>
 
             {/* Información de Contacto */}
             <div className="space-y-2">
-              <Label htmlFor="telefono">Teléfono *</Label>
+              <Label htmlFor="phoneNumber">Teléfono *</Label>
               <Input
-                id="telefono"
-                value={formData.telefono}
-                onChange={(e) => handleInputChange("telefono", e.target.value)}
-                className={errors.telefono ? "border-red-500" : ""}
+                id="phoneNumber"
+                value={formData.phoneNumber || ""}
+                onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                className={errors.phoneNumber ? "border-red-500" : ""}
                 placeholder="+52 55 1234-5678"
-                disabled={updateTallerMutation.isLoading}
+                disabled={updateTallerMutation.isPending}
               />
-              {errors.telefono && <p className="text-sm text-red-500">{errors.telefono}</p>}
+              {errors.phoneNumber && <p className="text-sm text-red-500">{errors.phoneNumber}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="correo">Correo Electrónico *</Label>
+              <Label htmlFor="email">Correo Electrónico *</Label>
               <Input
-                id="correo"
+                id="email"
                 type="email"
-                value={formData.correo}
-                onChange={(e) => handleInputChange("correo", e.target.value)}
-                className={errors.correo ? "border-red-500" : ""}
-                disabled={updateTallerMutation.isLoading}
+                value={formData.email || ""}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className={errors.email ? "border-red-500" : ""}
+                disabled={updateTallerMutation.isPending}
               />
-              {errors.correo && <p className="text-sm text-red-500">{errors.correo}</p>}
+              {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
             </div>
 
             <div className="space-y-2">
@@ -268,48 +278,44 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
                 value={formData.sitio_web || ""}
                 onChange={(e) => handleInputChange("sitio_web", e.target.value)}
                 placeholder="www.ejemplo.com"
-                disabled={updateTallerMutation.isLoading}
+                disabled={updateTallerMutation.isPending}
               />
             </div>
 
             {/* Contacto Principal */}
             <div className="space-y-2">
-              <Label htmlFor="contacto_principal">Contacto Principal *</Label>
+              <Label htmlFor="contactPerson">Contacto Principal *</Label>
               <Input
-                id="contacto_principal"
-                value={formData.contacto_principal}
-                onChange={(e) => handleInputChange("contacto_principal", e.target.value)}
-                className={errors.contacto_principal ? "border-red-500" : ""}
-                disabled={updateTallerMutation.isLoading}
+                id="contactPerson"
+                value={formData.contactPerson || ""}
+                onChange={(e) => handleInputChange("contactPerson", e.target.value)}
+                className={errors.contactPerson ? "border-red-500" : ""}
+                disabled={updateTallerMutation.isPending}
               />
-              {errors.contacto_principal && <p className="text-sm text-red-500">{errors.contacto_principal}</p>}
+              {errors.contactPerson && <p className="text-sm text-red-500">{errors.contactPerson}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="telefono_contacto">Teléfono del Contacto *</Label>
+              <Label htmlFor="telefono_contacto">Teléfono del Contacto</Label>
               <Input
                 id="telefono_contacto"
-                value={formData.telefono_contacto}
+                value={formData.telefono_contacto || ""}
                 onChange={(e) => handleInputChange("telefono_contacto", e.target.value)}
-                className={errors.telefono_contacto ? "border-red-500" : ""}
                 placeholder="+52 55 1234-5679"
-                disabled={updateTallerMutation.isLoading}
+                disabled={updateTallerMutation.isPending}
               />
-              {errors.telefono_contacto && <p className="text-sm text-red-500">{errors.telefono_contacto}</p>}
             </div>
 
             {/* Horario de Atención */}
             <div className="space-y-2">
-              <Label htmlFor="horario_atencion">Horario de Atención *</Label>
+              <Label htmlFor="horario_atencion">Horario de Atención</Label>
               <Input
                 id="horario_atencion"
-                value={formData.horario_atencion}
+                value={formData.horario_atencion || ""}
                 onChange={(e) => handleInputChange("horario_atencion", e.target.value)}
-                className={errors.horario_atencion ? "border-red-500" : ""}
                 placeholder="Lunes a Viernes 8:00 - 18:00"
-                disabled={updateTallerMutation.isLoading}
+                disabled={updateTallerMutation.isPending}
               />
-              {errors.horario_atencion && <p className="text-sm text-red-500">{errors.horario_atencion}</p>}
             </div>
 
             {/* Calificación y Estado */}
@@ -322,9 +328,9 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
             <div className="space-y-2">
               <Label htmlFor="activo">Estado del Taller</Label>
               <Select
-                value={formData.activo.toString()}
+                value={formData.activo?.toString() || "true"}
                 onValueChange={(value) => handleInputChange("activo", value === "true")}
-                disabled={updateTallerMutation.isLoading}
+                disabled={updateTallerMutation.isPending}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar estado" />
@@ -345,14 +351,14 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
                 <Select 
                   value={nuevaEspecialidad} 
                   onValueChange={setNuevaEspecialidad}
-                  disabled={updateTallerMutation.isLoading}
+                  disabled={updateTallerMutation.isPending}
                 >
                   <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Seleccionar especialidad" />
                   </SelectTrigger>
                   <SelectContent>
                     {especialidadesDisponibles
-                      .filter((esp) => !formData.especialidades.includes(esp))
+                      .filter((esp) => !formData.especialidades?.includes(esp))
                       .map((especialidad) => (
                         <SelectItem key={especialidad} value={especialidad}>
                           {especialidad}
@@ -363,7 +369,7 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
                 <Button 
                   type="button" 
                   onClick={agregarEspecialidad} 
-                  disabled={!nuevaEspecialidad || updateTallerMutation.isLoading}
+                  disabled={!nuevaEspecialidad || updateTallerMutation.isPending}
                 >
                   Agregar
                 </Button>
@@ -371,14 +377,14 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {formData.especialidades.map((especialidad) => (
+              {formData.especialidades?.map((especialidad) => (
                 <Badge key={especialidad} variant="secondary" className="flex items-center space-x-1">
                   <span>{especialidad}</span>
                   <button
                     type="button"
                     onClick={() => removerEspecialidad(especialidad)}
                     className="ml-1 hover:text-red-500 disabled:opacity-50"
-                    disabled={updateTallerMutation.isLoading}
+                    disabled={updateTallerMutation.isPending}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -396,7 +402,7 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
               onChange={(e) => handleInputChange("notas", e.target.value)}
               rows={3}
               placeholder="Información adicional sobre el taller..."
-              disabled={updateTallerMutation.isLoading}
+              disabled={updateTallerMutation.isPending}
             />
           </div>
 
@@ -411,7 +417,7 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
               </div>
               <div>
                 <span className="font-medium text-blue-800">Especialidades:</span>
-                <span className="ml-2 text-blue-900 font-semibold">{formData.especialidades.length}</span>
+                <span className="ml-2 text-blue-900 font-semibold">{formData.especialidades?.length || 0}</span>
               </div>
             </div>
           </div>
@@ -421,21 +427,21 @@ export default function EditTallerModal({ taller, onSave, onClose }: EditTallerM
               type="button" 
               variant="outline" 
               onClick={onClose}
-              disabled={updateTallerMutation.isLoading}
+              disabled={updateTallerMutation.isPending}
             >
               Cancelar
             </Button>
             <Button 
               type="submit" 
-              disabled={updateTallerMutation.isLoading}
+              disabled={updateTallerMutation.isPending}
             >
-              {updateTallerMutation.isLoading ? (
+              {updateTallerMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Guardando...
                 </>
               ) : (
-                "Guardar Cambios"
+                taller ? "Guardar Cambios" : "Crear Taller"
               )}
             </Button>
           </DialogFooter>

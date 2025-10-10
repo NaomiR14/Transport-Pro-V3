@@ -1,6 +1,6 @@
 // src/app/api/talleres/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { Taller, CreateTallerRequest } from '@/types/taller'
+import { Taller, CreateTallerRequest } from '@/types/taller-types'
 
 // Simulated talleres data (should be replaced with DB or persistent storage)
 const talleres: Taller[] = []

@@ -14,14 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Plus, Search, Filter, Eye, Edit, Truck, Wrench, Phone, Mail, MapPin, User, Building, Loader2, X } from "lucide-react"
+import { Plus, Search, Eye, Edit, Truck, Wrench, Phone, Mail, MapPin, User, Building, Loader2, X } from "lucide-react"
 import Link from "next/link"
 import EditTallerModal from "@/components/EditTallerModal"
 
 // Importar los hooks y store
-import { useFilteredTalleres, useToggleTallerStatus } from "@/hooks/use-talleres"
+import { useFilteredTalleres, useToggleTallerStatus, useTalleresStats } from "@/hooks/use-talleres"
 import { useTallerStore } from "@/store/taller-store"
-import { Taller } from "@/types/taller"
+import { Taller } from "@/types/taller-types"
 
 
 export default function TalleresPage() {
@@ -30,10 +30,9 @@ export default function TalleresPage() {
 
   // Usar los hooks de React Query y Zustand
   const { talleres, isLoading, error, filters } = useFilteredTalleres()
-  const { setFilters, clearFilters, stats } = useTallerStore()
+  const { setFilters, clearFilters } = useTallerStore()
   const toggleStatusMutation = useToggleTallerStatus()
-
-
+  const { data: stats, isLoading: statsLoading } = useTalleresStats()
 
   const getCalificacionStars = (calificacion: number = 0) => {
     const fullStars = Math.floor(calificacion)
@@ -58,16 +57,20 @@ export default function TalleresPage() {
     return activo ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
   }
 
+  const handleCreateTaller = () => {
+    setEditingTaller(null)
+    setIsEditModalOpen(true)
+  }
 
   const handleEditTaller = (taller: Taller) => {
     setEditingTaller(taller)
     setIsEditModalOpen(true)
   }
 
-  const handleSaveTaller = (updatedTaller: Taller) => {
-    // La lógica de guardado se maneja en el modal con React Query
-    setIsEditModalOpen(false)
-    setEditingTaller(null)
+  const handleSaveTaller = (_savedTaller: Taller) => {
+  // El underscore indica que el parámetro es intencionalmente no usado
+  setIsEditModalOpen(false)
+  setEditingTaller(null)
   }
 
   const handleCloseModal = () => {
@@ -90,7 +93,7 @@ export default function TalleresPage() {
     "Inyección", "Turbo"
   ]
 
-if (error) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -98,7 +101,7 @@ if (error) {
             <CardTitle className="text-red-600">Error</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">{error.message}</p>
+            <p className="text-gray-600">{error}</p> {/* ← error es string, no error.message */}
             <Button 
               className="mt-4 w-full" 
               onClick={() => window.location.reload()}
@@ -124,7 +127,7 @@ if (error) {
               <Wrench className="h-8 w-8 text-indigo-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Talleres de Mantenimiento</h1>
             </div>
-            <Button>
+            <Button onClick={handleCreateTaller}>
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Taller
             </Button>
@@ -142,7 +145,7 @@ if (error) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {isLoading ? (
+                  {statsLoading ? (
                     <Loader2 className="h-6 w-6 animate-spin" />
                   ) : (
                     stats?.total || 0
@@ -156,7 +159,7 @@ if (error) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
-                  {isLoading ? (
+                  {statsLoading ? (
                     <Loader2 className="h-6 w-6 animate-spin" />
                   ) : (
                     stats?.activos || 0
@@ -171,13 +174,13 @@ if (error) {
               <CardContent>
                 <div className="flex items-center">
                   <div className="text-2xl font-bold text-yellow-600">
-                    {isLoading ? (
+                    {statsLoading ? (
                       <Loader2 className="h-6 w-6 animate-spin" />
                     ) : (
                       stats?.calificacionPromedio.toFixed(1) || "0.0"
                     )}
                   </div>
-                  {!isLoading && <Wrench className="h-5 w-5 fill-yellow-400 text-yellow-400 ml-1" />}
+                  {!statsLoading && <Wrench className="h-5 w-5 fill-yellow-400 text-yellow-400 ml-1" />}
                 </div>
               </CardContent>
             </Card>
@@ -187,7 +190,7 @@ if (error) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">
-                  {isLoading ? (
+                  {statsLoading ? (
                     <Loader2 className="h-6 w-6 animate-spin" />
                   ) : (
                     stats?.totalEspecialidades || 0
@@ -211,7 +214,7 @@ if (error) {
                     <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
                     <Input
                       placeholder="Buscar talleres..."
-                      value={filters.searchTerm}
+                      value={filters.searchTerm || ''}
                       onChange={(e) => setFilters({ searchTerm: e.target.value })}
                       className="pl-10 w-64"
                     />
@@ -280,7 +283,7 @@ if (error) {
                         }
                       </p>
                       {!(filters.searchTerm || filters.activo !== undefined || filters.especialidad) && (
-                        <Button>
+                        <Button onClick={handleCreateTaller}>
                           <Plus className="h-4 w-4 mr-2" />
                           Agregar Taller
                         </Button>
@@ -305,7 +308,7 @@ if (error) {
                       <TableBody>
                         {talleres.map((taller) => (
                           <TableRow key={taller.id}>
-                            <TableCell className="font-medium">{taller.numero_taller}</TableCell>
+                            <TableCell className="font-medium">{taller.id || 'N/A'}</TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 <Building className="h-4 w-4 text-gray-500" />
@@ -342,7 +345,7 @@ if (error) {
                                 <User className="h-4 w-4 text-gray-500" />
                                 <div>
                                   <div className="font-medium text-sm">{taller.contactPerson}</div>
-                                  <div className="text-xs text-gray-500 font-mono">{taller.telefono_contacto}</div>
+                                  <div className="text-xs text-gray-500 font-mono">{taller.telefono_contacto || 'N/A'}</div>
                                 </div>
                               </div>
                             </TableCell>
@@ -370,10 +373,10 @@ if (error) {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleToggleStatus(taller)}
-                                  disabled={toggleStatusMutation.isLoading}
+                                  disabled={toggleStatusMutation.isPending} // ← Cambiado a isPending
                                   className="text-xs"
                                 >
-                                  {toggleStatusMutation.isLoading ? (
+                                  {toggleStatusMutation.isPending ? (
                                     <Loader2 className="h-3 w-3 animate-spin" />
                                   ) : taller.activo ? (
                                     "Desactivar"
@@ -404,11 +407,12 @@ if (error) {
           </Card>
         </div>
         
-        {isEditModalOpen && editingTaller && (
+        {isEditModalOpen && (
           <EditTallerModal 
             taller={editingTaller} 
             onSave={handleSaveTaller} 
-            onClose={handleCloseModal} 
+            onClose={handleCloseModal}
+            isOpen={isEditModalOpen}
           />
         )}
       </main>

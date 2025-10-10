@@ -1,4 +1,4 @@
-// src/types/taller.ts
+import { FilterParams } from "./api-base-client-types"
 
 export interface Taller {
     id: string
@@ -56,11 +56,12 @@ export type EditableTallerFields =
     | 'sitio_web'
     | 'notas';
 
-export interface TallerFilters {
-    searchTerm: string
+export interface TallerFilters extends FilterParams {
+    searchTerm?: string
     activo?: boolean
     especialidad?: string
     calificacionMinima?: number
+    
 }
 
 export interface TallerStats {
