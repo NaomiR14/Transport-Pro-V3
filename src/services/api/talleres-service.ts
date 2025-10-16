@@ -2,10 +2,8 @@
 import { apiClient } from '@/services/api/api-base-client'
 import { 
   Taller, 
-  CreateTallerRequest, 
-  UpdateTallerRequest, 
-  TallerFilters,
-  TallerStats 
+  CreateTallerRequest,
+  TallerFilters, 
 } from '@/types/taller-types';
 
 export class TalleresService {
@@ -34,18 +32,30 @@ export class TalleresService {
 
   // Crear un nuevo taller
   async createTaller(data: CreateTallerRequest): Promise<Taller> {
+    console.log("🟢 CREATE - Creando taller con datos:", data)
+    console.log("🟢 CREATE - Endpoint:", this.endpoint)
+
     const response = await apiClient.post<Taller>(this.endpoint, data);
+
+    console.log("🟢 CREATE - Response completa:", response)
+    console.log("🟢 CREATE - Response data:", response.data)
+    console.log("🟢 CREATE - Response error:", response.error)
+
     if (response.error) {
+      console.error("🔴 CREATE - Error:", response.error.message)
       throw new Error(response.error.message);
+      
     }
     if (!response.data) {
+      console.error("🔴 CREATE - Error: Response data es undefined")
       throw new Error('Error al crear el taller');
     }
+    console.log("🟢 CREATE - Taller creado exitosamente:", response.data)
     return response.data;
   }
 
   // Actualizar un taller existente
-  async updateTaller(id: string, data: UpdateTallerRequest): Promise<Taller> {
+  async updateTaller(id: string, data: CreateTallerRequest): Promise<Taller> {
     const response = await apiClient.put<Taller>(`${this.endpoint}/${id}`, data);
     if (response.error) {
       throw new Error(response.error.message);
@@ -58,38 +68,19 @@ export class TalleresService {
 
   // Eliminar un taller
   async deleteTaller(id: string): Promise<void> {
+    console.log("🔴 DELETE - Eliminando taller ID:", id)
+    console.log("🔴 DELETE - Endpoint:", `${this.endpoint}/${id}`)
     const response = await apiClient.delete<void>(`${this.endpoint}/${id}`);
+    console.log("🔴 DELETE - Response completa:", response)
+    console.log("🔴 DELETE - Response error:", response.error)
+
     if (response.error) {
+      console.error("🔴 DELETE - Error:", response.error.message)
       throw new Error(response.error.message);
     }
+    console.log("🟢 DELETE - Taller eliminado exitosamente")
   }
 
-  // Cambiar estado de un taller
-  async toggleStatus(id: string, activo: boolean): Promise<Taller> {
-    const response = await apiClient.patch<Taller>(
-      `${this.endpoint}/${id}/status`, 
-      { activo }
-    );
-    if (response.error) {
-      throw new Error(response.error.message);
-    }
-    if (!response.data) {
-      throw new Error('Error al cambiar el estado del taller');
-    }
-    return response.data;
-  }
-
-  // Obtener estadísticas de talleres
-  async getStats(): Promise<TallerStats> {
-    const response = await apiClient.get<TallerStats>(`${this.endpoint}/stats`);
-    if (response.error) {
-      throw new Error(response.error.message);
-    }
-    if (!response.data) {
-      throw new Error('Error al obtener estadísticas');
-    }
-    return response.data;
-  }
 
   // Buscar talleres por término
   async search(term: string): Promise<Taller[]> {

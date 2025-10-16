@@ -1,10 +1,10 @@
-import { 
-  ApiError, 
-  ApiResponse, 
-  RequestConfig, 
-  PaginationParams, 
+import {
+  ApiError,
+  ApiResponse,
+  RequestConfig,
+  PaginationParams,
   FilterParams,
-  ErrorData 
+  ErrorData
 } from '../../types/api-base-client-types';
 
 export class ApiClient {
@@ -34,11 +34,11 @@ export class ApiClient {
     } = config;
 
     const url = `${this.baseURL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-    
+
     console.log('🔍 [API Client] Making request to:', url);
     console.log('🔍 [API Client] Base URL:', this.baseURL);
     console.log('🔍 [API Client] Full URL:', url);
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -106,7 +106,7 @@ export class ApiClient {
 
   private async handleErrorResponse(response: Response): Promise<ApiError> {
     let errorData: ErrorData = {};
-    
+
     try {
       const contentType = response.headers.get('content-type');
       if (contentType?.includes('application/json')) {
@@ -124,20 +124,20 @@ export class ApiClient {
     const getErrorMessage = (data: ErrorData): string => {
       if (typeof data.message === 'string') return data.message;
       if (typeof data.error === 'string') return data.error;
-      
+
       // Buscar cualquier propiedad que pueda contener un mensaje
       for (const key in data) {
-        if (typeof data[key] === 'string' && 
-            (key.toLowerCase().includes('message') || key.toLowerCase().includes('error'))) {
+        if (typeof data[key] === 'string' &&
+          (key.toLowerCase().includes('message') || key.toLowerCase().includes('error'))) {
           return data[key] as string;
         }
       }
-      
+
       return 'Error desconocido';
     };
 
     let message = getErrorMessage(errorData);
-    
+
     switch (response.status) {
       case 400:
         message = message || 'Datos inválidos';
@@ -178,15 +178,15 @@ export class ApiClient {
 
   private async parseResponse<T>(response: Response): Promise<T> {
     const contentType = response.headers.get('content-type');
-    
+
     if (contentType?.includes('application/json')) {
       return response.json() as Promise<T>;
     }
-    
+
     if (contentType?.includes('text/')) {
       return response.text() as unknown as T;
     }
-    
+
     return response.blob() as unknown as T;
   }
 
@@ -200,7 +200,7 @@ export class ApiClient {
 
   private buildQueryString(params: Record<string, unknown>): string {
     const searchParams = new URLSearchParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         if (Array.isArray(value)) {
@@ -210,7 +210,7 @@ export class ApiClient {
         }
       }
     });
-    
+
     return searchParams.toString();
   }
 
@@ -222,7 +222,7 @@ export class ApiClient {
   ): Promise<ApiResponse<T>> {
     const queryString = params ? this.buildQueryString(params) : '';
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-    
+
     return this.makeRequest<T>(url, {
       method: 'GET',
       ...config,
@@ -237,6 +237,10 @@ export class ApiClient {
     return this.makeRequest<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
+      headers: {
+        'Content-Type': 'application/json', // ← Asegurar este header
+        ...config?.headers,
+      },
       ...config,
     });
   }
@@ -246,11 +250,24 @@ export class ApiClient {
     data?: unknown,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, {
+    const requestConfig: RequestConfig = {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...config?.headers,
+      },
       ...config,
+    };
+
+    console.log('🔍 [API Client] PUT Request config:', {
+      endpoint,
+      headers: requestConfig.headers,
+      hasBody: !!data
     });
+
+    return this.makeRequest<T>(endpoint, requestConfig);
   }
 
   async patch<T>(
@@ -258,19 +275,30 @@ export class ApiClient {
     data?: unknown,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, {
+    const requestConfig: RequestConfig = {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...config?.headers,
+      },
       ...config,
-    });
-  }
+    };
 
+    return this.makeRequest<T>(endpoint, requestConfig);
+  }
   async delete<T>(
-    endpoint: string, 
+    endpoint: string,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(endpoint, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...config?.headers,
+      },
       ...config,
     });
   }
@@ -285,7 +313,7 @@ export class ApiClient {
   ): Promise<ApiResponse<T>> {
     const formData = new FormData();
     formData.append(fieldName, file);
-    
+
     if (additionalData) {
       Object.entries(additionalData).forEach(([key, value]) => {
         formData.append(key, value);
@@ -314,7 +342,7 @@ export class ApiClient {
   ): Promise<ApiResponse<Blob>> {
     const queryString = params ? this.buildQueryString(params) : '';
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-    
+
     return this.makeRequest<Blob>(url, {
       method: 'GET',
       ...config,

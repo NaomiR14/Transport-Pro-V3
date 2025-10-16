@@ -2,60 +2,49 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { Taller, TallerFilters, TallerStats } from '@/types/taller-types'
+import { Taller, TallerFilters, TallerStats, TallerStore } from '@/types/taller-types'
 
 // CORRECCIÓN 1: Asegurar que initialFilters tenga firma de índice
 const initialFilters: TallerFilters = {
   searchTerm: '',
-  activo: undefined,
-  especialidad: undefined,
   calificacionMinima: undefined,
-} as TallerFilters; // ← Añadir casting para compatibilidad
+} //as TallerFilters; // ← Añadir casting para compatibilidad
 
-const calculateStats = (talleres: Taller[]): TallerStats => {
+// Función helper para ordenar talleres (CREAR COPIA antes de ordenar)
+const sortTalleres = (talleres: Taller[]): Taller[] => {
+  const copy = [...talleres] // ← CREAR COPIA para evitar modificar array original
+  return copy.sort((a, b) => {
+    const idA = a.id?.toString() || '0'
+    const idB = b.id?.toString() || '0'
+
+    // Ordenar numéricamente si son números
+    const numA = parseInt(idA)
+    const numB = parseInt(idB)
+
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return numA - numB
+    }
+
+    // Si no, ordenar alfabéticamente
+    return idA.localeCompare(idB)
+  })
+}
+
+export const calculateStats = (talleres: Taller[]): TallerStats => {
   const total = talleres.length
-  const activos = talleres.filter(t => t.activo).length
-  const inactivos = total - activos
-  const calificacionPromedio = total > 0 
-    ? talleres.reduce((sum, t) => sum + (t.calificacion ?? 0), 0) / total 
+  const calificacionPromedio = total > 0
+    ? talleres.reduce((sum, t) => sum + (t.rate ?? 0), 0) / total
     : 0
-  const especialidadesUnicas = new Set(talleres.flatMap(t => t.especialidades || [])) // ← Añadir fallback para array
-  const totalEspecialidades = especialidadesUnicas.size
+
+  console.log('Cálculo de estadísticas desde el store zustand:', { total, calificacionPromedio });
 
   return {
     total,
-    activos,
-    inactivos,
     calificacionPromedio,
-    totalEspecialidades,
   }
 }
 
-interface TallerStoreActions {
-  setTalleres: (talleres: Taller[]) => void
-  setSelectedTaller: (taller: Taller | null) => void
-  setFilters: (newFilters: Partial<TallerFilters>) => void
-  setStats: (stats: TallerStats | null) => void
-  setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
-  addTaller: (taller: Taller) => void
-  updateTaller: (updatedTaller: Taller) => void
-  removeTaller: (tallerId: string) => void  // ← CORRECCIÓN 2: Solo string, no number
-  clearFilters: () => void
-  getFilteredTalleres: () => Taller[]
-  getTallerById: (id: string) => Taller | undefined  // ← CORRECCIÓN 3: Solo string
-}
-
-interface TallerStoreState {
-  talleres: Taller[]
-  selectedTaller: Taller | null
-  filters: TallerFilters
-  stats: TallerStats | null
-  isLoading: boolean
-  error: string | null
-}
-
-export const useTallerStore = create<TallerStoreState & TallerStoreActions>()(
+export const useTallerStore = create<TallerStore>()(
   devtools(
     immer((set, get) => ({
       // Estado inicial
@@ -69,8 +58,8 @@ export const useTallerStore = create<TallerStoreState & TallerStoreActions>()(
       // Acciones básicas
       setTalleres: (talleres: Taller[]) =>
         set((state) => {
-          state.talleres = talleres
-          state.stats = calculateStats(talleres)
+          state.talleres = sortTalleres(talleres)
+          state.stats = calculateStats(state.talleres)
         }),
 
       setSelectedTaller: (taller: Taller | null) =>
@@ -112,6 +101,8 @@ export const useTallerStore = create<TallerStoreState & TallerStoreActions>()(
           )
           if (index !== -1) {
             state.talleres[index] = updatedTaller
+            /// ORDENAR POR ID después de actualizar usando la función helper
+            state.talleres = sortTalleres(state.talleres)
             state.stats = calculateStats(state.talleres)
           }
           // Actualizar selectedTaller si es el que se está editando
@@ -138,51 +129,32 @@ export const useTallerStore = create<TallerStoreState & TallerStoreActions>()(
       // Computed properties
       getFilteredTalleres: (): Taller[] => {
         const { talleres, filters } = get()
-        
+
         return talleres.filter((taller) => {
           // Filtro de búsqueda por texto
           if (filters.searchTerm && filters.searchTerm.trim()) {
             const searchTerm = filters.searchTerm.toLowerCase().trim();
-            
+
             // Crear array de campos de búsqueda con valores por defecto
             const searchableFields = [
-              taller.numero_taller || '',
+              taller.id || '',
               taller.name || '',
+              taller.address || '',
               taller.contactPerson || '',
               taller.phoneNumber || '',
               taller.email || '',
-              ...(taller.especialidades ?? [])
             ].filter(Boolean); // ← Eliminar strings vacíos
-            
+
             const searchableText = searchableFields.join(' ').toLowerCase();
-            
+
             if (!searchableText.includes(searchTerm)) {
               return false;
             }
           }
-        
-          // Filtro por estado activo (mejorado)
-          if (filters.activo !== undefined && filters.activo !== null) {
-            if (taller.activo !== filters.activo) {
-              return false;
-            }
-          }
-        
-          // Filtro por especialidad (mejorado)
-          if (filters.especialidad && filters.especialidad.trim()) {
-            const especialidadBuscada = filters.especialidad.toLowerCase().trim();
-            const tieneEspecialidad = taller.especialidades?.some(
-              esp => esp.toLowerCase().trim() === especialidadBuscada
-            );
-            
-            if (!tieneEspecialidad) {
-              return false;
-            }
-          }
-        
+
           // Filtro por calificación mínima (mejorado)
           if (filters.calificacionMinima !== undefined && filters.calificacionMinima !== null) {
-            const calificacionTaller = taller.calificacion ?? 0;
+            const calificacionTaller = taller.rate ?? 0;
             if (calificacionTaller < filters.calificacionMinima) {
               return false;
             }
@@ -200,7 +172,7 @@ export const useTallerStore = create<TallerStoreState & TallerStoreActions>()(
     {
       name: 'taller-store',
       // Opcional: persistir solo ciertos campos
-      partialize: (state: TallerStoreState) => ({ 
+      partialize: (state: TallerStore) => ({
         filters: state.filters,
         // No persistir talleres ya que vienen del servidor
       }),

@@ -3,12 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { talleresService } from '@/services/api/talleres-service'
-import { useTallerStore } from '@/store/taller-store'
-import { 
-  Taller, 
-  CreateTallerRequest, 
-  UpdateTallerRequest, 
-  TallerFilters, 
+import { useTallerStore, calculateStats } from '@/store/taller-store'
+import {
+  Taller,
+  CreateTallerRequest,
+  TallerFilters,
 } from '@/types/taller-types'
 
 // Query keys (se mantienen igual)
@@ -23,7 +22,7 @@ const QUERY_KEYS = {
 // Hook para listar talleres con sincronización automática del store
 export function useTalleres(filters?: TallerFilters) {
   const { setTalleres, setLoading, setError } = useTallerStore()
-  
+
   const query = useQuery({
     queryKey: QUERY_KEYS.list(filters),
     queryFn: () => talleresService.getTalleres(filters),
@@ -59,15 +58,17 @@ export function useTaller(id: string | null) {
 export function useCreateTaller() {
   const queryClient = useQueryClient()
   const { addTaller } = useTallerStore()
-  
+
   return useMutation({
-    mutationFn: talleresService.createTaller,
+    mutationFn: (data: CreateTallerRequest) => talleresService.createTaller(data),
     onSuccess: (newTaller) => {
+      console.log("🟢 CREATE HOOK - Taller creado:", newTaller)
       addTaller(newTaller)
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.talleres })
       toast.success('Taller creado exitosamente')
     },
     onError: (error: Error) => {
+      console.error("🔴 CREATE HOOK - Error:", error)
       toast.error(error.message || 'Error al crear taller')
     },
   })
@@ -77,9 +78,9 @@ export function useCreateTaller() {
 export function useUpdateTaller() {
   const queryClient = useQueryClient()
   const { updateTaller } = useTallerStore()
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateTallerRequest }) => 
+    mutationFn: ({ id, data }: { id: string; data: CreateTallerRequest }) =>
       talleresService.updateTaller(id, data),
     onSuccess: (updatedTaller) => {
       updateTaller(updatedTaller)
@@ -97,9 +98,9 @@ export function useUpdateTaller() {
 export function useDeleteTaller() {
   const queryClient = useQueryClient()
   const { removeTaller } = useTallerStore()
-  
+
   return useMutation({
-    mutationFn: talleresService.deleteTaller,
+    mutationFn: (id: string) => talleresService.deleteTaller(id),
     onSuccess: (_, tallerId) => {
       removeTaller(tallerId)
       queryClient.removeQueries({ queryKey: QUERY_KEYS.detail(tallerId) })
@@ -112,34 +113,12 @@ export function useDeleteTaller() {
   })
 }
 
-// Hook para toggle status
-export function useToggleTallerStatus() {
-  const queryClient = useQueryClient()
-  const { updateTaller } = useTallerStore()
-  
-  return useMutation({
-    mutationFn: ({ id, activo }: { id: string; activo: boolean }) => 
-      talleresService.toggleStatus(id, activo),
-    onSuccess: (updatedTaller) => {
-      updateTaller(updatedTaller)
-      queryClient.setQueryData(QUERY_KEYS.detail(updatedTaller.id), updatedTaller)
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.talleres })
-      const status = updatedTaller.activo ? 'activado' : 'desactivado'
-      toast.success(`Taller ${status} exitosamente`)
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Error al cambiar estado del taller')
-    },
-  })
-}
 
-// Hook para estadísticas
+// Hook para estadísticas calculadas localmente
 export function useTalleresStats() {
-  return useQuery({
-    queryKey: QUERY_KEYS.stats(),
-    queryFn: talleresService.getStats,
-    staleTime: 2 * 60 * 1000,
-  })
+  const { talleres } = useTallerStore()
+  const stats = talleres.length > 0 ? calculateStats(talleres) : { total: 0, calificacionPromedio: 0 }
+  return { data: stats }
 }
 
 // Hook para búsqueda
@@ -189,28 +168,22 @@ export const useTalleresSimple = () => {
     }
   };
 
-  const createTaller = async (tallerData: Omit<Taller, 'id'>): Promise<boolean> => {
+  const createTaller = async (tallerData: CreateTallerRequest): Promise<boolean> => {
     try {
       // Extraemos las propiedades que necesitamos y el resto van en `otrosCampos`
-      const { name, address, phoneNumber, email, contactPerson, ...otrosCampos } = tallerData;
-      
+      const { name, address, phoneNumber, email, contactPerson, rate, openHours, notes } = tallerData;
+
       const createData: CreateTallerRequest = {
-        id: '', // El backend probablemente genera el ID
         name,
         address,
         phoneNumber,
         email,
         contactPerson,
-        telefono_contacto: otrosCampos.telefono_contacto || '',
-        especialidades: otrosCampos.especialidades || [],
-        activo: otrosCampos.activo ?? true,
-        calificacion: otrosCampos.calificacion || 0,
-        horario_atencion: otrosCampos.horario_atencion || '',
-        sitio_web: otrosCampos.sitio_web,
-        notas: otrosCampos.notas,
-        // No usamos spread aquí para evitar sobrescritura
+        rate,
+        openHours,
+        notes,
       };
-      
+
       const newTaller = await talleresService.createTaller(createData);
       if (newTaller) {
         setTalleres(prev => [...prev, newTaller]);
@@ -223,11 +196,11 @@ export const useTalleresSimple = () => {
     }
   };
 
-  const updateTaller = async (id: string, tallerData: Partial<Taller>): Promise<boolean> => {
+  const updateTaller = async (id: string, tallerData: CreateTallerRequest): Promise<boolean> => {
     try {
-      const updatedTaller = await talleresService.updateTaller(id, tallerData as UpdateTallerRequest);
+      const updatedTaller = await talleresService.updateTaller(id, tallerData);
       if (updatedTaller) {
-        setTalleres(prev => 
+        setTalleres(prev =>
           prev.map(taller => taller.id === id ? updatedTaller : taller)
         );
         return true;

@@ -5,12 +5,11 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { 
+import {
   Select,
-  SelectContent,
-  SelectItem,
+  //SelectContent,
+  //SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -19,7 +18,7 @@ import Link from "next/link"
 import EditTallerModal from "@/components/EditTallerModal"
 
 // Importar los hooks y store
-import { useFilteredTalleres, useToggleTallerStatus, useTalleresStats } from "@/hooks/use-talleres"
+import { useDeleteTaller, useFilteredTalleres, useTalleresStats } from "@/hooks/use-talleres"
 import { useTallerStore } from "@/store/taller-store"
 import { Taller } from "@/types/taller-types"
 
@@ -31,8 +30,9 @@ export default function TalleresPage() {
   // Usar los hooks de React Query y Zustand
   const { talleres, isLoading, error, filters } = useFilteredTalleres()
   const { setFilters, clearFilters } = useTallerStore()
-  const toggleStatusMutation = useToggleTallerStatus()
-  const { data: stats, isLoading: statsLoading } = useTalleresStats()
+  const { data: stats } = useTalleresStats()
+  const statsLoading = !stats
+  const deleteTallerMutation = useDeleteTaller()
 
   const getCalificacionStars = (calificacion: number = 0) => {
     const fullStars = Math.floor(calificacion)
@@ -53,45 +53,28 @@ export default function TalleresPage() {
     )
   }
 
-  const getActivoBadge = (activo: boolean = true) => {
-    return activo ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-  }
-
   const handleCreateTaller = () => {
     setEditingTaller(null)
     setIsEditModalOpen(true)
   }
 
   const handleEditTaller = (taller: Taller) => {
+
     setEditingTaller(taller)
     setIsEditModalOpen(true)
   }
 
-  const handleSaveTaller = (_savedTaller: Taller) => {
-  // El underscore indica que el parámetro es intencionalmente no usado
-  setIsEditModalOpen(false)
-  setEditingTaller(null)
+  const handleSaveTaller = (savedTaller: Taller) => {
+    // El underscore indica que el parámetro es intencionalmente no usado
+    console.log('Taller guardado recibido en page:', savedTaller)
+    setIsEditModalOpen(false)
+    setEditingTaller(null)
   }
 
   const handleCloseModal = () => {
     setIsEditModalOpen(false)
     setEditingTaller(null)
   }
-
-  const handleToggleStatus = (taller: Taller) => {
-    toggleStatusMutation.mutate({
-      id: taller.id,
-      activo: !taller.activo
-    })
-  }
-
-  // Filtros disponibles
-  const especialidadesDisponibles = [
-    "Motor", "Transmisión", "Frenos", "Suspensión", "Eléctrico", 
-    "Aire Acondicionado", "Diagnóstico", "Carrocería", "Pintura", 
-    "Soldadura", "Llantas", "Alineación", "Balanceo", "Motor Diesel", 
-    "Inyección", "Turbo"
-  ]
 
   if (error) {
     return (
@@ -102,8 +85,8 @@ export default function TalleresPage() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600">{error}</p> {/* ← error es string, no error.message */}
-            <Button 
-              className="mt-4 w-full" 
+            <Button
+              className="mt-4 w-full"
               onClick={() => window.location.reload()}
             >
               Reintentar
@@ -153,20 +136,7 @@ export default function TalleresPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Activos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {statsLoading ? (
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                  ) : (
-                    stats?.activos || 0
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium">Calificación Promedio</CardTitle>
@@ -186,14 +156,14 @@ export default function TalleresPage() {
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Especialidades</CardTitle>
+                <CardTitle className="text-sm font-medium">Not in use</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">
                   {statsLoading ? (
                     <Loader2 className="h-6 w-6 animate-spin" />
                   ) : (
-                    stats?.totalEspecialidades || 0
+                    stats?.total || 0
                   )}
                 </div>
               </CardContent>
@@ -207,7 +177,7 @@ export default function TalleresPage() {
                   <CardTitle>Gestión de Talleres</CardTitle>
                   <CardDescription>Administra los talleres de mantenimiento y servicios automotrices</CardDescription>
                 </div>
-                
+
                 {/* Filtros y búsqueda */}
                 <div className="flex flex-wrap gap-2">
                   <div className="relative">
@@ -219,38 +189,23 @@ export default function TalleresPage() {
                       className="pl-10 w-64"
                     />
                   </div>
-                  
-                  <Select
-                    value={filters.activo?.toString() || "all"}
-                    onValueChange={(value) => 
-                      setFilters({ activo: value === "all" ? undefined : value === "true" })
-                    }
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Estado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="true">Activos</SelectItem>
-                      <SelectItem value="false">Inactivos</SelectItem>
-                    </SelectContent>
-                  </Select>
+
 
                   <Select
-                    value={filters.especialidad || "all"}
-                    onValueChange={(value) => 
+                    value={filters.searchTerm || "all"}
+                    onValueChange={(value) =>
                       setFilters({ especialidad: value === "all" ? undefined : value })
                     }
                   >
                     <SelectTrigger className="w-44">
-                      <SelectValue placeholder="Especialidad" />
+                      <SelectValue placeholder="Need Fix" />
                     </SelectTrigger>
-                    <SelectContent>
+                    {/* <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
                       {especialidadesDisponibles.map((esp) => (
                         <SelectItem key={esp} value={esp}>{esp}</SelectItem>
                       ))}
-                    </SelectContent>
+                    </SelectContent> */}
                   </Select>
 
                   {(filters.searchTerm || filters.activo !== undefined || filters.especialidad) && (
@@ -293,15 +248,14 @@ export default function TalleresPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Número Taller</TableHead>
+                          <TableHead>Taller ID</TableHead>
                           <TableHead>Nombre del Taller</TableHead>
                           <TableHead>Dirección</TableHead>
                           <TableHead>Teléfono</TableHead>
                           <TableHead>Correo</TableHead>
                           <TableHead>Contacto Principal</TableHead>
-                          <TableHead>Especialidades</TableHead>
+                          <TableHead>Notas</TableHead>
                           <TableHead>Calificación</TableHead>
-                          <TableHead>Estado</TableHead>
                           <TableHead>Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -314,11 +268,6 @@ export default function TalleresPage() {
                                 <Building className="h-4 w-4 text-gray-500" />
                                 <div>
                                   <div className="font-medium">{taller.name}</div>
-                                  {taller.sitio_web && (
-                                    <div className="text-xs text-blue-600 hover:underline cursor-pointer">
-                                      {taller.sitio_web}
-                                    </div>
-                                  )}
                                 </div>
                               </div>
                             </TableCell>
@@ -345,47 +294,15 @@ export default function TalleresPage() {
                                 <User className="h-4 w-4 text-gray-500" />
                                 <div>
                                   <div className="font-medium text-sm">{taller.contactPerson}</div>
-                                  <div className="text-xs text-gray-500 font-mono">{taller.telefono_contacto || 'N/A'}</div>
                                 </div>
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {(taller.especialidades ?? []).slice(0, 2).map((especialidad, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
-                                    {especialidad}
-                                  </Badge>
-                                ))}
-                                {(taller.especialidades ?? []).length > 2 && (
-                                  <Badge variant="outline" className="text-xs">
-                                    +{(taller.especialidades ?? []).length - 2}
-                                  </Badge>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>{getCalificacionStars(taller.calificacion)}</TableCell>
-                            <TableCell>
                               <div className="flex items-center space-x-2">
-                                <Badge className={getActivoBadge(taller.activo)}>
-                                  {taller.activo ? "Activo" : "Inactivo"}
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleToggleStatus(taller)}
-                                  disabled={toggleStatusMutation.isPending} // ← Cambiado a isPending
-                                  className="text-xs"
-                                >
-                                  {toggleStatusMutation.isPending ? (
-                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                  ) : taller.activo ? (
-                                    "Desactivar"
-                                  ) : (
-                                    "Activar"
-                                  )}
-                                </Button>
+                                <span className="font-mono text-sm">{taller.notes}</span>
                               </div>
                             </TableCell>
+                            <TableCell>{getCalificacionStars(taller.rate)}</TableCell>
                             <TableCell>
                               <div className="flex space-x-1">
                                 <Button variant="outline" size="sm">
@@ -393,6 +310,22 @@ export default function TalleresPage() {
                                 </Button>
                                 <Button variant="outline" size="sm" onClick={() => handleEditTaller(taller)}>
                                   <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (window.confirm("¿Seguro que deseas eliminar este taller?")) {
+                                      deleteTallerMutation.mutate(taller.id)
+                                    }
+                                  }}
+                                  disabled={deleteTallerMutation.isPending}
+                                >
+                                  {deleteTallerMutation.isPending ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <X className="h-4 w-4 text-red-600" />
+                                  )}
                                 </Button>
                               </div>
                             </TableCell>
@@ -406,11 +339,11 @@ export default function TalleresPage() {
             </CardContent>
           </Card>
         </div>
-        
+
         {isEditModalOpen && (
-          <EditTallerModal 
-            taller={editingTaller} 
-            onSave={handleSaveTaller} 
+          <EditTallerModal
+            taller={editingTaller}
+            onSave={handleSaveTaller}
             onClose={handleCloseModal}
             isOpen={isEditModalOpen}
           />
