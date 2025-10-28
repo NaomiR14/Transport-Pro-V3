@@ -104,7 +104,7 @@ export default function Dashboard() {
       title: "Impuestos de Vehículos",
       description: "Gestionar impuestos y contribuciones vehiculares",
       icon: Receipt,
-      href: "/impuestos",
+      href: "/impuestos-vehiculares",
       color: "bg-purple-600",
     },
   ]
