@@ -84,8 +84,10 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                 year: vehicle.year.toString(),
                 maxLoadCapacity: vehicle.maxLoadCapacity.toString(),
                 vehicleState: vehicle.vehicleState,
-                maintenanceCycle: vehicle.maintenanceCycle,
-                initialKm: vehicle.initialKm,
+                maintenanceData: {
+                    maintenanceCycle: vehicle.maintenanceData.maintenanceCycle,
+                    initialKm: vehicle.maintenanceData.initialKm,
+                }
             })
         } else {
             // Valores por defecto para nuevo vehículo
@@ -99,17 +101,38 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                 year: new Date().getFullYear().toString(),
                 maxLoadCapacity: "0",
                 vehicleState: "Disponible",
-                maintenanceCycle: 5000,
-                initialKm: 0,
+                maintenanceData: {
+                    maintenanceCycle: 10000,
+                    initialKm: 0,
+                }
             })
         }
     }, [vehicle, isOpen])
 
-    const handleInputChange = (field: keyof CreateVehicleRequest, value: string | number) => {
-        setFormData((prev) => ({
-            ...prev,
-            [field]: value,
-        }))
+    // Función mejorada para manejar cambios en campos anidados
+    const handleInputChange = (field: string, value: string | number) => {
+        setFormData((prev) => {
+            // Si el campo contiene un punto, es un campo anidado
+            if (field.includes('.')) {
+                const [parent, child] = field.split('.')
+                
+                if (parent === 'maintenanceData' && prev.maintenanceData) {
+                    return {
+                        ...prev,
+                        maintenanceData: {
+                            ...prev.maintenanceData,
+                            [child]: value
+                        }
+                    }
+                }
+            }
+            
+            // Campo normal
+            return {
+                ...prev,
+                [field]: value,
+            }
+        })
 
         // Clear error when user starts typing
         if (errors[field]) {
@@ -182,8 +205,7 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                 year: formData.year!,
                 maxLoadCapacity: formData.maxLoadCapacity!,
                 vehicleState: formData.vehicleState!,
-                maintenanceCycle: formData.maintenanceCycle ? Number(formData.maintenanceCycle) : undefined,
-                initialKm: formData.initialKm ? Number(formData.initialKm) : undefined,
+                maintenanceData: formData.maintenanceData!
             }
 
             if (vehicle?.id) {
@@ -393,8 +415,8 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                             <Input
                                 id="maintenanceCycle"
                                 type="number"
-                                value={formData.maintenanceCycle || ""}
-                                onChange={(e) => handleInputChange("maintenanceCycle", e.target.value)}
+                                value={formData.maintenanceData?.maintenanceCycle || ""}
+                                onChange={(e) => handleInputChange("maintenanceData.maintenanceCycle", e.target.value)}
                                 placeholder="5000"
                                 min="0"
                                 disabled={updateVehicleMutation.isPending}
@@ -407,8 +429,8 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                             <Input
                                 id="initialKm"
                                 type="number"
-                                value={formData.initialKm || ""}
-                                onChange={(e) => handleInputChange("initialKm", e.target.value)}
+                                value={formData.maintenanceData?.initialKm || ""}
+                                onChange={(e) => handleInputChange("maintenanceData.initialKm", e.target.value)}
                                 placeholder="0"
                                 min="0"
                                 disabled={updateVehicleMutation.isPending}

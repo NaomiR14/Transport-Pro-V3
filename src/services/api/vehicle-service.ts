@@ -6,6 +6,7 @@ import {
     VehicleFilters, 
 } from '@/types/vehicles-types';
 
+
 export class VehicleService {
   private readonly endpoint = '/Vehicles';
 

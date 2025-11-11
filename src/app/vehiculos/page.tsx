@@ -354,25 +354,25 @@ export default function VehiclesPage() {
                                                             </TableCell>
                                                             <TableCell className="text-right">{vehicle.maxLoadCapacity}</TableCell>
                                                             <TableCell>{getVehicleStateBadge(vehicle.vehicleState)}</TableCell>
-                                                            <TableCell className="text-right">{vehicle.maintenanceCycle || 5000}</TableCell>
-                                                            <TableCell className="text-right">{vehicle.initialKm || 0}</TableCell>
-                                                            <TableCell className="text-right">{vehicle.prevMaintenanceKm || vehicle.initialKm || 0}</TableCell>
+                                                            <TableCell className="text-right">{vehicle.maintenanceData.maintenanceCycle || 5000}</TableCell>
+                                                            <TableCell className="text-right">{vehicle.maintenanceData.initialKm || 0}</TableCell>
+                                                            <TableCell className="text-right">{vehicle.maintenanceData.prevMaintenanceKm || vehicle.maintenanceData.initialKm || 0}</TableCell>
                                                             <TableCell className="text-right">
                                                                 <div className="flex items-center space-x-2 justify-end">
                                                                     <Gauge className="h-4 w-4 text-gray-500" />
-                                                                    <span>{vehicle.currentKm || 0}</span>
+                                                                    <span>{vehicle.maintenanceData.currentKm || 0}</span>
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell className="text-right font-medium">
-                                                                {vehicle.remainingMaintenanceKm !== undefined ? (
-                                                                    <span className={vehicle.remainingMaintenanceKm <= 0 ? "text-red-600" : vehicle.remainingMaintenanceKm <= 500 ? "text-orange-600" : vehicle.remainingMaintenanceKm <= 1000 ? "text-yellow-600" : "text-green-600"}>
-                                                                        {vehicle.remainingMaintenanceKm}
+                                                                {vehicle.maintenanceData.remainingMaintenanceKm !== undefined ? (
+                                                                    <span className={vehicle.maintenanceData.remainingMaintenanceKm <= 0 ? "text-red-600" : vehicle.maintenanceData.remainingMaintenanceKm <= 500 ? "text-orange-600" : vehicle.maintenanceData.remainingMaintenanceKm <= 1000 ? "text-yellow-600" : "text-green-600"}>
+                                                                        {vehicle.maintenanceData.remainingMaintenanceKm}
                                                                     </span>
                                                                 ) : (
                                                                     "-"
                                                                 )}
                                                             </TableCell>
-                                                            <TableCell>{getMaintenanceStatusBadge(vehicle.maintenanceStatus || "Al día")}</TableCell>
+                                                            <TableCell>{getMaintenanceStatusBadge(vehicle.maintenanceData.maintenanceStatus || "Al día")}</TableCell>
                                                             <TableCell>
                                                                 <div className="flex space-x-1">
                                                                     <Button variant="outline" size="sm">

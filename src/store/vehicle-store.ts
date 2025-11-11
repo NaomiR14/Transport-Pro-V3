@@ -33,9 +33,9 @@ const sortVehicles = (vehicles: Vehicle[]): Vehicle[] => {
 export const calculateStats = (vehicles: Vehicle[]): VehicleStats => {
     const total = vehicles.length
     const available = vehicles.filter(v => v.vehicleState === 'Disponible').length
-    const inMaintenance = vehicles.filter(v => v.maintenanceStatus === 'en_mantenimiento').length
+    const inMaintenance = vehicles.filter(v => v.maintenanceData?.maintenanceStatus === 'en_mantenimiento').length
     const requierenMantenimiento = vehicles.filter(v =>
-        v.maintenanceStatus === 'requiere_mantenimiento').length
+        v.maintenanceData?.maintenanceStatus === 'requiere_mantenimiento').length
 
     return {
         total,
@@ -47,9 +47,9 @@ export const calculateStats = (vehicles: Vehicle[]): VehicleStats => {
 
 // FUNCIÓN PRINCIPAL PARA CALCULAR CAMPOS DE MANTENIMIENTO
 const calculateMaintenanceFields = (vehicle: Vehicle): Vehicle => {
-    const maintenanceCycle = vehicle.maintenanceCycle || 5000 // Valor por defecto de 5000 km
-    const currentKm = vehicle.currentKm || 0
-    const prevMaintenanceKm = vehicle.prevMaintenanceKm || vehicle.initialKm || 0
+    const maintenanceCycle = vehicle.maintenanceData.maintenanceCycle || 5000 // Valor por defecto de 5000 km
+    const currentKm = vehicle.maintenanceData.currentKm || 0
+    const prevMaintenanceKm = vehicle.maintenanceData.prevMaintenanceKm || vehicle.maintenanceData.initialKm || 0
 
     // Cálculo de remainingMaintenanceKm
     // (km del último mantenimiento + ciclo) - km actual
@@ -68,13 +68,15 @@ const calculateMaintenanceFields = (vehicle: Vehicle): Vehicle => {
 
     return {
         ...vehicle,
-        remainingMaintenanceKm,
-        maintenanceStatus,
-        // Asegurar que los campos calculados estén presentes
-        maintenanceCycle,
-        initialKm: vehicle.initialKm || 0,
-        prevMaintenanceKm,
-        currentKm,
+        maintenanceData: {
+            remainingMaintenanceKm,
+            maintenanceStatus,
+            maintenanceCycle,
+            initialKm: vehicle.maintenanceData.initialKm || 0,
+            prevMaintenanceKm,
+            currentKm,
+        }
+        
     }
 }
 
