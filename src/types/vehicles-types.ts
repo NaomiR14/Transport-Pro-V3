@@ -12,12 +12,14 @@ export interface Vehicle {
     maxLoadCapacity: string
     vehicleState: string
     // Campos opcionales que podrían no venir de la API
-    maintenanceCycle?: number;
-    initialKm?: number;
-    prevMaintenanceKm?: number;
-    currentKm?: number;
-    remainingMaintenanceKm?: number;
-    maintenanceStatus?: string;
+    maintenanceData: {
+        maintenanceCycle?: number
+        initialKm?: number
+        prevMaintenanceKm?: number
+        currentKm?: number
+        remainingMaintenanceKm?: number
+        maintenanceStatus?: string
+    }
 }
 
 export interface CreateVehicleRequest {
@@ -31,12 +33,14 @@ export interface CreateVehicleRequest {
     maxLoadCapacity: string
     vehicleState: string
     // Campos opcionales que no vienen de la API
-    maintenanceCycle?: number;
-    initialKm?: number;
-    prevMaintenanceKm?: number;
-    currentKm?: number;
-    remainingMaintenanceKm?: number;
-    maintenanceStatus?: string;
+    maintenanceData: {
+        maintenanceCycle?: number
+        initialKm?: number
+        prevMaintenanceKm?: number
+        currentKm?: number
+        remainingMaintenanceKm?: number
+        maintenanceStatus?: string
+    }
 }
 
 export interface VehicleFilters extends FilterParams {
