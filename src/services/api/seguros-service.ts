@@ -2,6 +2,7 @@ import { apiClient } from '@/services/api/api-base-client';
 import { SeguroVehiculo, CreateSeguroRequest, UpdateSeguroRequest, SeguroFilters } from '@/types/seguros-types';
 
 export class SeguroService {
+    private static readonly endpoint = '/Seguros';
     static async getSeguros(filters?: SeguroFilters): Promise<SeguroVehiculo[]> {
         const response = await apiClient.get<SeguroVehiculo[]>('/Seguros', filters);
 
@@ -32,8 +33,8 @@ export class SeguroService {
         return response.data!;
     }
 
-    static async updateSeguro(seguroData: UpdateSeguroRequest): Promise<SeguroVehiculo> {
-        const response = await apiClient.put<SeguroVehiculo>(`/Seguros/${seguroData.id}`, seguroData);
+    static async updateSeguro(id: string, seguroData: UpdateSeguroRequest): Promise<SeguroVehiculo> {
+        const response = await apiClient.put<SeguroVehiculo>(`${this.endpoint}/${id}`, seguroData);
 
         if (response.error) {
             throw new Error(response.error.message);

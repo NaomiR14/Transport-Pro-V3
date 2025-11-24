@@ -19,7 +19,7 @@ export interface CreateImpuestoRequest {
 }
 
 export interface UpdateImpuestoRequest extends Partial<CreateImpuestoRequest> {
-    id: string
+    estado_pago: "pagado" | "pendiente" | "vencido"
 }
 
 export interface ImpuestoFilters extends FilterParams {

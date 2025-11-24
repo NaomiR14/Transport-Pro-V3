@@ -29,7 +29,18 @@ export interface CreateConductorRequest {
 }
 
 export interface UpdateConductorRequest extends Partial<CreateConductorRequest> {
-    id: string
+    documento_identidad: string
+    nombre_conductor: string
+    numero_licencia: string
+    direccion: string
+    telefono: string
+    calificacion: number
+    email: string
+    activo: boolean
+    fecha_vencimiento_licencia: string
+    estado_licencia: "vigente" | "por_vencer" | "vencida"
+    // Campos calculados
+    dias_restantes_licencia?: number
 }
 
 export interface ConductorFilters extends FilterParams {

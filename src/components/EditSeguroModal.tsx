@@ -12,14 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { Loader2, Shield } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { SeguroVehiculo, CreateSeguroRequest } from "@/types/seguros-types"
 import { useCreateSeguro, useUpdateSeguro } from "@/hooks/use-seguros"
 

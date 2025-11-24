@@ -51,7 +51,24 @@ export interface CreateRutaViajeRequest {
 }
 
 export interface UpdateRutaViajeRequest extends Partial<CreateRutaViajeRequest> {
-    id: string
+    fecha_salida: string
+    fecha_llegada: string
+    placa_vehiculo: string
+    conductor: string
+    origen: string
+    destino: string
+    kms_inicial: number
+    kms_final: number
+    peso_carga_kg: number
+    costo_por_kg: number
+    estacion_combustible: string
+    tipo_combustible: string
+    precio_por_galon: number
+    total_combustible: number
+    gasto_peajes: number
+    gasto_comidas: number
+    otros_gastos: number
+    observaciones: string
 }
 
 export interface RutaViajeFilters extends FilterParams {

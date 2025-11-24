@@ -124,10 +124,10 @@ export class ImpuestoVehicularService {
         return response.data!;
     }
 
-    static async updateImpuesto(impuestoData: UpdateImpuestoRequest): Promise<ImpuestoVehicular> {
+    static async updateImpuesto(id: string, impuestoData: UpdateImpuestoRequest): Promise<ImpuestoVehicular> {
         if (USE_MOCK) {
             await new Promise(resolve => setTimeout(resolve, 500));
-            const index = mockImpuestos.findIndex(s => s.id === impuestoData.id);
+            const index = mockImpuestos.findIndex(s => s.id === id);
             if (index === -1) throw new Error('Impuesto no encontrado');
 
             const updatedImpuesto = {
@@ -138,7 +138,7 @@ export class ImpuestoVehicularService {
             return updatedImpuesto;
         }
 
-        const response = await apiClient.put<ImpuestoVehicular>(`/Impuestosvehiculos/${impuestoData.id}`, impuestoData);
+        const response = await apiClient.put<ImpuestoVehicular>(`/Impuestosvehiculos/${id}`, impuestoData);
 
         if (response.error) {
             throw new Error(response.error.message);

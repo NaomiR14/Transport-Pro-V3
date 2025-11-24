@@ -13,16 +13,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+
 import { Switch } from "@/components/ui/switch"
-import { Loader2, User, Star } from "lucide-react"
-import { Conductor, CreateConductorRequest } from "@/types/conductor-types"
+import { Loader2, Star } from "lucide-react"
+import { Conductor, CreateConductorRequest, UpdateConductorRequest } from "@/types/conductor-types"
 import { useCreateConductor, useUpdateConductor } from "@/hooks/use-conductores"
 
 interface EditConductorModalProps {
@@ -144,11 +138,24 @@ export default function EditConductorModal({ conductor, onSave, onClose, isOpen 
                 fecha_vencimiento_licencia: formData.fecha_vencimiento_licencia!,
             }
 
+            const apiDataUpdate: UpdateConductorRequest = {
+                documento_identidad: formData.documento_identidad!,
+                nombre_conductor: formData.nombre_conductor!,
+                numero_licencia: formData.numero_licencia!,
+                direccion: formData.direccion!,
+                telefono: formData.telefono!,
+                calificacion: Number(formData.calificacion),
+                email: formData.email!,
+                activo: Boolean(formData.activo),
+                fecha_vencimiento_licencia: formData.fecha_vencimiento_licencia!,
+                estado_licencia: conductor?.estado_licencia || "vigente",
+            }
+
             if (conductor?.id) {
                 // Actualizar conductor existente
                 const updatedConductor = await updateConductorMutation.mutateAsync({
                     id: conductor.id,
-                    data: apiData
+                    data: apiDataUpdate
                 })
                 onSave(updatedConductor)
             } else {

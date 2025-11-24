@@ -142,10 +142,10 @@ export class ConductorService {
         return response.data!;
     }
 
-    static async updateConductor(conductorData: UpdateConductorRequest): Promise<Conductor> {
+    static async updateConductor(id: string, conductorData: UpdateConductorRequest): Promise<Conductor> {
         if (USE_MOCK) {
             await new Promise(resolve => setTimeout(resolve, 500));
-            const index = mockConductores.findIndex(s => s.id === conductorData.id);
+            const index = mockConductores.findIndex(s => s.id === id);
             if (index === -1) throw new Error('Conductor no encontrado');
 
             const updatedConductor = {
@@ -156,7 +156,7 @@ export class ConductorService {
             return updatedConductor;
         }
 
-        const response = await apiClient.put<Conductor>(`/Conductores/${conductorData.id}`, conductorData);
+        const response = await apiClient.put<Conductor>(`/Conductores/${id}`, conductorData);
 
         if (response.error) {
             throw new Error(response.error.message);
@@ -182,7 +182,7 @@ export class ConductorService {
     }
 
     // Método auxiliar para obtener opciones de filtro
-    static getFilterOptions(conductores: Conductor[]) {
+    static getFilterOptions() {
         const estadosLicencia = ['vigente', 'por_vencer', 'vencida'];
         const calificaciones = [1, 2, 3, 4, 5];
 

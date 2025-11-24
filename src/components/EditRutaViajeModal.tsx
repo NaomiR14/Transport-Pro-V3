@@ -20,9 +20,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Loader2, MapPin, Car, User, Fuel, DollarSign } from "lucide-react"
+import { Loader2, MapPin, Car, Fuel, DollarSign } from "lucide-react"
 import { RutaViaje, CreateRutaViajeRequest } from "@/types/ruta-viaje-types"
-import { useCreateRuta, useUpdateRuta, useCommonInfoData } from "@/hooks/use-rutas-viaje"
+import { useCreateRuta, useUpdateRuta } from "@/hooks/use-rutas-viaje"
+import { CommonInfoService } from "@/services/api/common-info-service"
+
 
 interface EditRutaViajeModalProps {
     ruta: RutaViaje | null
@@ -36,11 +38,40 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
     const [errors, setErrors] = useState<Record<string, string>>({})
     const [vehiculos, setVehiculos] = useState<string[]>([])
     const [conductores, setConductores] = useState<string[]>([])
+    const [commonInfo, setCommonInfo] = useState({
+        fuelTypes: [] as { id: number; type: string }[],
+        fuelStations: [] as { id: number; name: string }[],
+        })
 
     // Hook de React Query para rutas
     const createRutaMutation = useCreateRuta()
     const updateRutaMutation = useUpdateRuta()
-    const { data: commonInfo } = useCommonInfoData()
+
+    // Cargar información común al abrir el modal
+    useEffect(() => {
+        const loadCommonInfo = async () => {
+            try {
+                const svc = new CommonInfoService()
+                const [fuelTypes, fuelStations,] = await Promise.all([
+                    svc.getVehicleTypes(),   // instance method
+                    svc.getFuelStations(),
+                    
+                ])
+                setCommonInfo({
+                    fuelTypes: fuelTypes,
+                    fuelStations: fuelStations,
+                    
+                })
+            } catch (error) {
+                console.error('Error loading common info:', error)
+            }
+        }
+
+        if (isOpen) {
+            loadCommonInfo()
+        }
+    }, [isOpen])
+
 
     // Inicializar formData cuando cambia la ruta o se abre el modal
     useEffect(() => {

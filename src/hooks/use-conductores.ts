@@ -98,7 +98,7 @@ export function useUpdateConductor() {
 
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: UpdateConductorRequest }) =>
-            ConductorService.updateConductor({ id, ...data }),
+            ConductorService.updateConductor( id, data ),
         onSuccess: (updatedConductor) => {
             updateConductor(updatedConductor)
             queryClient.setQueryData(QUERY_KEYS.detail(updatedConductor.id), updatedConductor)
@@ -132,7 +132,7 @@ export function useDeleteConductor() {
 
 // Hook para estadísticas calculadas localmente
 export function useConductoresStats() {
-    const { conductores, stats } = useConductorStore()
+    const { stats } = useConductorStore()
     return {
         data: stats || { total: 0, activos: 0, licencias_vencidas: 0, calificacion_promedio: 0 }
     }
@@ -150,7 +150,7 @@ export function useSearchConductores(searchTerm: string) {
 
 // Hook combinado para filtros del store
 export function useFilteredConductores() {
-    const { filters, getFilteredConductores, conductores, isLoading, error } = useConductorStore()
+    const { filters, getFilteredConductores, isLoading, error } = useConductorStore()
     const { data: allConductores } = useConductores(filters)
 
     return {
@@ -201,7 +201,7 @@ export const useConductoresSimple = () => {
 
     const updateConductor = async (id: string, conductorData: UpdateConductorRequest): Promise<boolean> => {
         try {
-            const updatedConductor = await ConductorService.updateConductor({ id, ...conductorData });
+            const updatedConductor = await ConductorService.updateConductor(id, conductorData );
             if (updatedConductor) {
                 setConductores(prev =>
                     prev.map(conductor => conductor.id === id ? updatedConductor : conductor)
@@ -239,10 +239,10 @@ export const useConductoresSimple = () => {
 
 // Hook para opciones de filtro
 export function useConductorFilterOptions() {
-    const { conductores } = useConductorStore()
-    const { data: allConductores } = useConductores()
+    //const { conductores } = useConductorStore()
+    //const { data: allConductores } = useConductores()
 
-    const conductoresToUse = allConductores || conductores
+    //const conductoresToUse = allConductores || conductores
 
     const estadosLicencia = ['vigente', 'por_vencer', 'vencida'];
     const estadosActivo = [

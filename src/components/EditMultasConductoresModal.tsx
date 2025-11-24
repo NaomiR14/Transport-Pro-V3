@@ -43,6 +43,8 @@ export default function EditMultasConductoresModal({
         importe_multa: 0,
         importe_pagado: 0,
         observaciones: "",
+        debe: 0,
+        estado_pago: "pendiente",
     })
     const [errors, setErrors] = useState<Record<string, string>>({})
     const [isLoading, setIsLoading] = useState(false)
@@ -84,6 +86,8 @@ export default function EditMultasConductoresModal({
                 importe_multa: multa.importe_multa,
                 importe_pagado: multa.importe_pagado,
                 observaciones: multa.observaciones,
+                debe: multa.debe,
+                estado_pago: multa.estado_pago,
             })
         } else {
             // Valores por defecto para nueva multa
@@ -97,6 +101,8 @@ export default function EditMultasConductoresModal({
                 importe_multa: 0,
                 importe_pagado: 0,
                 observaciones: "",
+                debe: 0,
+                estado_pago: "pendiente",
             })
         }
     }, [multa, isOpen])
