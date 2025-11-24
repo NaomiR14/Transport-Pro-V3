@@ -41,7 +41,8 @@ const mockImpuestos: ImpuestoVehicular[] = [
     }
 ];
 
-const USE_MOCK = process.env.NODE_ENV === 'development' || process.env.USE_MOCK_DATA === 'true';;
+const USE_MOCK = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
+
 
 export class ImpuestoVehicularService {
     static async getImpuestos(filters?: ImpuestoFilters): Promise<ImpuestoVehicular[]> {
