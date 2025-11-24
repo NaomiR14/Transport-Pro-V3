@@ -144,7 +144,7 @@ const multasMock: MultaConductor[] = [
 
 export class MultasConductoresService {
     private readonly endpoint = '/MultasdeConductores'
-    private useMock = process.env.NODE_ENV === 'development' // Solo en desarrollo
+    private useMock = process.env.NODE_ENV === 'development' || process.env.USE_MOCK_DATA === 'true'; // Solo en desarrollo
 
     async getMultas(filters?: MultaConductorFilters): Promise<MultaConductor[]> {
         // Para desarrollo, usar datos mock

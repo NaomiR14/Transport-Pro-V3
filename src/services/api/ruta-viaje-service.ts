@@ -90,7 +90,7 @@ const mockRutas: RutaViaje[] = [
     }
 ];
 
-const USE_MOCK = process.env.NODE_ENV === 'development';
+const USE_MOCK = process.env.NODE_ENV === 'development'|| process.env.USE_MOCK_DATA === 'true';
 
 export class RutaViajeService {
     private static readonly endpoint = '/RutasdeViaje';
