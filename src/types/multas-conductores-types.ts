@@ -26,7 +26,18 @@ export interface CreateMultaConductorRequest {
     observaciones: string
 }
 
-export interface UpdateMultaConductorRequest extends CreateMultaConductorRequest { }
+export interface UpdateMultaConductorRequest extends CreateMultaConductorRequest { 
+    fecha: string
+    numero_viaje: number
+    placa_vehiculo: string
+    conductor: string
+    infraccion: string
+    importe_multa: number
+    importe_pagado: number
+    debe: number
+    estado_pago: "pagado" | "pendiente" | "parcial" | "vencido"
+    observaciones: string
+}   
 
 // Filtros
 export interface MultaConductorFilters extends FilterParams {

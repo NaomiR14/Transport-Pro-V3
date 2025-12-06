@@ -19,8 +19,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Loader2, Receipt } from "lucide-react"
-import { ImpuestoVehicular, CreateImpuestoRequest } from "@/types/impuesto-vehicular-types"
+import { Loader2 } from "lucide-react"
+import { ImpuestoVehicular, CreateImpuestoRequest, UpdateImpuestoRequest } from "@/types/impuesto-vehicular-types"
 import { useCreateImpuesto, useUpdateImpuesto } from "@/hooks/use-impuestos-vehiculares"
 
 interface EditImpuestoModalProps {
@@ -117,11 +117,21 @@ export default function EditImpuestoModal({ impuesto, onSave, onClose, isOpen }:
                 fecha_pago: formData.fecha_pago!,
             }
 
+            const apiDataUpdate: UpdateImpuestoRequest = {
+                placa_vehiculo: formData.placa_vehiculo!,
+                tipo_impuesto: formData.tipo_impuesto!,
+                anio_impuesto: Number(formData.anio_impuesto),
+                impuesto_monto: Number(formData.impuesto_monto),
+                fecha_pago: formData.fecha_pago!,
+                estado_pago: impuesto?.estado_pago || "pendiente",
+            }
+            
+
             if (impuesto?.id) {
                 // Actualizar impuesto existente
                 const updatedImpuesto = await updateImpuestoMutation.mutateAsync({
                     id: impuesto.id,
-                    data: apiData
+                    data: apiDataUpdate
                 })
                 onSave(updatedImpuesto)
             } else {

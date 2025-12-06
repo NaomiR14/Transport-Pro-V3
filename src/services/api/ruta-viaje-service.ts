@@ -90,9 +90,10 @@ const mockRutas: RutaViaje[] = [
     }
 ];
 
-const USE_MOCK = process.env.NODE_ENV === 'development';
+const USE_MOCK = process.env.NODE_ENV === 'development'|| process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 
 export class RutaViajeService {
+    private static readonly endpoint = '/RutasdeViaje';
     static async getRutas(filters?: RutaViajeFilters): Promise<RutaViaje[]> {
         // Usar mock en desarrollo
         if (USE_MOCK) {
@@ -140,7 +141,7 @@ export class RutaViajeService {
         }
 
         // Usar API real en producción
-        const response = await apiClient.get<RutaViaje[]>('/RutasdeViaje', filters);
+        const response = await apiClient.get<RutaViaje[]>(this.endpoint, filters);
 
         if (response.error) {
             throw new Error(response.error.message);
@@ -202,10 +203,10 @@ export class RutaViajeService {
         return response.data!;
     }
 
-    static async updateRuta(rutaData: UpdateRutaViajeRequest): Promise<RutaViaje> {
+    static async updateRuta(id: string, rutaData: UpdateRutaViajeRequest): Promise<RutaViaje> {
         if (USE_MOCK) {
             await new Promise(resolve => setTimeout(resolve, 500));
-            const index = mockRutas.findIndex(s => s.id === rutaData.id);
+            const index = mockRutas.findIndex(s => s.id === id);
             if (index === -1) throw new Error('Ruta no encontrada');
 
             // Recalcular campos derivados si se actualizan campos relacionados
@@ -246,7 +247,7 @@ export class RutaViajeService {
             return updatedData;
         }
 
-        const response = await apiClient.put<RutaViaje>(`/RutasdeViaje/${rutaData.id}`, rutaData);
+        const response = await apiClient.put<RutaViaje>(`/RutasdeViaje/${id}`, rutaData);
 
         if (response.error) {
             throw new Error(response.error.message);

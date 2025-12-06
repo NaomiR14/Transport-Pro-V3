@@ -25,7 +25,13 @@ export interface CreateSeguroRequest {
 }
 
 export interface UpdateSeguroRequest extends Partial<CreateSeguroRequest> {
-    id: string
+    placa_vehiculo: string
+    aseguradora: string
+    poliza_seguro: string
+    fecha_inicio: string
+    fecha_vencimiento: string
+    importe_pagado: number
+    fecha_pago: string
 }
 
 export interface SeguroFilters extends FilterParams {

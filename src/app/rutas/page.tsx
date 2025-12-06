@@ -12,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus, Search, Eye, Edit, Truck, Map, Calendar, User, Fuel, DollarSign, Loader2, X, BarChart3 } from "lucide-react"
+import { Plus, Search, Eye, Edit, Truck, Map, Calendar, User, Fuel, Loader2, X, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import EditRutaViajeModal from "@/components/EditRutaViajeModal"
 

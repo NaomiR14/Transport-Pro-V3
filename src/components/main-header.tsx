@@ -21,7 +21,7 @@ import Link from "next/link"
 
 export function MainHeader() {
   const { theme, setTheme } = useTheme()
-  const { isOpen, toggle } = useSidebar()
+  const { toggleSidebar  } = useSidebar()
   const [mounted, setMounted] = useState(false)
   const [currentDateTime, setCurrentDateTime] = useState("")
   const router = useRouter()
@@ -91,7 +91,7 @@ export function MainHeader() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggle}
+            onClick={toggleSidebar}
             className="flex rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
             aria-label="Toggle sidebar"
           >
@@ -185,7 +185,7 @@ export function MainHeader() {
                     className="cursor-pointer"
                     onSelect={(e) => {
                       console.log("🎯 MenuItem Mi Perfil seleccionado")
-                      handleProfileClick(e as any)
+                      handleProfileClick(e as unknown as React.MouseEvent)
                     }}
                   >
                     <User className="mr-2 h-4 w-4" />
@@ -196,7 +196,7 @@ export function MainHeader() {
                     className="cursor-pointer"
                     onSelect={(e) => {
                       console.log("🎯 MenuItem Configuración seleccionado")
-                      handleSettingsClick(e as any)
+                      handleSettingsClick(e as unknown as React.MouseEvent)
                     }}>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configuración</span>
@@ -208,7 +208,7 @@ export function MainHeader() {
                   className="cursor-pointer"
                   onSelect={(e) => {
                     console.log("🎯 MenuItem Cerrar sesión seleccionado")
-                    handleLogoutClick(e as any)
+                    handleLogoutClick(e as unknown as React.MouseEvent)
                   }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>

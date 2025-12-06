@@ -99,7 +99,7 @@ export function useUpdateRuta() {
 
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: UpdateRutaViajeRequest }) =>
-            RutaViajeService.updateRuta({ id, ...data }),
+            RutaViajeService.updateRuta(id, data ),
         onSuccess: (updatedRuta) => {
             updateRuta(updatedRuta)
             queryClient.setQueryData(QUERY_KEYS.detail(updatedRuta.id), updatedRuta)
@@ -133,7 +133,7 @@ export function useDeleteRuta() {
 
 // Hook para estadísticas calculadas localmente
 export function useRutasStats() {
-    const { rutas, stats } = useRutaViajeStore()
+    const { stats } = useRutaViajeStore()
     return {
         data: stats || { total: 0, total_ingresos: 0, total_gastos: 0, ganancia_neta: 0, kms_totales: 0 }
     }
@@ -151,7 +151,7 @@ export function useSearchRutas(searchTerm: string) {
 
 // Hook combinado para filtros del store
 export function useFilteredRutas() {
-    const { filters, getFilteredRutas, rutas, isLoading, error } = useRutaViajeStore()
+    const { filters, getFilteredRutas, isLoading, error } = useRutaViajeStore()
     const { data: allRutas } = useRutas(filters)
 
     return {
@@ -161,15 +161,6 @@ export function useFilteredRutas() {
         error: error,
         filters,
     }
-}
-
-// Hook para obtener datos de CommonInfo
-export function useCommonInfoData() {
-    return useQuery({
-        queryKey: QUERY_KEYS.commonInfo(),
-        queryFn: () => RutaViajeService.getCommonInfoData(),
-        staleTime: 10 * 60 * 1000, // 10 minutos
-    })
 }
 
 // Hook simple alternativo (para componentes que no necesitan React Query)
@@ -211,7 +202,7 @@ export const useRutasSimple = () => {
 
     const updateRuta = async (id: string, rutaData: UpdateRutaViajeRequest): Promise<boolean> => {
         try {
-            const updatedRuta = await RutaViajeService.updateRuta({ id, ...rutaData });
+            const updatedRuta = await RutaViajeService.updateRuta( id, rutaData );
             if (updatedRuta) {
                 setRutas(prev =>
                     prev.map(ruta => ruta.id === id ? updatedRuta : ruta)

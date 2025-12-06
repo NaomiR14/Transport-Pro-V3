@@ -114,7 +114,7 @@ export function SidebarNav({ className }: SidebarNavProps) {
     },
     {
       title: "Impuestos de Vehículos",
-      href: "/impuestos",
+      href: "/impuestos-vehiculares",
       icon: Receipt,
       color: "text-red-600",
     },

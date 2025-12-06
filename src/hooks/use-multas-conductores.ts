@@ -5,8 +5,6 @@ import { useEffect } from 'react'
 import { multasConductoresService } from '@/services/api/multas-conductores-service'
 import { useMultasConductoresStore } from '@/store/multas-conductores-store'
 import {
-    MultaConductor,
-    CreateMultaConductorRequest,
     UpdateMultaConductorRequest,
     MultaConductorFilters
 } from '@/types/multas-conductores-types'

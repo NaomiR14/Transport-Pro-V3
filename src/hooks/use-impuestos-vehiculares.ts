@@ -98,7 +98,7 @@ export function useUpdateImpuesto() {
 
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: UpdateImpuestoRequest }) =>
-            ImpuestoVehicularService.updateImpuesto({ id, ...data }),
+            ImpuestoVehicularService.updateImpuesto(id, data ),
         onSuccess: (updatedImpuesto) => {
             updateImpuesto(updatedImpuesto)
             queryClient.setQueryData(QUERY_KEYS.detail(updatedImpuesto.id), updatedImpuesto)
@@ -132,7 +132,7 @@ export function useDeleteImpuesto() {
 
 // Hook para estadísticas calculadas localmente
 export function useImpuestosStats() {
-    const { impuestos, stats } = useImpuestoStore()
+    const { stats } = useImpuestoStore()
     return {
         data: stats || { total: 0, pagados: 0, pendientes: 0, vencidos: 0, total_pagado: 0 }
     }
@@ -150,7 +150,7 @@ export function useSearchImpuestos(searchTerm: string) {
 
 // Hook combinado para filtros del store
 export function useFilteredImpuestos() {
-    const { filters, getFilteredImpuestos, impuestos, isLoading, error } = useImpuestoStore()
+    const { filters, getFilteredImpuestos, isLoading, error } = useImpuestoStore()
     const { data: allImpuestos } = useImpuestos(filters)
 
     return {
@@ -201,7 +201,7 @@ export const useImpuestosSimple = () => {
 
     const updateImpuesto = async (id: string, impuestoData: UpdateImpuestoRequest): Promise<boolean> => {
         try {
-            const updatedImpuesto = await ImpuestoVehicularService.updateImpuesto({ id, ...impuestoData });
+            const updatedImpuesto = await ImpuestoVehicularService.updateImpuesto(id, impuestoData );
             if (updatedImpuesto) {
                 setImpuestos(prev =>
                     prev.map(impuesto => impuesto.id === id ? updatedImpuesto : impuesto)

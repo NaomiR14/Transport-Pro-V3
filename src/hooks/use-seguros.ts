@@ -98,7 +98,7 @@ export function useUpdateSeguro() {
 
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: UpdateSeguroRequest }) =>
-            SeguroService.updateSeguro({ id, ...data }),
+            SeguroService.updateSeguro( id, data  ),
         onSuccess: (updatedSeguro) => {
             updateSeguro(updatedSeguro)
             queryClient.setQueryData(QUERY_KEYS.detail(updatedSeguro.id), updatedSeguro)
@@ -132,7 +132,7 @@ export function useDeleteSeguro() {
 
 // Hook para estadísticas calculadas localmente
 export function useSegurosStats() {
-    const { seguros, stats } = useSeguroStore()
+    const { stats } = useSeguroStore()
     return {
         data: stats || { total: 0, vigentes: 0, por_vencer: 0, vencidas: 0 }
     }
@@ -150,7 +150,7 @@ export function useSearchSeguros(searchTerm: string) {
 
 // Hook combinado para filtros del store
 export function useFilteredSeguros() {
-    const { filters, getFilteredSeguros, seguros, isLoading, error } = useSeguroStore()
+    const { filters, getFilteredSeguros, isLoading, error } = useSeguroStore()
     const { data: allSeguros } = useSeguros(filters)
 
     return {
@@ -201,7 +201,7 @@ export const useSegurosSimple = () => {
 
     const updateSeguro = async (id: string, seguroData: UpdateSeguroRequest): Promise<boolean> => {
         try {
-            const updatedSeguro = await SeguroService.updateSeguro({ id, ...seguroData });
+            const updatedSeguro = await SeguroService.updateSeguro( id, seguroData );
             if (updatedSeguro) {
                 setSeguros(prev =>
                     prev.map(seguro => seguro.id === id ? updatedSeguro : seguro)
