@@ -5,11 +5,11 @@ import { useEffect } from 'react'
 import { mantenimientoVehiculoService } from '@/services/api/mantenimiento-vehiculos-service'
 import { useMantenimientoVehiculoStore } from '@/store/mantenimiento-vehiculos-store'
 import {
-    MantenimientoVehiculo,
-    CreateMantenimientoVehiculoRequest,
+    // MantenimientoVehiculo,
+    // CreateMantenimientoVehiculoRequest,
     UpdateMantenimientoVehiculoRequest,
     MantenimientoVehiculoFilters,
-    MantenimientoVehiculoStats
+    // MantenimientoVehiculoStats
 } from '@/types/mantenimiento-vehiculos-types'
 
 // Query keys

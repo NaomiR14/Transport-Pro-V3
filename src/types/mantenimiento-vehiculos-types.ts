@@ -30,7 +30,18 @@ export interface CreateMantenimientoVehiculoRequest {
     observaciones: string
 }
 
-export interface UpdateMantenimientoVehiculoRequest extends CreateMantenimientoVehiculoRequest { }
+export interface UpdateMantenimientoVehiculoRequest extends CreateMantenimientoVehiculoRequest {
+    placaVehiculo: string
+    taller: string
+    fechaEntrada: string
+    tipo: string
+    kilometraje: number
+    paqueteMantenimiento: string
+    causas: string
+    costoTotal: number
+    fechaPago: string | null
+    observaciones: string
+}
 
 // Filtros
 export interface MantenimientoVehiculoFilters extends FilterParams {
