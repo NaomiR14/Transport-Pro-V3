@@ -18,13 +18,19 @@ import {
 import { useSidebar } from "./sidebar-context"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 
-export function MainHeader() {
+interface MainHeaderProps {
+  user?: any
+}
+
+export function MainHeader({ user }: MainHeaderProps) {
   const { theme, setTheme } = useTheme()
   const { toggleSidebar  } = useSidebar()
   const [mounted, setMounted] = useState(false)
   const [currentDateTime, setCurrentDateTime] = useState("")
   const router = useRouter()
+  const supabase = createClient()
 
   // Update current date and time
   useEffect(() => {
@@ -77,11 +83,55 @@ export function MainHeader() {
     }
   }
 
-  const handleLogoutClick = (e: React.MouseEvent) => {
+  const handleLogoutClick = async  (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     console.log("🔄 Cerrando sesión...")
     // Aquí se implementaría la lógica de logout
+    try {
+      await (await supabase).auth.signOut()
+      router.push('/login')
+      router.refresh()
+      console.log("✅ Sesión cerrada exitosamente")
+    } catch (error) {
+      console.error("❌ Error al cerrar sesión:", error)
+    }
+  }
+
+  // Funciones para manejar clics en el dropdown
+  const handleDropdownItemClick = (action: 'profile' | 'settings' | 'logout', e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    
+    switch (action) {
+      case 'profile':
+        handleProfileClick(e as unknown as React.MouseEvent)
+        break
+      case 'settings':
+        handleSettingsClick(e as unknown as React.MouseEvent)
+        break
+      case 'logout':
+        handleLogoutClick(e as unknown as React.MouseEvent)
+        break
+    }
+  }
+
+  const getUserInitials = () => {
+    if (!user) return "JR"
+    if (user.user_metadata?.full_name) {
+      const names = user.user_metadata.full_name.split(' ')
+      return (names[0][0] + (names[1]?.[0] || names[0][1] || '')).toUpperCase()
+    }
+    return user.email?.charAt(0).toUpperCase() || "JR"
+  }
+
+  const getUserDisplayName = () => {
+    if (!user) return "Juan Carlos Rodríguez"
+    return user.user_metadata?.full_name || user.email?.split('@')[0] || "Usuario"
+  }
+
+  const getUserEmail = () => {
+    if (!user) return "admin@transportpro.com"
+    return user.email || "usuario@ejemplo.com"
   }
 
   return (
@@ -98,7 +148,8 @@ export function MainHeader() {
             <Menu className="h-5 w-5" />
           </Button>
 
-          {/* Botón Volver al Dashboard */}
+          {/* Botón Volver al Dashboard - solo mostrar si hay usuario*/}
+          {user && (
           <Link 
             href="/" 
             className="flex items-center text-blue-600 hover:text-blue-800 transition-colors mr-4"
@@ -106,6 +157,7 @@ export function MainHeader() {
             <Truck className="h-6 w-6 mr-2" />
             <span className="text-sm font-medium hidden sm:inline">Volver al Dashboard</span>
           </Link>
+          )}
 
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100 hidden md:block">
             Sistema de Gestión de Transporte
@@ -156,7 +208,8 @@ export function MainHeader() {
                 1
               </Badge>
             </Button>
-
+            
+            {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -166,7 +219,7 @@ export function MainHeader() {
                 >
                   <Avatar className="h-9 w-9 border border-slate-200 dark:border-slate-700">
                     <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
-                      JR
+                      {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -174,47 +227,48 @@ export function MainHeader() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Juan Carlos Rodríguez</p>
-                    <p className="text-xs leading-none text-muted-foreground">admin@transportpro.com</p>
+                    <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{getUserEmail()}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem
-                    onClick={handleProfileClick}
+                    onClick={(e) => handleDropdownItemClick('profile', e)}
                     className="cursor-pointer"
-                    onSelect={(e) => {
-                      console.log("🎯 MenuItem Mi Perfil seleccionado")
-                      handleProfileClick(e as unknown as React.MouseEvent)
-                    }}
                   >
                     <User className="mr-2 h-4 w-4" />
                     <span>Mi Perfil</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={handleSettingsClick}
-                    className="cursor-pointer"
-                    onSelect={(e) => {
-                      console.log("🎯 MenuItem Configuración seleccionado")
-                      handleSettingsClick(e as unknown as React.MouseEvent)
-                    }}>
+                      onClick={(e) => handleDropdownItemClick('settings', e)}
+                      className="cursor-pointer"
+                    >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configuración</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={handleLogoutClick}
-                  className="cursor-pointer"
-                  onSelect={(e) => {
-                    console.log("🎯 MenuItem Cerrar sesión seleccionado")
-                    handleLogoutClick(e as unknown as React.MouseEvent)
-                  }}>
+                    onClick={(e) => handleDropdownItemClick('logout', e)}
+                    className="cursor-pointer text-red-600 focus:text-red-700"
+                  >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            ) : (
+              // Mostrar botones de login/registro si no hay usuario
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/login">Iniciar Sesión</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/registro">Registrarse</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
