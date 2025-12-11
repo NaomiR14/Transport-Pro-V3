@@ -11,7 +11,7 @@ export default async function LoginPage() {
     // Si ya está autenticado, redirigir al dashboard
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-        redirect('/multas-conductores')
+        redirect('/')
     }
 
     return (

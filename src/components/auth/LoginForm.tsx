@@ -38,7 +38,7 @@ export default function LoginForm() {
                 router.refresh()
                 // Redirigir después de un breve delay
                 setTimeout(() => {
-                    router.push('/multas-conductores')
+                    router.push('/')
                 }, 1500)
             }
         } catch (err: any) {

@@ -15,12 +15,11 @@ import {
     BarChart3,
 } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth" // ← Importar useAuth
 
-interface DashboardContentProps {
-    user: any
-}
+export default function DashboardContent() { // ← Eliminar props
+    const { user, profile } = useAuth() // ← Obtener user del hook
 
-export default function DashboardContent({ user }: DashboardContentProps) {
     // Si no hay usuario, mostrar landing pública
     if (!user) {
         return (
@@ -144,15 +143,23 @@ export default function DashboardContent({ user }: DashboardContentProps) {
         },
     ]
 
+    // Determinar qué nombre mostrar
+    const displayName = profile?.full_name || 
+                       user.user_metadata?.full_name || 
+                       user.email?.split('@')[0] || 
+                       'Usuario'
+
     return (
         <div className="container mx-auto px-4 py-6">
             <div className="mb-8">
                 <h2 className="text-3xl font-bold tracking-tight mb-2">
-                    Bienvenido, {user.user_metadata?.full_name || 
-                                user.user_metadata?.name || 
-                                user.email?.split('@')[0]}
+                    Bienvenido, {displayName}
                 </h2>
-                <p className="text-muted-foreground">Accede rápidamente a todos los módulos del sistema</p>
+                <p className="text-muted-foreground">
+                    Accede rápidamente a todos los módulos del sistema
+                    {profile?.role && ` | Rol: ${profile.role === 'admin' ? 'Administrador' : 
+                                        profile.role === 'driver' ? 'Conductor' : 'Usuario'}`}
+                </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

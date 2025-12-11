@@ -1,15 +1,18 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import LayoutProviders from '@/components/layout'
-
+import { Toaster } from "sonner"
+import { QueryProvider } from "@/providers/query-provider"
+import { ThemeProvider } from "@/components/theme-provider"
+import AuthInitializer from "@/components/auth/AuthInitializer"
+import AuthLoading from "@/components/auth/AuthLoading"
+import ProtectedLayout from '@/components/layout/ProtectedLayout' // ← Nuevo
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Sistema de Gestión de Transporte",
   description: "Sistema integral para la gestión de operaciones de transporte",
-    
 }
 
 export default function RootLayout({
@@ -19,12 +22,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={inter.className}
-      suppressHydrationWarning={true} // ← Esto soluciona el problema
-      >
-        <LayoutProviders>
-          {children}
-        </LayoutProviders>
+      <body className={inter.className} suppressHydrationWarning>
+        <QueryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {/* Inicializador de Auth */}
+            <AuthInitializer />
+            
+            
+            {/* Loading mientras verifica auth */}
+            <AuthLoading />
+            
+            {/* Layout condicional protegido */}
+            <ProtectedLayout>
+              {children}
+            </ProtectedLayout>
+            
+            <Toaster position="top-right" richColors closeButton duration={4000} />
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   )

@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSidebar } from "./sidebar-context"
-import { useAuth } from "@/components/auth/auth-context"
+import { useAuth } from "@/hooks/useAuth" // ← Cambiar a nuevo hook
 
 interface SidebarNavProps {
   className?: string
@@ -33,7 +33,7 @@ export function SidebarNav({ className }: SidebarNavProps) {
   const pathname = usePathname()
   const { isOpen, toggleSidebar } = useSidebar()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const { user } = useAuth() // Obtener user del contexto
+  const { user } = useAuth() // ← Obtener user del nuevo hook
 
   const navItems = [
     {
