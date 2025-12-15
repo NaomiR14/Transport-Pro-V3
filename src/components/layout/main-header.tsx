@@ -18,8 +18,9 @@ import {
 import { useSidebar } from "./sidebar-context"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/autb/useAuth"
 import { useAuthStore } from "@/store/auth-store" // ← Importar store
+import { getRoleName } from '@/utils/role-names'
 
 export function MainHeader() {
   const { theme, setTheme } = useTheme()
@@ -84,111 +85,111 @@ export function MainHeader() {
   }
 
   const handleLogoutClick = async (e: React.MouseEvent) => {
-  e.preventDefault()
-  e.stopPropagation()
-  
-  console.log('🚪 Iniciando logout con timeout...')
-  
-  // 1. Cerrar dropdown inmediatamente
-  setIsOpen(false)
-  
-  // 2. Establecer timeout para forzar limpieza si se atasca
-  const logoutTimeout = setTimeout(() => {
-    console.log('⏰ Timeout: Forzando limpieza después de 3 segundos...')
-    forceCleanupAndRedirect()
-  }, 3000)
- // 3 segundos máximo
-  
-  try {
-    // 3. Limpiar estado LOCALMENTE PRIMERO (antes del logout)
-    console.log('🔄 Limpiando estado local inmediatamente...')
+    e.preventDefault()
+    e.stopPropagation()
+
+    console.log('🚪 Iniciando logout con timeout...')
+
+    // 1. Cerrar dropdown inmediatamente
+    setIsOpen(false)
+
+    // 2. Establecer timeout para forzar limpieza si se atasca
+    const logoutTimeout = setTimeout(() => {
+      console.log('⏰ Timeout: Forzando limpieza después de 3 segundos...')
+      forceCleanupAndRedirect()
+    }, 3000)
+    // 3 segundos máximo
+
+    try {
+      // 3. Limpiar estado LOCALMENTE PRIMERO (antes del logout)
+      console.log('🔄 Limpiando estado local inmediatamente...')
+      useAuthStore.getState().setUser(null)
+      useAuthStore.getState().setProfile(null)
+      useAuthStore.getState().setError(null)
+      useAuthStore.getState().setLoading(true) // Solo para UI
+
+      // 4. Limpiar localStorage manualmente
+      try {
+        localStorage.removeItem('auth-storage')
+        console.log('✅ localStorage limpiado')
+      } catch (storageError) {
+        console.warn('⚠️ No se pudo limpiar localStorage:', storageError)
+      }
+
+      // 5. Hacer logout de Supabase con timeout
+      console.log('🔄 Intentando signOut de Supabase...')
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+
+      // Intentar logout pero con catch separado
+      const logoutPromise = supabase.auth.signOut()
+        .then(({ error }) => {
+          clearTimeout(logoutTimeout)
+          if (error) {
+            console.error('❌ Error en signOut de Supabase:', error)
+            throw error
+          }
+          console.log('✅ Supabase signOut exitoso')
+          return true
+        })
+        .catch(error => {
+          console.warn('⚠️ Error en signOut (continuando de todas formas):', error)
+          return false // Continuar incluso con error
+        })
+
+      // Esperar máximo 2 segundos
+      const logoutSuccess = await Promise.race([
+        logoutPromise,
+        new Promise(resolve => setTimeout(() => {
+          console.log('⏰ SignOut tardó demasiado, continuando...')
+          resolve(false)
+        }, 2000))
+      ])
+
+      console.log('📋 Resultado signOut:', logoutSuccess)
+
+    } catch (error) {
+      console.error('❌ Error en proceso de logout:', error)
+    } finally {
+      // 6. SIEMPRE ejecutar limpieza final y redirección
+      clearTimeout(logoutTimeout)
+      forceCleanupAndRedirect()
+    }
+  }
+
+  // Función auxiliar para forzar limpieza
+  const forceCleanupAndRedirect = () => {
+    console.log('🧹 Forzando limpieza completa...')
+
+    // Limpiar TODO el estado
     useAuthStore.getState().setUser(null)
     useAuthStore.getState().setProfile(null)
     useAuthStore.getState().setError(null)
-    useAuthStore.getState().setLoading(true) // Solo para UI
-    
-    // 4. Limpiar localStorage manualmente
+    useAuthStore.getState().setLoading(false)
+
+    // Limpiar todos los storages
     try {
       localStorage.removeItem('auth-storage')
-      console.log('✅ localStorage limpiado')
-    } catch (storageError) {
-      console.warn('⚠️ No se pudo limpiar localStorage:', storageError)
+      sessionStorage.removeItem('auth-storage')
+      localStorage.removeItem('supabase.auth.token')
+    } catch (e) {
+      console.warn('No se pudo limpiar storage:', e)
     }
-    
-    // 5. Hacer logout de Supabase con timeout
-    console.log('🔄 Intentando signOut de Supabase...')
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
-    
-    // Intentar logout pero con catch separado
-    const logoutPromise = supabase.auth.signOut()
-      .then(({ error }) => {
-        clearTimeout(logoutTimeout)
-        if (error) {
-          console.error('❌ Error en signOut de Supabase:', error)
-          throw error
-        }
-        console.log('✅ Supabase signOut exitoso')
-        return true
-      })
-      .catch(error => {
-        console.warn('⚠️ Error en signOut (continuando de todas formas):', error)
-        return false // Continuar incluso con error
-      })
-    
-    // Esperar máximo 2 segundos
-    const logoutSuccess = await Promise.race([
-      logoutPromise,
-      new Promise(resolve => setTimeout(() => {
-        console.log('⏰ SignOut tardó demasiado, continuando...')
-        resolve(false)
-      }, 2000))
-    ])
-    
-    console.log('📋 Resultado signOut:', logoutSuccess)
-    
-  } catch (error) {
-    console.error('❌ Error en proceso de logout:', error)
-  } finally {
-    // 6. SIEMPRE ejecutar limpieza final y redirección
-    clearTimeout(logoutTimeout)
-    forceCleanupAndRedirect()
-  }
-}
 
-// Función auxiliar para forzar limpieza
-const forceCleanupAndRedirect = () => {
-  console.log('🧹 Forzando limpieza completa...')
-  
-  // Limpiar TODO el estado
-  useAuthStore.getState().setUser(null)
-  useAuthStore.getState().setProfile(null)
-  useAuthStore.getState().setError(null)
-  useAuthStore.getState().setLoading(false)
-  
-  // Limpiar todos los storages
-  try {
-    localStorage.removeItem('auth-storage')
-    sessionStorage.removeItem('auth-storage')
-    localStorage.removeItem('supabase.auth.token')
-  } catch (e) {
-    console.warn('No se pudo limpiar storage:', e)
+    // Limpiar cookies de Supabase manualmente
+    document.cookie.split(";").forEach(function (c) {
+      document.cookie = c.replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/")
+    })
+
+    console.log('🔄 Redirigiendo a /login...')
+
+    // Redirección FORZADA
+    setTimeout(() => {
+      window.location.href = '/login'
+    }, 100)
   }
-  
-  // Limpiar cookies de Supabase manualmente
-  document.cookie.split(";").forEach(function(c) {
-    document.cookie = c.replace(/^ +/, "")
-      .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/")
-  })
-  
-  console.log('🔄 Redirigiendo a /login...')
-  
-  // Redirección FORZADA
-  setTimeout(() => {
-    window.location.href = '/login'
-  }, 100)
-}
-  
+
 
   // Funciones para manejar clics en el dropdown
   const handleDropdownItemClick = (action: 'profile' | 'settings' | 'logout', e?: React.MouseEvent) => {
@@ -208,24 +209,23 @@ const forceCleanupAndRedirect = () => {
   }
 
   const getUserInitials = () => {
-    if (!user) return "JR"
-    if (profile?.full_name) {
-      const names = profile.full_name.split(' ')
-      return (names[0][0] + (names[1]?.[0] || names[0][1] || '')).toUpperCase()
-    }
-    if (user.user_metadata?.full_name) {
-      const names = user.user_metadata.full_name.split(' ')
-      return (names[0][0] + (names[1]?.[0] || names[0][1] || '')).toUpperCase()
-    }
-    return user.email?.charAt(0).toUpperCase() || "JR"
+  if (!user) return "US"
+  if (profile?.nombre && profile?.apellido) {
+    return (profile.nombre[0] + profile.apellido[0]).toUpperCase()
   }
+  if (profile?.nombre) {
+    return profile.nombre.substring(0, 2).toUpperCase()
+  }
+  return user.email?.substring(0, 2).toUpperCase() || "US"
+}
 
   const getUserDisplayName = () => {
-    if (!user) return "Juan Carlos Rodríguez"
-    return profile?.full_name ||
-      user.user_metadata?.full_name ||
-      user.email?.split('@')[0] ||
-      "Usuario"
+    if (!user) return "Usuario"
+    if (profile?.nombre && profile?.apellido) {
+      return `${profile.nombre} ${profile.apellido}`
+    }
+    if (profile?.nombre) return profile.nombre
+    return user.email?.split('@')[0] || "Usuario"
   }
 
   const getUserEmail = () => {
@@ -329,8 +329,7 @@ const forceCleanupAndRedirect = () => {
                       <p className="text-xs leading-none text-muted-foreground">{getUserEmail()}</p>
                       {profile?.role && (
                         <p className="text-xs leading-none text-muted-foreground mt-1">
-                          Rol: {profile.role === 'admin' ? 'Administrador' :
-                            profile.role === 'driver' ? 'Conductor' : 'Usuario'}
+                          Rol: {getRoleName(profile.role)}
                         </p>
                       )}
                     </div>

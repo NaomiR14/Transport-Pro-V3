@@ -15,7 +15,7 @@ import {
     BarChart3,
 } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/hooks/useAuth" // ← Importar useAuth
+import { useAuth } from "@/hooks/autb/useAuth" // ← Importar useAuth
 
 export default function DashboardContent() { // ← Eliminar props
     const { user, profile } = useAuth() // ← Obtener user del hook

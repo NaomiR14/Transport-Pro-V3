@@ -4,15 +4,38 @@ import { User } from '@supabase/supabase-js'
 export type AuthUser = User
 
 
+export type UserRole =
+    | 'admin'
+    | 'director'
+    | 'gerente'
+    | 'coordinador'
+    | 'supervisor'
+    | 'recursos_humanos'
+    | 'administrativo'
+    | 'contador'
+    | 'comercial'
+    | 'atencion_cliente'
+    | 'conductor'
+
 export interface UserProfile {
     id: string
-    full_name: string
+    nombre?: string
+    apellido?: string
     avatar_url?: string
-    role: 'admin' | 'user' | 'driver'
+    role?: UserRole
     phone?: string
-    created_at: string
-    updated_at: string
+    department?: string
+    position?: string
+    created_at?: string
+    updated_at?: string
 }
+
+// Helper para obtener nombre completo
+export function getFullName(profile: UserProfile | null): string {
+    if (!profile) return ''
+    return `${profile.nombre || ''} ${profile.apellido || ''}`.trim()
+}
+
 // Para las credenciales
 export interface LoginCredentials {
     email: string
@@ -20,7 +43,8 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials extends LoginCredentials {
-    full_name: string
+    nombre: string
+    apellido: string
     phone?: string
 }
 

@@ -26,7 +26,8 @@ export class AuthService {
             password: credentials.password,
             options: {
                 data: {
-                    full_name: credentials.full_name,
+                    nombre: credentials.nombre,
+                    apellido: credentials.apellido,
                     phone: credentials.phone,
                 },
             },
@@ -52,6 +53,14 @@ export class AuthService {
             .eq('id', userId)
             .select()
             .single()
+    }
+
+    // Helper para obtener nombre completo
+    async getFullName(userId: string): Promise<string> {
+        const { data: profile } = await this.getProfile(userId)
+        if (!profile) return ''
+
+        return `${profile.nombre || ''} ${profile.apellido || ''}`.trim()
     }
 
     onAuthStateChange(callback: (event: any, session: any) => void) {

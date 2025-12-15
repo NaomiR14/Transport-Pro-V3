@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSidebar } from "./sidebar-context"
-import { useAuth } from "@/hooks/useAuth" // ← Cambiar a nuevo hook
+import { useAuth } from "@/hooks/autb/useAuth" // ← Cambiar a nuevo hook
 
 interface SidebarNavProps {
   className?: string
