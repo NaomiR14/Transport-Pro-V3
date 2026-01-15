@@ -42,10 +42,11 @@ services:
       dockerfile: docker/Dockerfile.dev
     ports:
       - "3000:3000"
+    env_file:
+      - ../.env.local
     environment:
       - NODE_ENV=development
       - API_URL=http://csharp-api:8080
-      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
     # depends_on:
     #   - csharp-api
     networks:

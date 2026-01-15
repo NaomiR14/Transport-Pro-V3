@@ -57,3 +57,5 @@ pnpm-lock.yaml
 # Docker
 .dockerignore
 docker-compose.override.yml
+# Supabase temporary files
+supabase/.temp/
