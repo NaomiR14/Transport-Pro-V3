@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/hooks/autb/useAuth'
+import { useAuth } from '@/hooks/auth/useAuth'
 import { UserRole } from '@/types/auth'
 
 export type Module =

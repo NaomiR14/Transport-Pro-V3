@@ -1,6 +1,7 @@
 'use client'
 
-import { useAuth } from '@/hooks/autb/useAuth'
+import { useAuth } from '@/hooks/auth/useAuth'
+import { usePermissions } from '@/hooks/auth/usePermissions'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,6 +9,7 @@ import { User, Mail, Phone, Shield } from 'lucide-react'
 
 export default function ProfilePage() {
     const { user, profile, isLoading, refreshProfile } = useAuth()
+    const { getRoleName } = usePermissions()
 
     if (isLoading) {
         return (
@@ -31,10 +33,12 @@ export default function ProfilePage() {
         )
     }
 
-    const displayName = profile?.full_name ||
-        user.user_metadata?.full_name ||
-        user.email?.split('@')[0] ||
-        'Usuario'
+    const displayName = profile?.nombre && profile?.apellido
+        ? `${profile.nombre} ${profile.apellido}`
+        : profile?.full_name ||
+          user.user_metadata?.full_name ||
+          user.email?.split('@')[0] ||
+          'Usuario'
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -44,7 +48,11 @@ export default function ProfilePage() {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={refreshProfile}
+                        onClick={async () => {
+                            await refreshProfile()
+                            window.location.reload()
+                        }}
+                        title="Actualizar información del perfil (si cambiaste tu rol, recarga la página)"
                     >
                         Actualizar
                     </Button>
@@ -61,14 +69,33 @@ export default function ProfilePage() {
                                 <div className="flex items-center gap-2 mt-1">
                                     <Shield className="h-4 w-4 text-muted-foreground" />
                                     <span className="text-sm text-muted-foreground">
-                                        {profile?.role === 'admin' ? 'Administrador' :
-                                            profile?.role === 'driver' ? 'Conductor' : 'Usuario'}
+                                        {getRoleName()}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {profile?.nombre && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <User className="h-4 w-4 text-muted-foreground" />
+                                        <span className="font-medium">Nombre:</span>
+                                    </div>
+                                    <p className="text-sm pl-6">{profile.nombre}</p>
+                                </div>
+                            )}
+
+                            {profile?.apellido && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <User className="h-4 w-4 text-muted-foreground" />
+                                        <span className="font-medium">Apellido:</span>
+                                    </div>
+                                    <p className="text-sm pl-6">{profile.apellido}</p>
+                                </div>
+                            )}
+
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
                                     <Mail className="h-4 w-4 text-muted-foreground" />

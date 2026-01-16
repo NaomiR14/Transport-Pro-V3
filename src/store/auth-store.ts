@@ -9,10 +9,13 @@ function normalizeProfile(profile: any): UserProfile | null {
     
     return {
         id: profile.id || '',
-        full_name: profile.full_name,
+        nombre: profile.nombre,
+        apellido: profile.apellido,
         avatar_url: profile.avatar_url,
-        role: profile.role as 'admin' | 'user' | 'driver',
+        role: profile.role,
         phone: profile.phone,
+        department: profile.department,
+        position: profile.position,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
     }

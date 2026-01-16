@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/hooks/autb/useAuth'
+import { useAuth } from '@/hooks/auth/useAuth'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { SidebarProvider } from './sidebar-context'

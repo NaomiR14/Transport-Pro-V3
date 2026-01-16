@@ -23,7 +23,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSidebar } from "./sidebar-context"
-import { useAuth } from "@/hooks/autb/useAuth" // ← Cambiar a nuevo hook
+import { useAuth } from "@/hooks/auth/useAuth" // ← Cambiar a nuevo hook
+import { usePermissions } from "@/hooks/auth/usePermissions"
 
 interface SidebarNavProps {
   className?: string
@@ -34,93 +35,111 @@ export function SidebarNav({ className }: SidebarNavProps) {
   const { isOpen, toggleSidebar } = useSidebar()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const { user } = useAuth() // ← Obtener user del nuevo hook
+  const { canAccessModule } = usePermissions()
 
-  const navItems = [
+  const allNavItems = [
     {
       title: "Dashboard",
       href: "/",
       icon: Home,
       color: "text-blue-600",
+      module: "dashboard" as const,
     },
     {
       title: "Órdenes de Transporte",
       href: "/ordenes",
       icon: Package,
       color: "text-orange-600",
+      module: "ordenes" as const,
     },
     {
       title: "Flota de Vehículos",
       href: "/vehiculos",
       icon: Truck,
       color: "text-green-600",
+      module: "vehiculos" as const,
     },
     {
       title: "Conductores",
       href: "/conductores",
       icon: Users,
       color: "text-purple-600",
+      module: "conductores" as const,
     },
     {
       title: "Rutas de Viaje",
       href: "/rutas",
       icon: FileText,
       color: "text-cyan-600",
+      module: "rutas" as const,
     },
     {
       title: "Multas de Conductores",
       href: "/multas",
       icon: AlertTriangle,
       color: "text-red-600",
+      module: "multas" as const,
     },
     {
       title: "Flujo de Caja",
       href: "/flujo-caja",
       icon: TrendingUp,
       color: "text-emerald-600",
+      module: "flujo_caja" as const,
     },
     {
       title: "Indicadores por Vehículo",
       href: "/indicadores-vehiculo",
       icon: BarChart3,
       color: "text-indigo-600",
+      module: "indicadores_vehiculo" as const,
     },
     {
       title: "Indicadores por Conductor",
       href: "/indicadores-conductor",
       icon: Users,
       color: "text-pink-600",
+      module: "indicadores_conductor" as const,
     },
     {
       title: "Liquidaciones",
       href: "/liquidaciones",
       icon: DollarSign,
       color: "text-yellow-600",
+      module: "liquidaciones" as const,
     },
     {
-      title: "Mantenimiento",
-      href: "/mantenimiento",
+      title: "Talleres",
+      href: "/talleres",
       icon: Wrench,
       color: "text-gray-600",
+      module: "talleres" as const,
     },
     {
       title: "Mantenimiento de Vehículos",
       href: "/mantenimiento-vehiculos",
       icon: Wrench,
       color: "text-gray-600",
+      module: "mantenimiento_vehiculos" as const,
     },
     {
       title: "Seguros de Vehículos",
       href: "/seguros",
       icon: Shield,
       color: "text-blue-600",
+      module: "seguros" as const,
     },
     {
       title: "Impuestos de Vehículos",
       href: "/impuestos-vehiculares",
       icon: Receipt,
       color: "text-red-600",
+      module: "impuestos_vehiculares" as const,
     },
   ]
+
+  // Filtrar navItems según permisos del usuario
+  const navItems = allNavItems.filter(item => canAccessModule(item.module))
 
   // Si no hay usuario, no mostrar sidebar
   if (!user) {

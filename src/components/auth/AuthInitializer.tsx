@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function AuthInitializer() {
     useEffect(() => {
-        console.log('🔧 AuthInitializer montado')
         
         const supabase = createClient()
         let mounted = true
@@ -17,16 +16,13 @@ export default function AuthInitializer() {
             
             try {
                 useAuthStore.getState().setLoading(true)
-                console.log('🔧 Verificando sesión inicial...')
                 
                 const { data: { session }, error } = await supabase.auth.getSession()
                 
                 if (error) {
-                    console.error('🔧 Error obteniendo sesión:', error)
+                    console.error('Error obteniendo sesión:', error)
                     return
                 }
-                
-                console.log('🔧 Sesión encontrada:', session?.user?.email)
                 
                 if (session?.user) {
                     useAuthStore.getState().setUser(session.user)
@@ -40,24 +36,21 @@ export default function AuthInitializer() {
                             .single()
                         
                         if (profileError) {
-                            console.error('🔧 Error obteniendo perfil:', profileError)
+                            console.error('Error obteniendo perfil:', profileError)
                         } else {
-                            console.log('🔧 Perfil obtenido:', profile)
                             useAuthStore.getState().setProfile(profile)
                         }
                     } catch (profileError) {
-                        console.error('🔧 Error en perfil:', profileError)
+                        console.error('Error al cargar perfil:', profileError)
                     }
                 } else {
-                    console.log('🔧 No hay sesión activa')
                     useAuthStore.getState().setUser(null)
                     useAuthStore.getState().setProfile(null)
                 }
             } catch (error) {
-                console.error('🔧 Error en checkSession:', error)
+                console.error('Error en verificación de sesión:', error)
             } finally {
                 if (mounted) {
-                    console.log('🔧 Finalizando loading...')
                     useAuthStore.getState().setLoading(false)
                 }
             }
@@ -71,8 +64,6 @@ export default function AuthInitializer() {
             async (event, session) => {
                 if (!mounted) return
                 
-                console.log('🔄 AuthStateChange:', event, session?.user?.email)
-                
                 // IMPORTANTE: Solo establecer loading para SIGNED_IN
                 if (event === 'SIGNED_IN') {
                     useAuthStore.getState().setLoading(true)
@@ -83,15 +74,19 @@ export default function AuthInitializer() {
                     
                     // Obtener perfil
                     try {
-                        const { data: profile } = await supabase
+                        const { data: profile, error: profileError } = await supabase
                             .from('profiles')
                             .select('*')
                             .eq('id', session.user.id)
                             .single()
                         
-                        useAuthStore.getState().setProfile(profile)
+                        if (profileError) {
+                            console.error('Error obteniendo perfil:', profileError)
+                        } else {
+                            useAuthStore.getState().setProfile(profile)
+                        }
                     } catch (error) {
-                        console.error('🔧 Error obteniendo perfil en onAuthStateChange:', error)
+                        console.error('Error al cargar perfil:', error)
                     }
                 } else {
                     useAuthStore.getState().setUser(null)
@@ -108,7 +103,6 @@ export default function AuthInitializer() {
         )
         
         return () => {
-            console.log('🗑️ AuthInitializer desmontando...')
             mounted = false
             subscription.unsubscribe()
         }

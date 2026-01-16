@@ -18,7 +18,7 @@ import {
 import { useSidebar } from "./sidebar-context"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useAuth } from "@/hooks/autb/useAuth"
+import { useAuth } from "@/hooks/auth/useAuth"
 import { useAuthStore } from "@/store/auth-store" // ← Importar store
 import { getRoleName } from '@/utils/role-names'
 

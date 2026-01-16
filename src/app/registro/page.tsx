@@ -12,7 +12,8 @@ export default function RegistroPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
-    const [fullName, setFullName] = useState('')
+    const [nombre, setNombre] = useState('')
+    const [apellido, setApellido] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -43,8 +44,13 @@ export default function RegistroPage() {
             return false
         }
 
-        if (!fullName.trim()) {
-            setError('El nombre completo es requerido')
+        if (!nombre.trim()) {
+            setError('El nombre es requerido')
+            return false
+        }
+
+        if (!apellido.trim()) {
+            setError('El apellido es requerido')
             return false
         }
 
@@ -69,7 +75,9 @@ export default function RegistroPage() {
                 password,
                 options: {
                     data: {
-                        full_name: fullName.trim(),
+                        nombre: nombre.trim(),
+                        apellido: apellido.trim(),
+                        full_name: `${nombre.trim()} ${apellido.trim()}`,
                     },
                     emailRedirectTo: `${window.location.origin}/auth/callback`,
                 },
@@ -86,7 +94,8 @@ export default function RegistroPage() {
             setEmail('')
             setPassword('')
             setConfirmPassword('')
-            setFullName('')
+            setNombre('')
+            setApellido('')
 
             // 4. Opcional: Redirigir después de 5 segundos
             setTimeout(() => {
@@ -132,22 +141,44 @@ export default function RegistroPage() {
                 <div className="sm:mx-auto sm:w-full sm:max-w-md">
                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
                         <form onSubmit={handleRegister} className="space-y-6">
-                            {/* Full Name Field */}
+                            {/* Nombre Field */}
                             <div>
-                                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre Completo
+                                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre
                                 </label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <User className="h-5 w-5 text-gray-400" />
                                     </div>
                                     <input
-                                        id="fullName"
+                                        id="nombre"
                                         type="text"
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
                                         className="pl-10 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition"
-                                        placeholder="Juan Pérez"
+                                        placeholder="Juan"
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Apellido Field */}
+                            <div>
+                                <label htmlFor="apellido" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Apellido
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <User className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="apellido"
+                                        type="text"
+                                        value={apellido}
+                                        onChange={(e) => setApellido(e.target.value)}
+                                        className="pl-10 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition"
+                                        placeholder="Pérez"
                                         required
                                         disabled={loading}
                                     />

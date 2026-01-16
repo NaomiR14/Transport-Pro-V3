@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/hooks/autb/useAuth'
+import { useAuth } from '@/hooks/auth/useAuth'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import { Loader2 } from 'lucide-react'

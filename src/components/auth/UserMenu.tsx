@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { LogOut, User, Settings, ChevronDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
-import { useAuth } from '@/hooks/autb/useAuth'
+import { useAuth } from '@/hooks/auth/useAuth'
 
 export default function UserMenu() {
     const [isOpen, setIsOpen] = useState(false)
@@ -47,10 +47,12 @@ export default function UserMenu() {
     }
 
     // Determinar qué nombre mostrar
-    const displayName = profile?.full_name ||
-        user.user_metadata?.full_name ||
-        user.email?.split('@')[0] ||
-        'Usuario'
+    const displayName = profile?.nombre && profile?.apellido
+        ? `${profile.nombre} ${profile.apellido}`
+        : profile?.full_name ||
+          user.user_metadata?.full_name ||
+          user.email?.split('@')[0] ||
+          'Usuario'
     const userEmail = user.email || ''
 
     return (

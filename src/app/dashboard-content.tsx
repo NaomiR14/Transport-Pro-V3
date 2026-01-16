@@ -15,10 +15,12 @@ import {
     BarChart3,
 } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/hooks/autb/useAuth" // ← Importar useAuth
+import { useAuth } from "@/hooks/auth/useAuth" // ← Importar useAuth
+import { usePermissions } from "@/hooks/auth/usePermissions"
 
 export default function DashboardContent() { // ← Eliminar props
     const { user, profile } = useAuth() // ← Obtener user del hook
+    const { canAccessModule, getRoleName } = usePermissions()
 
     // Si no hay usuario, mostrar landing pública
     if (!user) {
@@ -49,13 +51,14 @@ export default function DashboardContent() { // ← Eliminar props
     }
 
     // Dashboard para usuarios autenticados
-    const modules = [
+    const allModules = [
         {
             title: "Órdenes de Transporte",
             description: "Gestionar órdenes de transporte y seguimiento",
             icon: Package,
             href: "/ordenes",
             color: "bg-blue-500",
+            module: "ordenes" as const,
         },
         {
             title: "Flota de Vehículos",
@@ -63,6 +66,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: Truck,
             href: "/vehiculos",
             color: "bg-green-500",
+            module: "vehiculos" as const,
         },
         {
             title: "Conductores",
@@ -70,6 +74,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: Users,
             href: "/conductores",
             color: "bg-purple-500",
+            module: "conductores" as const,
         },
         {
             title: "Rutas de Viaje",
@@ -77,6 +82,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: FileText,
             href: "/rutas",
             color: "bg-red-500",
+            module: "rutas" as const,
         },
         {
             title: "Multas de Conductores",
@@ -84,6 +90,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: AlertTriangle,
             href: "/multas",
             color: "bg-amber-500",
+            module: "multas" as const,
         },
         {
             title: "Flujo de Caja",
@@ -91,6 +98,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: TrendingUp,
             href: "/flujo-caja",
             color: "bg-emerald-500",
+            module: "flujo_caja" as const,
         },
         {
             title: "Indicadores por Vehículo",
@@ -98,6 +106,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: BarChart3,
             href: "/indicadores-vehiculo",
             color: "bg-violet-500",
+            module: "indicadores_vehiculo" as const,
         },
         {
             title: "Indicadores por Conductor",
@@ -105,6 +114,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: Users,
             href: "/indicadores-conductor",
             color: "bg-rose-500",
+            module: "indicadores_conductor" as const,
         },
         {
             title: "Liquidaciones",
@@ -112,6 +122,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: DollarSign,
             href: "/liquidaciones",
             color: "bg-yellow-500",
+            module: "liquidaciones" as const,
         },
         {
             title: "Talleres",
@@ -119,6 +130,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: Wrench,
             href: "/talleres",
             color: "bg-indigo-500",
+            module: "talleres" as const,
         },
         {
             title: "Mantenimiento de Vehículos",
@@ -126,6 +138,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: Wrench,
             href: "/mantenimiento-vehiculos",
             color: "bg-teal-500",
+            module: "mantenimiento_vehiculos" as const,
         },
         {
             title: "Seguros de Vehículos",
@@ -133,6 +146,7 @@ export default function DashboardContent() { // ← Eliminar props
             icon: Shield,
             href: "/seguros",
             color: "bg-cyan-500",
+            module: "seguros" as const,
         },
         {
             title: "Impuestos de Vehículos",
@@ -140,14 +154,20 @@ export default function DashboardContent() { // ← Eliminar props
             icon: Receipt,
             href: "/impuestos-vehiculares",
             color: "bg-purple-600",
+            module: "impuestos_vehiculares" as const,
         },
     ]
 
+    // Filtrar módulos según permisos del usuario
+    const modules = allModules.filter(module => canAccessModule(module.module))
+
     // Determinar qué nombre mostrar
-    const displayName = profile?.full_name || 
-                       user.user_metadata?.full_name || 
-                       user.email?.split('@')[0] || 
-                       'Usuario'
+    const displayName = profile?.nombre && profile?.apellido
+                       ? `${profile.nombre} ${profile.apellido}`
+                       : profile?.full_name || 
+                         user.user_metadata?.full_name || 
+                         user.email?.split('@')[0] || 
+                         'Usuario'
 
     return (
         <div className="container mx-auto px-4 py-6">
@@ -157,8 +177,7 @@ export default function DashboardContent() { // ← Eliminar props
                 </h2>
                 <p className="text-muted-foreground">
                     Accede rápidamente a todos los módulos del sistema
-                    {profile?.role && ` | Rol: ${profile.role === 'admin' ? 'Administrador' : 
-                                        profile.role === 'driver' ? 'Conductor' : 'Usuario'}`}
+                    {profile?.role && ` | Rol: ${getRoleName()}`}
                 </p>
             </div>
 
