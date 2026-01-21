@@ -35,8 +35,7 @@ export default function ProfilePage() {
 
     const displayName = profile?.nombre && profile?.apellido
         ? `${profile.nombre} ${profile.apellido}`
-        : profile?.full_name ||
-          user.user_metadata?.full_name ||
+        : user.user_metadata?.full_name ||
           user.email?.split('@')[0] ||
           'Usuario'
 

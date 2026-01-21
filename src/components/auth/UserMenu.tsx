@@ -49,10 +49,9 @@ export default function UserMenu() {
     // Determinar qué nombre mostrar
     const displayName = profile?.nombre && profile?.apellido
         ? `${profile.nombre} ${profile.apellido}`
-        : profile?.full_name ||
-          user.user_metadata?.full_name ||
-          user.email?.split('@')[0] ||
-          'Usuario'
+        : user.user_metadata?.full_name ||
+        user.email?.split('@')[0] ||
+        'Usuario'
     const userEmail = user.email || ''
 
     return (
@@ -90,8 +89,8 @@ export default function UserMenu() {
                         {profile?.role && (
                             <div className="mt-1">
                                 <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                                    {profile.role === 'admin' ? 'Administrador' :
-                                        profile.role === 'driver' ? 'Conductor' : 'Usuario'}
+                                    {profile.role === 'director' ? 'Administrador' :
+                                        profile.role === 'conductor' ? 'Conductor' : 'Usuario'}
                                 </span>
                             </div>
                         )}
