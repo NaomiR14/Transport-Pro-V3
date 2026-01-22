@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { Loader2 } from "lucide-react"
 import { MultaConductor, UpdateMultaConductorRequest } from "@/types/multas-conductores-types"
-import { CommonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/services/api/common-info-service"
 import { TrafficTicketType } from "@/types/common-info-types"
 
 interface EditMultasConductoresModalProps {
@@ -55,8 +55,7 @@ export default function EditMultasConductoresModal({
         const loadCommonInfo = async () => {
             try {
                 setIsLoading(true)
-                const svc = new CommonInfoService()
-                const infracciones = await svc.getTrafficTicketTypes()
+                const infracciones = await commonInfoService.getTrafficTicketTypes()
                 // Filtrar infracciones que tengan type válido (no vacío)
                 const infraccionesValidas = infracciones.filter(infraccion =>
                     infraccion.type && infraccion.type.trim() !== ''
@@ -161,19 +160,22 @@ export default function EditMultasConductoresModal({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (validateForm() && multa) {
-            // Calcular campos automáticos
-            const debe = Math.max(0, formData.importe_multa - formData.importe_pagado)
-            const estado_pago = calcularEstadoPago(formData.importe_pagado, formData.importe_multa)
-
-            const updatedMulta: MultaConductor = {
+        if (validateForm()) {
+            // NOTA: 'debe' y 'estado_pago' son calculados automáticamente por Supabase
+            // (debe = GENERATED column, estado_pago = trigger)
+            // NO los incluimos en el update, vendrán en la respuesta del servidor
+            const multaData: MultaConductor = multa ? {
                 ...multa,
                 ...formData,
-                debe,
-                estado_pago
+                // debe y estado_pago se calculan automáticamente en DB
+            } : {
+                id: '', // Se generará en el servidor
+                ...formData,
+                debe: 0, // Se calculará automáticamente
+                estado_pago: 'pendiente' // Se calculará automáticamente
             }
 
-            onSave(updatedMulta)
+            onSave(multaData)
         }
     }
 
@@ -215,9 +217,12 @@ export default function EditMultasConductoresModal({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Editar Multa de Conductor</DialogTitle>
+                    <DialogTitle>{multa ? 'Editar' : 'Crear'} Multa de Conductor</DialogTitle>
                     <DialogDescription>
-                        Modifica la información de la multa del conductor {formData.conductor}
+                        {multa 
+                            ? `Modifica la información de la multa del conductor ${formData.conductor}`
+                            : 'Ingresa la información de la nueva multa'
+                        }
                     </DialogDescription>
                 </DialogHeader>
 

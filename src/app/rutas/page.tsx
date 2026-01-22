@@ -142,7 +142,16 @@ export default function RutasViajePage() {
         return new Date(dateString).toLocaleDateString('es-MX')
     }
 
-    const getEstadoVehiculoBadge = (estado: string) => {
+    const getEstadoVehiculoBadge = (estado: string | null | undefined) => {
+        // Manejar valores undefined/null
+        if (!estado) {
+            return (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    ❓ Desconocido
+                </span>
+            )
+        }
+
         const estadoConfig = {
             'activo': { color: 'bg-green-100 text-green-800', icon: '✅' },
             'inactivo': { color: 'bg-gray-100 text-gray-800', icon: '⏸️' },

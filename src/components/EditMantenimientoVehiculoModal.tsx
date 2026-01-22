@@ -15,7 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { CalendarIcon, DollarSign, Settings, Wrench } from "lucide-react"
 import { MantenimientoVehiculo, CreateMantenimientoVehiculoRequest } from "@/types/mantenimiento-vehiculos-types"
-import { CommonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/services/api/common-info-service"
 
 // Definir interfaces locales basadas en lo que devuelve CommonInfoService
 interface MaintenanceType {
@@ -66,7 +66,6 @@ export function EditMantenimientoVehiculoModal({
         const loadCommonInfo = async () => {
             setIsLoadingCommonInfo(true)
             try {
-                const commonInfoService = new CommonInfoService()
                 const [types, plans] = await Promise.all([
                     commonInfoService.getMaintenanceTypes(),
                     commonInfoService.getMaintenancePlans()

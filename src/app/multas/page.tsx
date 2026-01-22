@@ -8,12 +8,12 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Search, Filter, Eye, Edit, Truck, AlertTriangle, Calendar, User, CreditCard, Loader2 } from "lucide-react"
+import { Plus, Search, Filter, Eye, Edit, Trash2, Truck, AlertTriangle, Calendar, User, CreditCard, Loader2 } from "lucide-react"
 import Link from "next/link"
 import EditMultasConductoresModal from "@/components/EditMultasConductoresModal"
-import { useFilteredMultasConductores } from "@/hooks/use-multas-conductores"
+import { useFilteredMultasConductores, useCreateMultaConductor, useUpdateMultaConductor, useDeleteMultaConductor } from "@/hooks/use-multas-conductores"
 import { MultaConductor } from "@/types/multas-conductores-types"
-import { CommonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/services/api/common-info-service"
 import { TrafficTicketType } from "@/types/common-info-types"
 
 // Función auxiliar para limpiar y validar infracciones
@@ -54,13 +54,15 @@ export default function MultasConductoresPage() {
 
     // Obtener datos del store y hooks
     const { multas, allMultas, isLoading, error } = useFilteredMultasConductores()
+    const createMultaMutation = useCreateMultaConductor()
+    const updateMultaMutation = useUpdateMultaConductor()
+    const deleteMultaMutation = useDeleteMultaConductor()
 
     // Cargar tipos de infracción al montar el componente
     useEffect(() => {
         const loadCommonInfo = async () => {
             try {
-                const svc = new CommonInfoService()
-                const infracciones = await svc.getTrafficTicketTypes()
+                const infracciones = await commonInfoService.getTrafficTicketTypes()
 
                 // Limpiar y validar las infracciones
                 const infraccionesLimpias = limpiarInfracciones(infracciones)
@@ -135,16 +137,45 @@ export default function MultasConductoresPage() {
         return importeMulta > 0 ? (importePagado / importeMulta) * 100 : 0
     }
 
+    const handleCreateMulta = () => {
+        setEditingMulta(null)
+        setIsEditModalOpen(true)
+    }
+
     const handleEditMulta = (multa: MultaConductor) => {
         setEditingMulta(multa)
         setIsEditModalOpen(true)
     }
 
     const handleSaveMulta = (updatedMulta: MultaConductor) => {
-        // En una implementación real, aquí se llamaría a la mutación
         console.log("Guardando multa:", updatedMulta)
-        setIsEditModalOpen(false)
-        setEditingMulta(null)
+        
+        if (editingMulta) {
+            // Update existente
+            updateMultaMutation.mutate(
+                { id: editingMulta.id, data: updatedMulta },
+                {
+                    onSuccess: () => {
+                        setIsEditModalOpen(false)
+                        setEditingMulta(null)
+                    }
+                }
+            )
+        } else {
+            // Crear nueva
+            createMultaMutation.mutate(updatedMulta, {
+                onSuccess: () => {
+                    setIsEditModalOpen(false)
+                    setEditingMulta(null)
+                }
+            })
+        }
+    }
+
+    const handleDeleteMulta = (id: string) => {
+        if (confirm('¿Estás seguro de que deseas eliminar esta multa?')) {
+            deleteMultaMutation.mutate(id)
+        }
     }
 
     const handleCloseModal = () => {
@@ -176,7 +207,7 @@ export default function MultasConductoresPage() {
                             <AlertTriangle className="h-8 w-8 text-amber-600 mr-3" />
                             <h1 className="text-2xl font-bold text-gray-900">Multas de Conductores</h1>
                         </div>
-                        <Button>
+                        <Button onClick={handleCreateMulta}>
                             <Plus className="h-4 w-4 mr-2" />
                             Nueva Multa
                         </Button>
@@ -374,8 +405,21 @@ export default function MultasConductoresPage() {
                                                             <Button variant="outline" size="sm">
                                                                 <Eye className="h-4 w-4" />
                                                             </Button>
-                                                            <Button variant="outline" size="sm" onClick={() => handleEditMulta(multa)}>
+                                                            <Button 
+                                                                variant="outline" 
+                                                                size="sm" 
+                                                                onClick={() => handleEditMulta(multa)}
+                                                                disabled={updateMultaMutation.isPending}
+                                                            >
                                                                 <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button 
+                                                                variant="outline" 
+                                                                size="sm" 
+                                                                onClick={() => handleDeleteMulta(multa.id)}
+                                                                disabled={deleteMultaMutation.isPending}
+                                                            >
+                                                                <Trash2 className="h-4 w-4 text-red-600" />
                                                             </Button>
                                                         </div>
                                                     </TableCell>

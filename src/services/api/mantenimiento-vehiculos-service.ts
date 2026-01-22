@@ -1,125 +1,141 @@
-//import { apiClient } from '@/services/api/api-base-client';
+import { SupabaseRepository } from '@/lib/supabase/repository';
 import {
     MantenimientoVehiculo,
     CreateMantenimientoVehiculoRequest,
     UpdateMantenimientoVehiculoRequest,
     MantenimientoVehiculoFilters,
-    MantenimientoVehiculoStats,
-    mockMantenimientos
+    MantenimientoVehiculoStats
 } from '@/types/mantenimiento-vehiculos-types'
 
-const USE_MOCK = process.env.NODE_ENV === 'development';
-
 export class MantenimientoVehiculoService {
-    private readonly endpoint = '/Mantenimientodevehículos'
-    private mantenimientos: MantenimientoVehiculo[] = [...mockMantenimientos]
-    private nextId = 6
+    private static repository = new SupabaseRepository<any>({
+        tableName: 'mantenimientos_vehiculos',
+        idField: 'id',
+    });
+
+    // Mapear de snake_case (DB) a camelCase (Frontend)
+    private static mapFromDB(dbMant: any): MantenimientoVehiculo {
+        return {
+            id: dbMant.id,
+            placaVehiculo: dbMant.placa_vehiculo,
+            taller: dbMant.taller,
+            fechaEntrada: dbMant.fecha_entrada,
+            fechaSalida: dbMant.fecha_salida,
+            tipo: dbMant.tipo,
+            kilometraje: dbMant.kilometraje,
+            paqueteMantenimiento: dbMant.paquete_mantenimiento,
+            causas: dbMant.causas,
+            costoTotal: dbMant.costo_total,
+            fechaPago: dbMant.fecha_pago,
+            observaciones: dbMant.observaciones,
+            estado: dbMant.estado,
+        };
+    }
+
+    // Mapear de camelCase (Frontend) a snake_case (DB) - NO enviar 'estado' (trigger)
+    private static mapToDB(mant: CreateMantenimientoVehiculoRequest | UpdateMantenimientoVehiculoRequest): any {
+        return {
+            placa_vehiculo: mant.placaVehiculo,
+            taller: mant.taller,
+            fecha_entrada: mant.fechaEntrada,
+            tipo: mant.tipo,
+            kilometraje: mant.kilometraje,
+            paquete_mantenimiento: mant.paqueteMantenimiento,
+            causas: mant.causas,
+            costo_total: mant.costoTotal,
+            fecha_pago: mant.fechaPago,
+            observaciones: mant.observaciones,
+            // NO enviar: estado (calculado por trigger automáticamente)
+        };
+    }
 
     async getMantenimientos(filters?: MantenimientoVehiculoFilters): Promise<MantenimientoVehiculo[]> {
-        // Usar mock en desarrollo
-        if (USE_MOCK) {
-            // Simular delay de red
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            let filtered = [...mockMantenimientos]
+        try {
+            let mantenimientos: any[];
 
             if (filters?.searchTerm) {
-                const searchTerm = filters.searchTerm.toLowerCase()
-                filtered = filtered.filter(m =>
-                    m.placaVehiculo.toLowerCase().includes(searchTerm) ||
-                    m.taller.toLowerCase().includes(searchTerm) ||
-                    m.paqueteMantenimiento.toLowerCase().includes(searchTerm) ||
-                    m.causas.toLowerCase().includes(searchTerm)
-                )
+                mantenimientos = await MantenimientoVehiculoService.repository.search(filters.searchTerm, [
+                    'placa_vehiculo',
+                    'taller',
+                    'paquete_mantenimiento',
+                    'causas',
+                ]);
+            } else {
+                const dbFilters: Record<string, unknown> = {};
+                if (filters?.tipo && filters.tipo !== 'all') {
+                    dbFilters.tipo = filters.tipo;
+                }
+                if (filters?.estado && filters.estado !== 'all') {
+                    dbFilters.estado = filters.estado;
+                }
+                mantenimientos = await MantenimientoVehiculoService.repository.getAll(dbFilters);
             }
 
-            if (filters?.tipo && filters.tipo !== 'all') {
-                filtered = filtered.filter(m => m.tipo === filters.tipo)
-            }
-
-            if (filters?.estado && filters.estado !== 'all') {
-                filtered = filtered.filter(m => m.estado === filters.estado)
-            }
-
-            return filtered
+            return mantenimientos.map(m => MantenimientoVehiculoService.mapFromDB(m));
+        } catch (error) {
+            throw error;
         }
-
-        return []
     }
 
     async getMantenimientoById(id: string): Promise<MantenimientoVehiculo> {
-        await new Promise(resolve => setTimeout(resolve, 300))
-
-        const mantenimiento = this.mantenimientos.find(m => m.id === parseInt(id))
-        if (!mantenimiento) {
-            throw new Error('Mantenimiento no encontrado')
+        try {
+            const dbMant = await MantenimientoVehiculoService.repository.getById(id);
+            return MantenimientoVehiculoService.mapFromDB(dbMant);
+        } catch (error) {
+            throw error;
         }
-        return mantenimiento
     }
 
     async createMantenimiento(data: CreateMantenimientoVehiculoRequest): Promise<MantenimientoVehiculo> {
-        await new Promise(resolve => setTimeout(resolve, 500))
-
-        const { fechaPago, ...rest } = data
-
-        const newMantenimiento: MantenimientoVehiculo = {
-            id: this.nextId++,
-            fechaSalida: null,
-            fechaPago: fechaPago ?? null,
-            estado: "En Proceso", // Estado por defecto
-            ...rest
+        try {
+            const dbData = MantenimientoVehiculoService.mapToDB(data);
+            const dbMant = await MantenimientoVehiculoService.repository.create(dbData);
+            return MantenimientoVehiculoService.mapFromDB(dbMant);
+        } catch (error) {
+            throw error;
         }
-
-        this.mantenimientos.push(newMantenimiento)
-        return newMantenimiento
     }
 
     async updateMantenimiento(id: string, data: UpdateMantenimientoVehiculoRequest): Promise<MantenimientoVehiculo> {
-        await new Promise(resolve => setTimeout(resolve, 500))
-
-        const index = this.mantenimientos.findIndex(m => m.id === parseInt(id))
-        if (index === -1) {
-            throw new Error('Mantenimiento no encontrado')
+        try {
+            const dbData = MantenimientoVehiculoService.mapToDB(data);
+            const dbMant = await MantenimientoVehiculoService.repository.update(id, dbData);
+            return MantenimientoVehiculoService.mapFromDB(dbMant);
+        } catch (error) {
+            throw error;
         }
-
-        const updatedMantenimiento: MantenimientoVehiculo = {
-            ...this.mantenimientos[index],
-            ...data,
-            id: parseInt(id)
-        }
-
-        this.mantenimientos[index] = updatedMantenimiento
-        return updatedMantenimiento
     }
 
     async deleteMantenimiento(id: string): Promise<void> {
-        await new Promise(resolve => setTimeout(resolve, 300))
-
-        const index = this.mantenimientos.findIndex(m => m.id === parseInt(id))
-        if (index === -1) {
-            throw new Error('Mantenimiento no encontrado')
+        try {
+            await MantenimientoVehiculoService.repository.delete(id);
+        } catch (error) {
+            throw error;
         }
-
-        this.mantenimientos.splice(index, 1)
     }
 
     async getStats(): Promise<MantenimientoVehiculoStats> {
-        await new Promise(resolve => setTimeout(resolve, 400))
+        try {
+            const mantenimientosDB = await MantenimientoVehiculoService.repository.getAll();
+            const mantenimientos = mantenimientosDB.map(m => MantenimientoVehiculoService.mapFromDB(m));
 
-        const total = this.mantenimientos.length
-        const completados = this.mantenimientos.filter(m => m.estado === 'Completado').length
-        const enProceso = this.mantenimientos.filter(m => m.estado === 'En Proceso').length
-        const pendientePago = this.mantenimientos.filter(m => m.estado === 'Pendiente Pago').length
-        const costoPendiente = this.mantenimientos
-            .filter(m => !m.fechaPago)
-            .reduce((sum, m) => sum + m.costoTotal, 0)
+            const total = mantenimientos.length;
+            const completados = mantenimientos.filter(m => m.estado === 'Completado').length;
+            const enProceso = mantenimientos.filter(m => m.estado === 'En Proceso').length;
+            const pendientePago = mantenimientos.filter(m => m.estado === 'Pendiente Pago').length;
+            const costoPendiente = mantenimientos
+                .filter(m => !m.fechaPago)
+                .reduce((sum, m) => sum + m.costoTotal, 0);
 
-        return {
-            total,
-            completados,
-            enProceso,
-            pendientePago,
-            costoPendiente
+            return {
+                total,
+                completados,
+                enProceso,
+                pendientePago,
+                costoPendiente
+            };
+        } catch (error) {
+            throw error;
         }
     }
 }

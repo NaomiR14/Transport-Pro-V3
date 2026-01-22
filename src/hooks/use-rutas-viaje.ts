@@ -28,7 +28,7 @@ export function useRutas(filters?: RutaViajeFilters) {
     const query = useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => RutaViajeService.getRutas(filters),
-        staleTime: 5 * 60 * 1000, // 5 minutos
+        staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
     })
 
     // Auto-sync con store
@@ -54,7 +54,7 @@ export function useRuta(id: string | null) {
         queryKey: QUERY_KEYS.detail(id!),
         queryFn: () => RutaViajeService.getRutaById(id!),
         enabled: !!id,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 30 * 1000,
     })
 
     // Auto-sync con store

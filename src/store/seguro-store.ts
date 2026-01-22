@@ -45,17 +45,19 @@ const calculateSeguroStats = (seguros: SeguroVehiculo[]): SeguroStats => {
     }
 }
 
-// FUNCIÓN PRINCIPAL PARA CALCULAR CAMPOS ADICIONALES
+// FUNCIÓN PARA CALCULAR CAMPOS ADICIONALES SOLO FRONTEND (no calculados por DB)
 const calculateSeguroFields = (seguro: SeguroVehiculo): SeguroVehiculo => {
-    // Calcular días restantes
+    // Calcular días restantes para UI (solo informativo)
     const fechaVencimiento = new Date(seguro.fecha_vencimiento)
     const hoy = new Date()
     const diffTime = fechaVencimiento.getTime() - hoy.getTime()
     const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
+    // NOTA: estado_poliza ya viene calculado por trigger de Supabase, no lo recalculamos
     return {
         ...seguro,
         dias_restantes: diasRestantes
+        // estado_poliza: viene de DB trigger automáticamente
     }
 }
 

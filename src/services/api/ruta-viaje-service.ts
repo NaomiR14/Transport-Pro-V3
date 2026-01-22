@@ -1,274 +1,149 @@
-import { apiClient } from '@/services/api/api-base-client';
+import { SupabaseRepository } from '@/lib/supabase/repository';
 import { RutaViaje, CreateRutaViajeRequest, UpdateRutaViajeRequest, RutaViajeFilters } from '@/types/ruta-viaje-types';
 
 
-// Datos mock para desarrollo
-const mockRutas: RutaViaje[] = [
-    {
-        id: "1",
-        fecha_salida: "2024-01-15",
-        fecha_llegada: "2024-01-18",
-        placa_vehiculo: "ABC-123-A",
-        estado_vehiculo: "activo",
-        conductor: "Juan Pérez García",
-        origen: "Ciudad de México",
-        destino: "Guadalajara",
-        kms_inicial: 15000,
-        kms_final: 15540,
-        kms_recorridos: 540,
-        peso_carga_kg: 2500,
-        costo_por_kg: 12.5,
-        ingreso_total: 31250,
-        estacion_combustible: "Pecsa Benavides",
-        tipo_combustible: "Diesel",
-        precio_por_galon: 45.80,
-        total_combustible: 1250.40,
-        gasto_peajes: 850,
-        gasto_comidas: 1200,
-        otros_gastos: 350,
-        gasto_total: 3650.40,
-        volumen_combustible_gal: 27.3,
-        recorrido_por_galon: 19.8,
-        ingreso_por_km: 57.87,
-        observaciones: "Viaje sin inconvenientes, clima favorable"
-    },
-    {
-        id: "2",
-        fecha_salida: "2024-01-20",
-        fecha_llegada: "2024-01-22",
-        placa_vehiculo: "XYZ-789-B",
-        estado_vehiculo: "activo",
-        conductor: "María López Hernández",
-        origen: "Guadalajara",
-        destino: "Monterrey",
-        kms_inicial: 8920,
-        kms_final: 9580,
-        kms_recorridos: 660,
-        peso_carga_kg: 1800,
-        costo_por_kg: 15.0,
-        ingreso_total: 27000,
-        estacion_combustible: "Primax Javier Prado",
-        tipo_combustible: "Premium",
-        precio_por_galon: 52.30,
-        total_combustible: 1569.00,
-        gasto_peajes: 720,
-        gasto_comidas: 980,
-        otros_gastos: 220,
-        gasto_total: 3489.00,
-        volumen_combustible_gal: 30.0,
-        recorrido_por_galon: 22.0,
-        ingreso_por_km: 40.91,
-        observaciones: "Tráfico pesado en salida de Guadalajara"
-    },
-    {
-        id: "3",
-        fecha_salida: "2024-01-25",
-        fecha_llegada: "2024-01-26",
-        placa_vehiculo: "DEF-456-C",
-        estado_vehiculo: "mantenimiento",
-        conductor: "Carlos Rodríguez Martínez",
-        origen: "Monterrey",
-        destino: "Puebla",
-        kms_inicial: 12300,
-        kms_final: 13020,
-        kms_recorridos: 720,
-        peso_carga_kg: 3200,
-        costo_por_kg: 10.8,
-        ingreso_total: 34560,
-        estacion_combustible: "Repsol Limatambo",
-        tipo_combustible: "Regular",
-        precio_por_galon: 42.10,
-        total_combustible: 1894.50,
-        gasto_peajes: 1100,
-        gasto_comidas: 1350,
-        otros_gastos: 480,
-        gasto_total: 4824.50,
-        volumen_combustible_gal: 45.0,
-        recorrido_por_galon: 16.0,
-        ingreso_por_km: 48.0,
-        observaciones: "Vehiculo reportó fallas menores, enviar a mantenimiento"
-    }
-];
 
-const USE_MOCK = process.env.NODE_ENV === 'development'|| process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 
 export class RutaViajeService {
-    private static readonly endpoint = '/RutasdeViaje';
+    private static repository = new SupabaseRepository<RutaViaje>({
+        tableName: 'rutas_viajes',
+    });
+
+    // Mapear para CREATE/UPDATE: EXCLUIR campos GENERATED
+    private static mapToDB(ruta: CreateRutaViajeRequest | UpdateRutaViajeRequest): Partial<RutaViaje> {
+        return {
+            fecha_salida: ruta.fecha_salida,
+            fecha_llegada: ruta.fecha_llegada,
+            placa_vehiculo: ruta.placa_vehiculo,
+            conductor: ruta.conductor,
+            origen: ruta.origen,
+            destino: ruta.destino,
+            kms_inicial: ruta.kms_inicial,
+            kms_final: ruta.kms_final,
+            peso_carga_kg: ruta.peso_carga_kg,
+            costo_por_kg: ruta.costo_por_kg,
+            estacion_combustible: ruta.estacion_combustible,
+            tipo_combustible: ruta.tipo_combustible,
+            precio_por_galon: ruta.precio_por_galon,
+            volumen_combustible_gal: ruta.total_combustible / ruta.precio_por_galon, // Calcular volumen
+            gasto_peajes: ruta.gasto_peajes,
+            gasto_comidas: ruta.gasto_comidas,
+            otros_gastos: ruta.otros_gastos,
+            observaciones: ruta.observaciones,
+            // NO ENVIAR: kms_recorridos, ingreso_total, total_combustible, gasto_total, recorrido_por_galon, ingreso_por_km
+            // Estos son GENERATED ALWAYS en la DB
+        };
+    }
     static async getRutas(filters?: RutaViajeFilters): Promise<RutaViaje[]> {
-        // Usar mock en desarrollo
-        if (USE_MOCK) {
-            // Simular delay de red
-            await new Promise(resolve => setTimeout(resolve, 500));
+        try {
+            // Usar query personalizada para hacer JOIN con vehicles y obtener estado_vehiculo
+            const client = this.repository.getClient();
+            
+            let query = client
+                .from('rutas_viajes')
+                .select(`
+                    *,
+                    vehicles:placa_vehiculo(
+                        vehicle_state
+                    )
+                `);
 
-            let filteredRutas = [...mockRutas];
-
-            // Aplicar filtros básicos
+            // Aplicar filtros
             if (filters?.searchTerm) {
-                const searchTerm = filters.searchTerm.toLowerCase();
-                filteredRutas = filteredRutas.filter(ruta =>
-                    ruta.placa_vehiculo.toLowerCase().includes(searchTerm) ||
-                    ruta.conductor.toLowerCase().includes(searchTerm) ||
-                    ruta.origen.toLowerCase().includes(searchTerm) ||
-                    ruta.destino.toLowerCase().includes(searchTerm)
-                );
+                query = query.or(`placa_vehiculo.ilike.%${filters.searchTerm}%,conductor.ilike.%${filters.searchTerm}%,origen.ilike.%${filters.searchTerm}%,destino.ilike.%${filters.searchTerm}%`);
             }
-
             if (filters?.placa_vehiculo) {
-                filteredRutas = filteredRutas.filter(ruta =>
-                    ruta.placa_vehiculo === filters.placa_vehiculo
-                );
+                query = query.eq('placa_vehiculo', filters.placa_vehiculo);
             }
-
             if (filters?.conductor) {
-                filteredRutas = filteredRutas.filter(ruta =>
-                    ruta.conductor === filters.conductor
-                );
+                query = query.eq('conductor', filters.conductor);
             }
-
             if (filters?.fecha_desde) {
-                filteredRutas = filteredRutas.filter(ruta =>
-                    ruta.fecha_salida >= filters.fecha_desde!
-                );
+                query = query.gte('fecha_salida', filters.fecha_desde);
             }
-
             if (filters?.fecha_hasta) {
-                filteredRutas = filteredRutas.filter(ruta =>
-                    ruta.fecha_salida <= filters.fecha_hasta!
-                );
+                query = query.lte('fecha_salida', filters.fecha_hasta);
             }
 
-            return filteredRutas;
+            const { data, error } = await query;
+
+            if (error) {
+                console.error('[RutaViajeService] Error en getRutas:', error);
+                throw new Error(`Error al obtener rutas: ${error.message}`);
+            }
+
+            // Transformar datos: aplanar vehicles.vehicle_state a estado_vehiculo
+            const rutas = (data || []).map((row: any) => ({
+                ...row,
+                estado_vehiculo: row.vehicles?.vehicle_state || null,
+                vehicles: undefined, // Eliminar el objeto anidado
+            }));
+
+            return rutas as RutaViaje[];
+        } catch (error) {
+            throw error;
         }
-
-        // Usar API real en producción
-        const response = await apiClient.get<RutaViaje[]>(this.endpoint, filters);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data || [];
     }
 
     static async getRutaById(id: string): Promise<RutaViaje> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const ruta = mockRutas.find(s => s.id === id);
-            if (!ruta) throw new Error('Ruta no encontrada');
-            return ruta;
+        try {
+            const client = this.repository.getClient();
+            
+            const { data, error } = await client
+                .from('rutas_viajes')
+                .select(`
+                    *,
+                    vehicles:placa_vehiculo(
+                        vehicle_state
+                    )
+                `)
+                .eq('id', id)
+                .single();
+
+            if (error) {
+                throw new Error(`Error al obtener ruta: ${error.message}`);
+            }
+
+            if (!data) {
+                throw new Error('Ruta no encontrada');
+            }
+
+            // Transformar datos
+            const ruta = {
+                ...data,
+                estado_vehiculo: data.vehicles?.vehicle_state || null,
+                vehicles: undefined,
+            };
+
+            return ruta as RutaViaje;
+        } catch (error) {
+            throw error;
         }
-
-        const response = await apiClient.get<RutaViaje>(`/RutasdeViaje/${id}`);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data!;
     }
 
     static async createRuta(rutaData: CreateRutaViajeRequest): Promise<RutaViaje> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Calcular campos derivados
-            const kms_recorridos = rutaData.kms_final - rutaData.kms_inicial;
-            const ingreso_total = rutaData.peso_carga_kg * rutaData.costo_por_kg;
-            const gasto_total = rutaData.total_combustible + rutaData.gasto_peajes + rutaData.gasto_comidas + rutaData.otros_gastos;
-            const volumen_combustible_gal = rutaData.total_combustible / rutaData.precio_por_galon;
-            const recorrido_por_galon = kms_recorridos / volumen_combustible_gal;
-            const ingreso_por_km = ingreso_total / kms_recorridos;
-
-            const newRuta: RutaViaje = {
-                id: Date.now().toString(),
-                ...rutaData,
-                estado_vehiculo: "activo",
-                kms_recorridos,
-                ingreso_total,
-                gasto_total,
-                volumen_combustible_gal,
-                recorrido_por_galon,
-                ingreso_por_km
-            };
-            mockRutas.push(newRuta);
-            return newRuta;
+        try {
+            const dbData = this.mapToDB(rutaData);
+            return await this.repository.create(dbData);
+        } catch (error) {
+            throw error;
         }
-
-        const response = await apiClient.post<RutaViaje>('/RutasdeViaje', rutaData);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data!;
     }
 
     static async updateRuta(id: string, rutaData: UpdateRutaViajeRequest): Promise<RutaViaje> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const index = mockRutas.findIndex(s => s.id === id);
-            if (index === -1) throw new Error('Ruta no encontrada');
-
-            // Recalcular campos derivados si se actualizan campos relacionados
-            const existingRuta = mockRutas[index];
-            const updatedData = {
-                ...existingRuta,
-                ...rutaData
-            };
-
-            // Recalcular si cambian campos base
-            if (rutaData.kms_final !== undefined || rutaData.kms_inicial !== undefined) {
-                updatedData.kms_recorridos = updatedData.kms_final - updatedData.kms_inicial;
-            }
-
-            if (rutaData.peso_carga_kg !== undefined || rutaData.costo_por_kg !== undefined) {
-                updatedData.ingreso_total = updatedData.peso_carga_kg * updatedData.costo_por_kg;
-            }
-
-            if (rutaData.total_combustible !== undefined || rutaData.gasto_peajes !== undefined ||
-                rutaData.gasto_comidas !== undefined || rutaData.otros_gastos !== undefined) {
-                updatedData.gasto_total = updatedData.total_combustible + updatedData.gasto_peajes +
-                    updatedData.gasto_comidas + updatedData.otros_gastos;
-            }
-
-            if (updatedData.total_combustible !== undefined || updatedData.precio_por_galon !== undefined) {
-                updatedData.volumen_combustible_gal = updatedData.total_combustible / updatedData.precio_por_galon;
-            }
-
-            if (updatedData.kms_recorridos !== undefined && updatedData.volumen_combustible_gal !== undefined) {
-                updatedData.recorrido_por_galon = updatedData.kms_recorridos / updatedData.volumen_combustible_gal;
-            }
-
-            if (updatedData.ingreso_total !== undefined && updatedData.kms_recorridos !== undefined) {
-                updatedData.ingreso_por_km = updatedData.ingreso_total / updatedData.kms_recorridos;
-            }
-
-            mockRutas[index] = updatedData;
-            return updatedData;
+        try {
+            const dbData = this.mapToDB(rutaData);
+            return await this.repository.update(id, dbData);
+        } catch (error) {
+            throw error;
         }
-
-        const response = await apiClient.put<RutaViaje>(`/RutasdeViaje/${id}`, rutaData);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data!;
     }
 
     static async deleteRuta(id: string): Promise<void> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const index = mockRutas.findIndex(s => s.id === id);
-            if (index === -1) throw new Error('Ruta no encontrada');
-            mockRutas.splice(index, 1);
-            return;
-        }
-
-        const response = await apiClient.delete(`/RutasdeViaje/${id}`);
-
-        if (response.error) {
-            throw new Error(response.error.message);
+        try {
+            await this.repository.delete(id);
+        } catch (error) {
+            throw error;
         }
     }
 

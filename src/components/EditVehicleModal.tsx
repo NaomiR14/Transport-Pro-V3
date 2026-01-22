@@ -22,7 +22,7 @@ import {
 import { Loader2 } from "lucide-react"
 import { Vehicle, CreateVehicleRequest } from "@/types/vehicles-types"
 import { useCreateVehicle, useUpdateVehicle } from "@/hooks/use-vehicle"
-import { CommonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/services/api/common-info-service"
 
 interface EditVehicleModalProps {
     vehicle: Vehicle | null
@@ -49,19 +49,20 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
     useEffect(() => {
         const loadCommonInfo = async () => {
             try {
-                const svc = new CommonInfoService()
+                console.log('[EditVehicleModal] Cargando CommonInfo...');
                 const [types, brands, models] = await Promise.all([
-                    svc.getVehicleTypes(),   // instance method
-                    svc.getVehicleBrands(),
-                    svc.getVehicleModels(),
+                    commonInfoService.getVehicleTypes(),
+                    commonInfoService.getVehicleBrands(),
+                    commonInfoService.getVehicleModels(),
                 ])
+                console.log('[EditVehicleModal] CommonInfo cargado:', { types: types.length, brands: brands.length, models: models.length });
                 setCommonInfo({
                     vehicleTypes: types,
                     vehicleBrands: brands,
                     vehicleModels: models
                 })
             } catch (error) {
-                console.error('Error loading common info:', error)
+                console.error('[EditVehicleModal] Error loading common info:', error)
             }
         }
 
@@ -100,7 +101,7 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                 color: "",
                 year: new Date().getFullYear().toString(),
                 maxLoadCapacity: "0",
-                vehicleState: "Disponible",
+                vehicleState: "activo",
                 maintenanceData: {
                     maintenanceCycle: 10000,
                     initialKm: 0,
@@ -188,10 +189,14 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        console.log('[EditVehicleModal] Submit iniciado, formData:', formData);
 
         if (!validateForm()) {
+            console.error('[EditVehicleModal] Validación fallida, errores:', errors);
             return
         }
+
+        console.log('[EditVehicleModal] Validación exitosa, preparando datos...');
 
         try {
             // Preparar datos para la API (convertir strings a números donde sea necesario)
@@ -208,21 +213,27 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                 maintenanceData: formData.maintenanceData!
             }
 
+            console.log('[EditVehicleModal] Datos preparados:', apiData);
+
             if (vehicle?.id) {
                 // Actualizar vehículo existente
+                console.log('[EditVehicleModal] Actualizando vehículo...');
                 const updatedVehicle = await updateVehicleMutation.mutateAsync({
                     id: vehicle.id,
                     data: apiData
                 })
+                console.log('[EditVehicleModal] Vehículo actualizado:', updatedVehicle);
                 onSave(updatedVehicle)
             } else {
                 // Crear nuevo vehículo
+                console.log('[EditVehicleModal] Creando nuevo vehículo...');
                 const newVehicle = await createVehicleMutation.mutateAsync(apiData)
+                console.log('[EditVehicleModal] Vehículo creado:', newVehicle);
                 onSave(newVehicle)
             }
         } catch (error) {
             // Error ya manejado por los hooks, solo log para debugging
-            console.error('Error en el formulario:', error)
+            console.error('[EditVehicleModal] Error en el formulario:', error)
         }
     }
 
@@ -300,9 +311,7 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                                 disabled={updateVehicleMutation.isPending || !formData.brand}
                             >
                                 <SelectTrigger className={errors.model ? "border-red-500" : ""}>
-                                    <SelectValue placeholder={
-                                        !formData.brand ? "Selecciona una marca primero" : "Seleccionar modelo"
-                                    } />
+                                    <SelectValue placeholder={!formData.brand ? "Selecciona marca" : "Seleccionar modelo"} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {filteredModels.map((model) => (
@@ -400,10 +409,9 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                                     <SelectValue placeholder="Seleccionar estado" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Disponible">Disponible</SelectItem>
-                                    <SelectItem value="En Mantenimiento">En Mantenimiento</SelectItem>
-                                    <SelectItem value="En Uso">En Uso</SelectItem>
-                                    <SelectItem value="Inactivo">Inactivo</SelectItem>
+                                    <SelectItem value="activo">Activo</SelectItem>
+                                    <SelectItem value="inactivo">Inactivo</SelectItem>
+                                    <SelectItem value="mantenimiento">En Mantenimiento</SelectItem>
                                 </SelectContent>
                             </Select>
                             {errors.vehicleState && <p className="text-sm text-red-500">{errors.vehicleState}</p>}

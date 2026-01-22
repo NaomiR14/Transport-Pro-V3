@@ -24,7 +24,7 @@ export function useMultasConductores(filters?: MultaConductorFilters) {
     const query = useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => multasConductoresService.getMultas(filters),
-        staleTime: 5 * 60 * 1000,
+        staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
     })
 
     // Auto-sync con store

@@ -5,7 +5,7 @@ export interface RutaViaje {
     fecha_salida: string
     fecha_llegada: string
     placa_vehiculo: string
-    estado_vehiculo: "activo" | "inactivo" | "mantenimiento"
+    estado_vehiculo: "activo" | "inactivo" | "mantenimiento" | null
     conductor: string
     origen: string
     destino: string

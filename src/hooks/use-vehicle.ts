@@ -26,8 +26,8 @@ export function useVehicles(filters?: VehicleFilters) {
     const query = useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => vehicleService.getVehicles(filters),
-        staleTime: 5 * 60 * 1000,
-    });
+        staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
+    })
 
     // Auto-sync con store
     useEffect(() => {
@@ -57,7 +57,7 @@ export function useVehicle(id: string | null) {
         queryKey: QUERY_KEYS.detail(id!),
         queryFn: () => vehicleService.getVehicleById(id!),
         enabled: !!id,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 30 * 1000,
     });
 }
 

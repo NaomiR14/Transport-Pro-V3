@@ -1,166 +1,96 @@
-import { apiClient } from '@/services/api/api-base-client';
+import { SupabaseRepository } from '@/lib/supabase/repository';
 import { ImpuestoVehicular, CreateImpuestoRequest, UpdateImpuestoRequest, ImpuestoFilters } from '@/types/impuesto-vehicular-types';
-
-// Datos mock para desarrollo
-const mockImpuestos: ImpuestoVehicular[] = [
-    {
-        id: "1",
-        placa_vehiculo: "ABC-123-A",
-        tipo_impuesto: "Tenencia",
-        anio_impuesto: 2024,
-        impuesto_monto: 8500,
-        fecha_pago: "2024-01-15",
-        estado_pago: "pagado"
-    },
-    {
-        id: "2",
-        placa_vehiculo: "XYZ-789-B",
-        tipo_impuesto: "Verificación",
-        anio_impuesto: 2024,
-        impuesto_monto: 1200,
-        fecha_pago: "2024-03-20",
-        estado_pago: "pendiente"
-    },
-    {
-        id: "3",
-        placa_vehiculo: "DEF-456-C",
-        tipo_impuesto: "Tenencia",
-        anio_impuesto: 2023,
-        impuesto_monto: 7800,
-        fecha_pago: "2023-12-30",
-        estado_pago: "vencido"
-    },
-    {
-        id: "4",
-        placa_vehiculo: "ABC-123-A",
-        tipo_impuesto: "Verificación",
-        anio_impuesto: 2023,
-        impuesto_monto: 1100,
-        fecha_pago: "2023-06-15",
-        estado_pago: "pagado"
-    }
-];
-
-const USE_MOCK = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 
 
 export class ImpuestoVehicularService {
+    private static repository = new SupabaseRepository<any>({
+        tableName: 'impuestos_vehiculares',
+    });
+
+    // Mapear de DB a Frontend (mismo formato snake_case)
+    private static mapFromDB(dbImpuesto: any): ImpuestoVehicular {
+        return {
+            id: dbImpuesto.id,
+            placa_vehiculo: dbImpuesto.placa_vehiculo,
+            tipo_impuesto: dbImpuesto.tipo_impuesto,
+            anio_impuesto: dbImpuesto.anio_impuesto,
+            impuesto_monto: dbImpuesto.impuesto_monto,
+            fecha_pago: dbImpuesto.fecha_pago,
+            estado_pago: dbImpuesto.estado_pago as "pagado" | "pendiente" | "vencido",
+        };
+    }
+
+    // Mapear de Frontend a DB
+    private static mapToDB(impuesto: CreateImpuestoRequest | UpdateImpuestoRequest): any {
+        return {
+            placa_vehiculo: impuesto.placa_vehiculo,
+            tipo_impuesto: impuesto.tipo_impuesto,
+            anio_impuesto: impuesto.anio_impuesto,
+            impuesto_monto: impuesto.impuesto_monto,
+            fecha_pago: impuesto.fecha_pago,
+            estado_pago: impuesto.estado_pago,
+        };
+    }
     static async getImpuestos(filters?: ImpuestoFilters): Promise<ImpuestoVehicular[]> {
-        // Usar mock en desarrollo
-        if (USE_MOCK) {
-            // Simular delay de red
-            await new Promise(resolve => setTimeout(resolve, 500));
+        try {
+            let impuestos: any[];
 
-            let filteredImpuestos = [...mockImpuestos];
-
-            // Aplicar filtros básicos
             if (filters?.searchTerm) {
-                const searchTerm = filters.searchTerm.toLowerCase();
-                filteredImpuestos = filteredImpuestos.filter(impuesto =>
-                    impuesto.placa_vehiculo.toLowerCase().includes(searchTerm) ||
-                    impuesto.tipo_impuesto.toLowerCase().includes(searchTerm)
-                );
+                impuestos = await this.repository.search(filters.searchTerm, [
+                    'placa_vehiculo',
+                    'tipo_impuesto',
+                ]);
+            } else {
+                const dbFilters: Record<string, unknown> = {};
+                if (filters?.placa_vehiculo) {
+                    dbFilters.placa_vehiculo = filters.placa_vehiculo;
+                }
+                if (filters?.estado_pago) {
+                    dbFilters.estado_pago = filters.estado_pago;
+                }
+                impuestos = await this.repository.getAll(dbFilters);
             }
 
-            if (filters?.placa_vehiculo) {
-                filteredImpuestos = filteredImpuestos.filter(impuesto =>
-                    impuesto.placa_vehiculo === filters.placa_vehiculo
-                );
-            }
-
-            if (filters?.estado_pago) {
-                filteredImpuestos = filteredImpuestos.filter(impuesto =>
-                    impuesto.estado_pago === filters.estado_pago
-                );
-            }
-
-            return filteredImpuestos;
+            return impuestos.map(i => this.mapFromDB(i));
+        } catch (error) {
+            throw error;
         }
-
-        // Usar API real en producción
-        const response = await apiClient.get<ImpuestoVehicular[]>('/Impuestosvehiculos', filters);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data || [];
     }
 
     static async getImpuestoById(id: string): Promise<ImpuestoVehicular> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const impuesto = mockImpuestos.find(s => s.id === id);
-            if (!impuesto) throw new Error('Impuesto no encontrado');
-            return impuesto;
+        try {
+            const dbImpuesto = await this.repository.getById(id);
+            return this.mapFromDB(dbImpuesto);
+        } catch (error) {
+            throw error;
         }
-
-        const response = await apiClient.get<ImpuestoVehicular>(`/Impuestosvehiculos/${id}`);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data!;
     }
 
     static async createImpuesto(impuestoData: CreateImpuestoRequest): Promise<ImpuestoVehicular> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const newImpuesto: ImpuestoVehicular = {
-                id: Date.now().toString(),
-                ...impuestoData,
-                estado_pago: "pendiente" // Por defecto pendiente hasta que se pague
-            };
-            mockImpuestos.push(newImpuesto);
-            return newImpuesto;
+        try {
+            const dbData = this.mapToDB(impuestoData);
+            const dbImpuesto = await this.repository.create(dbData);
+            return this.mapFromDB(dbImpuesto);
+        } catch (error) {
+            throw error;
         }
-
-        const response = await apiClient.post<ImpuestoVehicular>('/Impuestosvehiculos', impuestoData);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data!;
     }
 
     static async updateImpuesto(id: string, impuestoData: UpdateImpuestoRequest): Promise<ImpuestoVehicular> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const index = mockImpuestos.findIndex(s => s.id === id);
-            if (index === -1) throw new Error('Impuesto no encontrado');
-
-            const updatedImpuesto = {
-                ...mockImpuestos[index],
-                ...impuestoData
-            };
-            mockImpuestos[index] = updatedImpuesto;
-            return updatedImpuesto;
+        try {
+            const dbData = this.mapToDB(impuestoData);
+            const dbImpuesto = await this.repository.update(id, dbData);
+            return this.mapFromDB(dbImpuesto);
+        } catch (error) {
+            throw error;
         }
-
-        const response = await apiClient.put<ImpuestoVehicular>(`/Impuestosvehiculos/${id}`, impuestoData);
-
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
-
-        return response.data!;
     }
 
     static async deleteImpuesto(id: string): Promise<void> {
-        if (USE_MOCK) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const index = mockImpuestos.findIndex(s => s.id === id);
-            if (index === -1) throw new Error('Impuesto no encontrado');
-            mockImpuestos.splice(index, 1);
-            return;
-        }
-
-        const response = await apiClient.delete(`/Impuestosvehiculos/${id}`);
-
-        if (response.error) {
-            throw new Error(response.error.message);
+        try {
+            await this.repository.delete(id);
+        } catch (error) {
+            throw error;
         }
     }
 

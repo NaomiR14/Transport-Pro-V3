@@ -48,26 +48,19 @@ const calculateConductorStats = (conductores: Conductor[]): ConductorStats => {
     }
 }
 
-// FUNCIÓN PRINCIPAL PARA CALCULAR CAMPOS ADICIONALES
+// FUNCIÓN PARA CALCULAR CAMPOS ADICIONALES SOLO FRONTEND (no calculados por DB)
 const calculateConductorFields = (conductor: Conductor): Conductor => {
-    // Calcular días restantes para licencia
+    // Calcular días restantes para licencia (solo para UI, no afecta DB)
     const fechaVencimiento = new Date(conductor.fecha_vencimiento_licencia)
     const hoy = new Date()
     const diffTime = fechaVencimiento.getTime() - hoy.getTime()
     const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    // Calcular estado de licencia basado en días restantes
-    let estado_licencia: "vigente" | "por_vencer" | "vencida" = "vigente"
-    if (diasRestantes <= 0) {
-        estado_licencia = "vencida"
-    } else if (diasRestantes <= 30) {
-        estado_licencia = "por_vencer"
-    }
-
+    // NOTA: estado_licencia ya viene calculado por trigger de Supabase, no lo recalculamos
     return {
         ...conductor,
         dias_restantes_licencia: diasRestantes,
-        estado_licencia
+        // estado_licencia: viene de DB trigger automáticamente
     }
 }
 

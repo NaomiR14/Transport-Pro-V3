@@ -23,7 +23,7 @@ import {
 import { Loader2, MapPin, Car, Fuel, DollarSign } from "lucide-react"
 import { RutaViaje, CreateRutaViajeRequest } from "@/types/ruta-viaje-types"
 import { useCreateRuta, useUpdateRuta } from "@/hooks/use-rutas-viaje"
-import { CommonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/services/api/common-info-service"
 
 
 interface EditRutaViajeModalProps {
@@ -51,16 +51,13 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
     useEffect(() => {
         const loadCommonInfo = async () => {
             try {
-                const svc = new CommonInfoService()
-                const [fuelTypes, fuelStations,] = await Promise.all([
-                    svc.getVehicleTypes(),   // instance method
-                    svc.getFuelStations(),
-                    
+                const [fuelTypes, fuelStations] = await Promise.all([
+                    commonInfoService.getFuelTypes(),
+                    commonInfoService.getFuelStations(),
                 ])
                 setCommonInfo({
                     fuelTypes: fuelTypes,
                     fuelStations: fuelStations,
-                    
                 })
             } catch (error) {
                 console.error('Error loading common info:', error)
