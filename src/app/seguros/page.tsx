@@ -14,12 +14,15 @@ import {
 } from "@/components/ui/select"
 import { Plus, Search, Eye, Edit, Truck, Shield, Calendar, DollarSign, Loader2, X } from "lucide-react"
 import Link from "next/link"
-import EditSeguroModal from "@/components/EditSeguroModal"
-
-// Importar los hooks y store
-import { useDeleteSeguro, useFilteredSeguros, useSegurosStats, useSeguroFilterOptions } from "@/hooks/use-seguros"
-import { useSeguroStore } from "@/store/seguro-store"
-import { SeguroVehiculo } from "@/types/seguros-types"
+import {
+  useDeleteSeguro,
+  useFilteredSeguros,
+  useSegurosStats,
+  useSeguroFilterOptions,
+  useSeguroStore,
+  SeguroFormModal as EditSeguroModal,
+  type SeguroVehiculo
+} from "@/features/seguros"
 
 export default function SegurosPage() {
     const [editingSeguro, setEditingSeguro] = useState<SeguroVehiculo | null>(null)
@@ -95,15 +98,15 @@ export default function SegurosPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <Card className="w-full max-w-md">
-                    <CardHeader>
-                        <CardTitle className="text-red-600">Error</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-600">{error}</p>
+            <div className="p-6">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestión de Seguros</h1>
+                </div>
+                <Card className="w-full max-w-md mx-auto">
+                    <CardContent className="pt-6">
+                        <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
                         <Button
-                            className="mt-4 w-full"
+                            className="w-full bg-blue-600 hover:bg-blue-700"
                             onClick={() => window.location.reload()}
                         >
                             Reintentar
@@ -115,28 +118,19 @@ export default function SegurosPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow-sm border-b">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center py-6">
-                        <div className="flex items-center">
-                            <Link href="/" className="flex items-center mr-4">
-                                <Truck className="h-6 w-6 text-blue-600 mr-2" />
-                                <span className="text-sm text-gray-600">Volver al Dashboard</span>
-                            </Link>
-                            <Shield className="h-8 w-8 text-indigo-600 mr-3" />
-                            <h1 className="text-2xl font-bold text-gray-900">Gestión de Seguros</h1>
-                        </div>
-                        <Button onClick={handleCreateSeguro}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Nueva Póliza
-                        </Button>
-                    </div>
-                </div>
-            </header>
+         <div className="p-6">
+            {/* Page Header */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                    Gestión de Vehículos
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    Administra las pólizas de seguro de la flota vehicular
+                </p>
+            </div>
 
-            <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                <div className="px-4 py-6 sm:px-0">
+            
+            <div>
                     {/* Estadísticas */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                         <Card>
@@ -373,7 +367,7 @@ export default function SegurosPage() {
                             )}
                         </CardContent>
                     </Card>
-                </div>
+            </div>
 
                 {isEditModalOpen && (
                     <EditSeguroModal
@@ -383,7 +377,6 @@ export default function SegurosPage() {
                         isOpen={isEditModalOpen}
                     />
                 )}
-            </main>
         </div>
     )
 }

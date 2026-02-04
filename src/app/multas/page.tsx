@@ -10,9 +10,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Search, Filter, Eye, Edit, Trash2, Truck, AlertTriangle, Calendar, User, CreditCard, Loader2 } from "lucide-react"
 import Link from "next/link"
-import EditMultasConductoresModal from "@/components/EditMultasConductoresModal"
-import { useFilteredMultasConductores, useCreateMultaConductor, useUpdateMultaConductor, useDeleteMultaConductor } from "@/hooks/use-multas-conductores"
-import { MultaConductor } from "@/types/multas-conductores-types"
+import { MultaFormModal as EditMultasConductoresModal } from "@/features/multas"
+import { 
+  useFilteredMultasConductores, 
+  useCreateMultaConductor, 
+  useUpdateMultaConductor, 
+  useDeleteMultaConductor,
+  type MultaConductor
+} from "@/features/multas"
 import { commonInfoService } from "@/services/api/common-info-service"
 import { TrafficTicketType } from "@/types/common-info-types"
 

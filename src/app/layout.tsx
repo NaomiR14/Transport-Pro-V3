@@ -4,9 +4,8 @@ import "./globals.css"
 import { Toaster } from "sonner"
 import { QueryProvider } from "@/providers/query-provider"
 import { ThemeProvider } from "@/components/theme-provider"
-import AuthInitializer from "@/components/auth/AuthInitializer"
-import AuthLoading from "@/components/auth/AuthLoading"
-import ProtectedLayout from '@/components/layout/ProtectedLayout' // ← Nuevo
+import { AuthInitializer, AuthLoading } from "@/features/auth"
+import ProtectedLayout from '@/components/layout/ProtectedLayout'
 
 const inter = Inter({ subsets: ["latin"] })
 

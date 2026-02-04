@@ -15,12 +15,16 @@ import {
 } from "@/components/ui/select"
 import { Plus, Search, Eye, Edit, Truck, Wrench, Phone, Mail, MapPin, User, Building, Loader2, X } from "lucide-react"
 import Link from "next/link"
-import EditTallerModal from "@/components/EditTallerModal"
+import { TallerFormModal as EditTallerModal } from "@/features/talleres"
 
 // Importar los hooks y store
-import { useDeleteTaller, useFilteredTalleres, useTalleresStats } from "@/hooks/use-talleres"
-import { useTallerStore } from "@/store/taller-store"
-import { Taller } from "@/types/taller-types"
+import { 
+  useDeleteTaller, 
+  useFilteredTalleres, 
+  useTalleresStats,
+  useTallerStore,
+  type Taller
+} from "@/features/talleres"
 
 
 export default function TalleresPage() {
@@ -191,7 +195,8 @@ export default function TalleresPage() {
                   </div>
 
 
-                  <Select
+                  {/* TODO: Fix filter - especialidad property doesn't exist */}
+                  {/* <Select
                     value={filters.searchTerm || "all"}
                     onValueChange={(value) =>
                       setFilters({ especialidad: value === "all" ? undefined : value })
@@ -200,15 +205,15 @@ export default function TalleresPage() {
                     <SelectTrigger className="w-44">
                       <SelectValue placeholder="Need Fix" />
                     </SelectTrigger>
-                    {/* <SelectContent>
+                    <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
                       {especialidadesDisponibles.map((esp) => (
                         <SelectItem key={esp} value={esp}>{esp}</SelectItem>
                       ))}
-                    </SelectContent> */}
-                  </Select>
+                    </SelectContent>
+                  </Select> */}
 
-                  {(filters.searchTerm || filters.activo !== undefined || filters.especialidad) && (
+                  {filters.searchTerm && (
                     <Button variant="outline" onClick={clearFilters}>
                       <X className="h-4 w-4 mr-2" />
                       Limpiar
@@ -232,12 +237,12 @@ export default function TalleresPage() {
                         No se encontraron talleres
                       </h3>
                       <p className="text-gray-500 mb-4">
-                        {filters.searchTerm || filters.activo !== undefined || filters.especialidad
+                        {filters.searchTerm
                           ? "Intenta ajustar los filtros de búsqueda"
                           : "Comienza agregando tu primer taller"
                         }
                       </p>
-                      {!(filters.searchTerm || filters.activo !== undefined || filters.especialidad) && (
+                      {!filters.searchTerm && (
                         <Button onClick={handleCreateTaller}>
                           <Plus className="h-4 w-4 mr-2" />
                           Agregar Taller

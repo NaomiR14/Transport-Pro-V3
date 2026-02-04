@@ -1,0 +1,96 @@
+// FilterParams type definition
+interface FilterParams {
+  searchTerm?: string
+  [key: string]: any
+}
+
+export interface Vehicle {
+    id: string
+    type: string
+    brand: string
+    model: string
+    licensePlate: string
+    serialNumber: string
+    color: string
+    year: number
+    maxLoadCapacity: number
+    vehicleState: string
+    // Campos opcionales que podrían no venir de la API
+    maintenanceData: {
+        maintenanceCycle?: number
+        initialKm?: number
+        prevMaintenanceKm?: number
+        currentKm?: number
+        remainingMaintenanceKm?: number
+        maintenanceStatus?: string
+    }
+}
+
+export interface CreateVehicleRequest {
+    type: string
+    brand: string
+    model: string
+    licensePlate: string
+    serialNumber: string
+    color: string
+    year: number
+    maxLoadCapacity: number
+    vehicleState: string
+    // Campos opcionales que no vienen de la API
+    maintenanceData: {
+        maintenanceCycle?: number
+        initialKm?: number
+        prevMaintenanceKm?: number
+        currentKm?: number
+        remainingMaintenanceKm?: number
+        maintenanceStatus?: string
+    }
+}
+
+export interface VehicleFilters extends FilterParams {
+    searchTerm?: string
+    vehicleState?: string
+    maintenanceStatus?: boolean
+    type?: string
+    brand?: string
+    yearMin?: number
+    yearMax?: number
+}
+
+export interface VehicleStats {
+    total: number
+    available: number
+    inMaintenance: number
+    requierenMantenimiento: number
+}
+
+// Estado del store de Zustand
+export interface VehicleStore {
+    // Estado
+    vehicles: Vehicle[]
+    selectedVehicle: Vehicle | null
+    filters: VehicleFilters
+    stats: VehicleStats | null
+    isLoading: boolean
+    error: string | null
+
+    // Acciones
+    setVehicles: (vehicles: Vehicle[]) => void
+    setSelectedVehicle: (vehicle: Vehicle | null) => void
+    setFilters: (filters: Partial<VehicleFilters>) => void
+    setStats: (stats: VehicleStats) => void
+    setLoading: (loading: boolean) => void
+    setError: (error: string | null) => void
+
+    // Acciones de negocio
+    addVehicle: (vehicle: Vehicle) => void
+    updateVehicle: (vehicle: Vehicle) => void
+    removeVehicle: (vehicleId: string) => void
+    clearFilters: () => void
+
+    // Computed properties
+    getFilteredVehicles: () => Vehicle[]
+    getVehicleById: (id: string) => Vehicle | undefined
+    recalculateMaintenance: () => void
+
+}

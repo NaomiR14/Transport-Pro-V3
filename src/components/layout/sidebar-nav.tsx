@@ -19,6 +19,8 @@ import {
   Menu,
   X,
   ChevronLeft,
+  Crown,
+  Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
@@ -266,6 +268,58 @@ export function SidebarNav({ className }: SidebarNavProps) {
               })}
             </ul>
           </nav>
+
+          {/* Upgrade Pro Section */}
+          {isOpen && (
+            <div className="px-3 pb-4">
+              <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 overflow-hidden shadow-lg border border-gray-700">
+                {/* Decorative circles */}
+                <div className="absolute -top-8 -right-8 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl" />
+                <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-purple-500/10 rounded-full blur-2xl" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center mb-3">
+                    <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 rounded-lg shadow-lg">
+                      <Crown className="h-5 w-5 text-white" />
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-white font-bold text-center mb-1 text-sm">
+                    Upgrade Pro
+                  </h3>
+                  <p className="text-gray-400 text-xs text-center mb-4 leading-relaxed">
+                    Descubre los beneficios de una cuenta profesional
+                  </p>
+                  
+                  <Button
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 border-0 group"
+                    size="sm"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 mr-2 group-hover:rotate-12 transition-transform" />
+                    Upgrade $30
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Collapsed Upgrade Button */}
+          {!isOpen && (
+            <div className="px-3 pb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-full h-10 bg-gradient-to-br from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 border border-gray-700 group relative"
+                title="Upgrade Pro - $30"
+              >
+                <Crown className="h-5 w-5 text-yellow-400" />
+                <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg border border-slate-700">
+                  Upgrade Pro - $30
+                  <div className="absolute right-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-0 border-r-4 border-r-slate-900 border-t-transparent border-b-transparent"></div>
+                </div>
+              </Button>
+            </div>
+          )}
 
           {/* Footer */}
           <div

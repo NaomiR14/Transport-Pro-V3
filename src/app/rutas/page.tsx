@@ -14,12 +14,17 @@ import {
 } from "@/components/ui/select"
 import { Plus, Search, Eye, Edit, Truck, Map, Calendar, User, Fuel, Loader2, X, BarChart3 } from "lucide-react"
 import Link from "next/link"
-import EditRutaViajeModal from "@/components/EditRutaViajeModal"
+import { RutaViajeFormModal as EditRutaViajeModal } from "@/features/rutas"
 
 // Importar los hooks y store
-import { useDeleteRuta, useFilteredRutas, useRutasStats, useRutaFilterOptions } from "@/hooks/use-rutas-viaje"
-import { useRutaViajeStore } from "@/store/ruta-viaje-store"
-import { RutaViaje } from "@/types/ruta-viaje-types"
+import { 
+  useDeleteRuta, 
+  useFilteredRutas, 
+  useRutasStats, 
+  useRutaFilterOptions,
+  useRutaViajeStore,
+  type RutaViaje
+} from "@/features/rutas"
 
 // Componente para mostrar detalles de la ruta
 function RutaDetailsModal({ ruta, isOpen, onClose }: { ruta: RutaViaje | null, isOpen: boolean, onClose: () => void }) {

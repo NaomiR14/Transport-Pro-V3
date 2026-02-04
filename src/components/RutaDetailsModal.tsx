@@ -30,7 +30,7 @@ import {
     Clock,
     FileText
 } from "lucide-react"
-import { RutaViaje } from "@/types/ruta-viaje-types"
+import { type RutaViaje } from "@/features/rutas"
 
 interface RutaDetailsModalProps {
     ruta: RutaViaje | null
@@ -177,9 +177,9 @@ export default function RutaDetailsModal({ ruta, isOpen, onClose }: RutaDetailsM
                                         <p className="text-sm font-medium text-gray-500">Estado</p>
                                         <Badge
                                             variant="secondary"
-                                            className={getEstadoVehiculoConfig(ruta.estado_vehiculo).bg + " " + getEstadoVehiculoConfig(ruta.estado_vehiculo).text}
+                                            className={getEstadoVehiculoConfig(ruta.estado_vehiculo || "inactivo").bg + " " + getEstadoVehiculoConfig(ruta.estado_vehiculo || "inactivo").text}
                                         >
-                                            {ruta.estado_vehiculo.charAt(0).toUpperCase() + ruta.estado_vehiculo.slice(1)}
+                                            {(ruta.estado_vehiculo || "inactivo").charAt(0).toUpperCase() + (ruta.estado_vehiculo || "inactivo").slice(1)}
                                         </Badge>
                                     </div>
                                 </div>

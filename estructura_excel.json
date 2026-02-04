@@ -1,0 +1,179 @@
+{
+  "tablas": {
+    "Flota": {
+      "columnas": [
+        "Nro",
+        "Tipo",
+        "Marca",
+        "Modelo",
+        "Placa Vehiculo",
+        "Nro serie",
+        "Color",
+        "Año",
+        "Carga Máxima (Kg)",
+        "Estado Vehiculo",
+        "Ciclo para Mnnto Prevent. (Km)",
+        "Kms Odómetro Inicial",
+        "Kms Odómetro Mnnto. Preventivo",
+        "Kms Odómetro Actual",
+        "Falta para el próximo Mnnto Prev. (Km)",
+        "Estado Mantenimiento Preventivo"
+      ]
+    },
+    "Seguros": {
+      "columnas": [
+        "Nro",
+        "Placa Vehiculo",
+        "Aseguradora",
+        "Poliza seguro",
+        "Fecha de inicio",
+        "Fecha de Vencimiento",
+        "Importe Pagado ($)",
+        "Fecha de Pago",
+        "Estado Poliza"
+      ]
+    },
+    "Impuestos": {
+      "columnas": [
+        "Nro",
+        "Placa Vehiculo",
+        "Tipo Impuesto",
+        "Año Impuesto",
+        "Impuesto ($)",
+        "Fecha de pago"
+      ]
+    },
+    "Conductores": {
+      "columnas": [
+        "Nro",
+        "Doc Identidad",
+        "Conductor",
+        "Nro Licencia",
+        "Dirección",
+        "Teléfono/Celular",
+        "Calificación"
+      ]
+    },
+    "Talleres": {
+      "columnas": [
+        "Nro",
+        "Nombre del Taller",
+        "Dirección",
+        "Teléfono/Celular",
+        "Correo",
+        "Contacto Principal"
+      ]
+    },
+    "Rutas": {
+      "columnas": [
+        "Nro",
+        "Fecha de Salida",
+        "Fecha de Llegada",
+        "Placa Vehiculo",
+        "Estado Vehículo",
+        "Conductor",
+        "Origen",
+        "Destino",
+        "Kms Inicial (Odómetro)",
+        "Kms Final (Odómetro)",
+        "Kms Recorridos",
+        "Peso de carga (Kg)",
+        "Costo por Kg de carga ($/Kg)",
+        "Ingreso Total ($)",
+        "Estación de Combustible",
+        "Tipo de Combustible",
+        "Precio x Galón ($/gal)",
+        "Total Combustible ($)",
+        "Gasto peajes ($)",
+        "Gasto comidas ($)",
+        "Otros Gastos ($)",
+        "Gasto Total ($)",
+        "Volumen de Combustible (gal)",
+        "Recorrido por und. de comb. (Km/gal)",
+        "Ingreso por Kms de recorrido ($/Km)",
+        "Observaciones"
+      ]
+    },
+    "Multas": {
+      "columnas": [
+        "Nro",
+        "Fecha",
+        "Nro Viaje",
+        "Placa Vehículo",
+        "Conductor",
+        "Infracción",
+        "Importe multa ($)",
+        "Importe pagado ($)",
+        "Debe ($)",
+        "Estado Pago",
+        "Observaciones"
+      ]
+    },
+    "Mantenimiento": {
+      "columnas": [
+        "Nro",
+        "Placa Vehiculo",
+        "Taller",
+        "Fecha Entrada",
+        "Fecha Salida",
+        "Tipo",
+        "Kilometraje del Odómetro",
+        "Paquete de Mantenimiento",
+        "Causas del Mantenimiento",
+        "Costo Total ($)",
+        "Fecha de Pago",
+        "Observaciones"
+      ]
+    }
+  },
+  "relaciones": [
+    {
+      "tabla_origen": "Seguros",
+      "campo_fk": "Placa Vehiculo",
+      "tabla_destino": "Flota",
+      "campo_pk": "Placa Vehiculo"
+    },
+    {
+      "tabla_origen": "Impuestos",
+      "campo_fk": "Placa Vehiculo",
+      "tabla_destino": "Flota",
+      "campo_pk": "Placa Vehiculo"
+    },
+    {
+      "tabla_origen": "Rutas",
+      "campo_fk": "Placa Vehiculo",
+      "tabla_destino": "Flota",
+      "campo_pk": "Placa Vehiculo"
+    },
+    {
+      "tabla_origen": "Rutas",
+      "campo_fk": "Conductor",
+      "tabla_destino": "Conductores",
+      "campo_pk": "Conductor"
+    },
+    {
+      "tabla_origen": "Multas",
+      "campo_fk": "Placa Vehículo",
+      "tabla_destino": "Flota",
+      "campo_pk": "Placa Vehiculo"
+    },
+    {
+      "tabla_origen": "Multas",
+      "campo_fk": "Conductor",
+      "tabla_destino": "Conductores",
+      "campo_pk": "Conductor"
+    },
+    {
+      "tabla_origen": "Mantenimiento",
+      "campo_fk": "Placa Vehiculo",
+      "tabla_destino": "Flota",
+      "campo_pk": "Placa Vehiculo"
+    },
+    {
+      "tabla_origen": "Mantenimiento",
+      "campo_fk": "Taller",
+      "tabla_destino": "Talleres",
+      "campo_pk": "Nombre del Taller"
+    }
+  ]
+}

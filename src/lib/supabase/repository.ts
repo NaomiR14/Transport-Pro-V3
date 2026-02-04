@@ -96,6 +96,8 @@ export class SupabaseRepository<T> {
    */
   async create(data: Partial<T>): Promise<T> {
     try {
+      console.log(`[SupabaseRepository] CREATE ${this.tableName} - INPUT:`, data);
+      
       const { data: newData, error } = await this.client
         .from(this.tableName)
         .insert(data)
@@ -103,16 +105,25 @@ export class SupabaseRepository<T> {
         .single();
 
       if (error) {
+        console.error(`[SupabaseRepository] CREATE ${this.tableName} - ERROR:`, {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw new Error(`Error al crear registro en ${this.tableName}: ${error.message}`);
       }
 
       if (!newData) {
+        console.error(`[SupabaseRepository] CREATE ${this.tableName} - NO DATA`);
         throw new Error(`Error al crear registro en ${this.tableName}`);
       }
 
+      console.log(`[SupabaseRepository] CREATE ${this.tableName} - SUCCESS:`, newData);
       return newData as T;
     } catch (error) {
-      console.error(`Error en create de ${this.tableName}:`, error);
+      console.error(`[SupabaseRepository] CREATE ${this.tableName} - EXCEPTION:`, error);
       throw error;
     }
   }
@@ -122,6 +133,9 @@ export class SupabaseRepository<T> {
    */
   async update(id: string, data: Partial<T>): Promise<T> {
     try {
+      console.log(`[SupabaseRepository] UPDATE ${this.tableName} - ID:`, id);
+      console.log(`[SupabaseRepository] UPDATE ${this.tableName} - INPUT:`, data);
+      
       const { data: updatedData, error } = await this.client
         .from(this.tableName)
         .update(data)
@@ -130,16 +144,25 @@ export class SupabaseRepository<T> {
         .single();
 
       if (error) {
+        console.error(`[SupabaseRepository] UPDATE ${this.tableName} - ERROR:`, {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw new Error(`Error al actualizar registro en ${this.tableName}: ${error.message}`);
       }
 
       if (!updatedData) {
+        console.error(`[SupabaseRepository] UPDATE ${this.tableName} - NO DATA`);
         throw new Error(`Error al actualizar registro en ${this.tableName}`);
       }
 
+      console.log(`[SupabaseRepository] UPDATE ${this.tableName} - SUCCESS:`, updatedData);
       return updatedData as T;
     } catch (error) {
-      console.error(`Error en update de ${this.tableName}:`, error);
+      console.error(`[SupabaseRepository] UPDATE ${this.tableName} - EXCEPTION:`, error);
       throw error;
     }
   }
@@ -149,16 +172,27 @@ export class SupabaseRepository<T> {
    */
   async delete(id: string): Promise<void> {
     try {
+      console.log(`[SupabaseRepository] DELETE ${this.tableName} - ID:`, id);
+      
       const { error } = await this.client
         .from(this.tableName)
         .delete()
         .eq(this.idField, id);
 
       if (error) {
+        console.error(`[SupabaseRepository] DELETE ${this.tableName} - ERROR:`, {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw new Error(`Error al eliminar registro de ${this.tableName}: ${error.message}`);
       }
+      
+      console.log(`[SupabaseRepository] DELETE ${this.tableName} - SUCCESS`);
     } catch (error) {
-      console.error(`Error en delete de ${this.tableName}:`, error);
+      console.error(`[SupabaseRepository] DELETE ${this.tableName} - EXCEPTION:`, error);
       throw error;
     }
   }

@@ -21,10 +21,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
-import { EditMantenimientoVehiculoModal } from "@/components/EditMantenimientoVehiculoModal"
-import { useFilteredMantenimientos, useCreateMantenimiento, useUpdateMantenimiento } from "@/hooks/use-mantenimiento-vehiculos"
-import { MantenimientoVehiculo, CreateMantenimientoVehiculoRequest } from "@/types/mantenimiento-vehiculos-types"
-import { useMantenimientoVehiculoStore } from "@/store/mantenimiento-vehiculos-store"
+import { 
+  useFilteredMantenimientos, 
+  useCreateMantenimiento, 
+  useUpdateMantenimiento,
+  useMantenimientoVehiculoStore,
+  MantenimientoFormModal as EditMantenimientoVehiculoModal,
+  type MantenimientoVehiculo, 
+  type CreateMantenimientoVehiculoRequest
+} from "@/features/mantenimiento"
 
 
 export default function MantenimientoVehiculosPage() {

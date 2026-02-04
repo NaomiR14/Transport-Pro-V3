@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { AuthStore, UserProfile } from '@/types/auth'
 import type { User } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/client'
 
 // Helper para normalizar el perfil
 function normalizeProfile(profile: any): UserProfile | null {
@@ -128,8 +129,3 @@ export const useAuthStore = create<AuthStore>()(
         }
     )
 )
-
-// Helper function
-function createClient() {
-    return require('@/lib/supabase/client').createClient()
-}

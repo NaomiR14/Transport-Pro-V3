@@ -14,12 +14,17 @@ import {
 } from "@/components/ui/select"
 import { Plus, Search, Eye, Edit, Truck, Receipt, Calendar, DollarSign, Loader2, X } from "lucide-react"
 import Link from "next/link"
-import EditImpuestoModal from "@/components/EditImpuestoModal"
+import { ImpuestoFormModal as EditImpuestoModal } from "@/features/impuestos"
 
 // Importar los hooks y store
-import { useDeleteImpuesto, useFilteredImpuestos, useImpuestosStats, useImpuestoFilterOptions } from "@/hooks/use-impuestos-vehiculares"
-import { useImpuestoStore } from "@/store/impuesto-vehicular-store"
-import { ImpuestoVehicular } from "@/types/impuesto-vehicular-types"
+import { 
+  useDeleteImpuesto, 
+  useFilteredImpuestos, 
+  useImpuestosStats, 
+  useImpuestoFilterOptions,
+  useImpuestoStore,
+  type ImpuestoVehicular
+} from "@/features/impuestos"
 
 export default function ImpuestosVehicularesPage() {
     const [editingImpuesto, setEditingImpuesto] = useState<ImpuestoVehicular | null>(null)
