@@ -39,27 +39,14 @@ export default function VehiculosPage() {
 
     const getMaintenanceStatusBadge = (status: string) => {
         const statusConfig = {
-            'Al día': { 
-                color: 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text', 
-                icon: '✅' 
-            },
-            'Próximo': { 
-                color: 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text', 
-                icon: '⚠️' 
-            },
-            'Urgente': { 
-                color: 'bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-400', 
-                icon: '🚨' 
-            },
-            'Vencido': { 
-                color: 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text', 
-                icon: '❌' 
-            }
+            'Al día': { color: 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text', icon: '✅' },
+            'Próximo': { color: 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text', icon: '⚠️' },
+            'Urgente': { color: 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text', icon: '🚨' },
+            'Vencido': { color: 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text', icon: '❌' }
         }
 
         const config = statusConfig[status as keyof typeof statusConfig] || {
-            color: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400', 
-            icon: '❓'
+            color: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400', icon: '❓'
         }
 
         return (
@@ -73,14 +60,12 @@ export default function VehiculosPage() {
         const stateConfig = {
             'Disponible': 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text',
             'En Mantenimiento': 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text',
-            'En Uso': 'bg-info-bg text-info-text dark:bg-info-bg/20 dark:text-info-text',
-            'Inactivo': 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+            'En Uso': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+            'Inactivo': 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
         }
 
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                stateConfig[state as keyof typeof stateConfig] || 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300'
-            }`}>
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${stateConfig[state as keyof typeof stateConfig] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'}`}>
                 {state}
             </span>
         )
@@ -149,6 +134,7 @@ export default function VehiculosPage() {
                     Nuevo Vehículo
                 </Button>
             </div>
+           
 
             {/* Estadísticas */}
             <div className="mb-8">
@@ -160,7 +146,7 @@ export default function VehiculosPage() {
                 <CardContent className="pt-6">
                     {/* Filters and Actions */}
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
                             {/* Search */}
                             <div className="relative">
                                 <Search className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
@@ -179,7 +165,7 @@ export default function VehiculosPage() {
                                     setFilters({ type: value === "all" ? undefined : value })
                                 }
                             >
-                                <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                                <SelectTrigger className="w-48 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
                                     <SelectValue placeholder="Tipo" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -197,7 +183,7 @@ export default function VehiculosPage() {
                                     setFilters({ brand: value === "all" ? undefined : value })
                                 }
                             >
-                                <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                                <SelectTrigger className="w-48 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
                                     <SelectValue placeholder="Marca" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -215,7 +201,7 @@ export default function VehiculosPage() {
                                     setFilters({ vehicleState: value === "all" ? undefined : value })
                                 }
                             >
-                                <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                                <SelectTrigger className="w-48 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
                                     <SelectValue placeholder="Estado" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -230,8 +216,7 @@ export default function VehiculosPage() {
                             {(filters.searchTerm || filters.type || filters.brand || filters.vehicleState) && (
                                 <Button 
                                     variant="outline" 
-                                    onClick={clearFilters} 
-                                    size="sm"
+                                    onClick={clearFilters}
                                     className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
                                 >
                                     <X className="h-4 w-4 mr-2" />
@@ -239,7 +224,6 @@ export default function VehiculosPage() {
                                 </Button>
                             )}
                         </div>
-                    </div>
 
                     {/* Table */}
                     {isLoading ? (
@@ -278,39 +262,17 @@ export default function VehiculosPage() {
                             <Table>
                                 <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
                                     <TableRow className="hover:bg-transparent border-b border-slate-200 dark:border-slate-700">
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            ID
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Tipo
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Marca
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Modelo
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Placa
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Color
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Año
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Estado
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Km Actual
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Estado Mnto
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Acciones
-                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300 w-20">ID</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Tipo</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Marca</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Modelo</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Placa</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Color</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Año</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Estado</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Km Actual</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Estado Mnto</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -319,49 +281,29 @@ export default function VehiculosPage() {
                                             key={vehicle.id} 
                                             className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
                                         >
-                                            <TableCell className="font-medium text-slate-900 dark:text-white">
-                                                {vehicle.id}
-                                            </TableCell>
-                                            <TableCell className="text-slate-700 dark:text-slate-300">
-                                                {vehicle.type}
-                                            </TableCell>
-                                            <TableCell className="text-slate-700 dark:text-slate-300">
-                                                {vehicle.brand}
-                                            </TableCell>
-                                            <TableCell className="text-slate-700 dark:text-slate-300">
-                                                {vehicle.model}
-                                            </TableCell>
-                                            <TableCell className="font-mono font-bold text-slate-900 dark:text-white">
-                                                {vehicle.licensePlate}
-                                            </TableCell>
+                                            <TableCell className="font-medium text-slate-900 dark:text-white">{vehicle.id}</TableCell>
+                                            <TableCell className="text-slate-900 dark:text-white">{vehicle.type}</TableCell>
+                                            <TableCell className="text-slate-900 dark:text-white">{vehicle.brand}</TableCell>
+                                            <TableCell className="text-slate-900 dark:text-white">{vehicle.model}</TableCell>
+                                            <TableCell className="font-mono font-bold text-slate-900 dark:text-white">{vehicle.licensePlate}</TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <div
                                                         className="w-4 h-4 rounded border border-slate-300 dark:border-slate-600"
                                                         style={{ backgroundColor: vehicle.color?.toLowerCase() }}
                                                     />
-                                                    <span className="text-slate-700 dark:text-slate-300">
-                                                        {vehicle.color}
-                                                    </span>
+                                                    <span className="text-slate-900 dark:text-white">{vehicle.color}</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-slate-700 dark:text-slate-300">
-                                                {vehicle.year}
-                                            </TableCell>
-                                            <TableCell>
-                                                {getVehicleStateBadge(vehicle.vehicleState)}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2 justify-start">
+                                            <TableCell className="text-slate-900 dark:text-white">{vehicle.year}</TableCell>
+                                            <TableCell>{getVehicleStateBadge(vehicle.vehicleState)}</TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center gap-2 justify-end">
                                                     <Gauge className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                                                    <span className="text-slate-700 dark:text-slate-300">
-                                                        {vehicle.maintenanceData.currentKm || 0}
-                                                    </span>
+                                                    <span className="text-slate-900 dark:text-white">{vehicle.maintenanceData.currentKm || 0}</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                {getMaintenanceStatusBadge(vehicle.maintenanceData.maintenanceStatus || "Al día")}
-                                            </TableCell>
+                                            <TableCell>{getMaintenanceStatusBadge(vehicle.maintenanceData.maintenanceStatus || "Al día")}</TableCell>
                                             <TableCell>
                                                 <div className="flex gap-1">
                                                     <Button 
@@ -404,6 +346,7 @@ export default function VehiculosPage() {
                             </Table>
                         </div>
                     )}
+                    </div>
                 </CardContent>
             </Card>
 

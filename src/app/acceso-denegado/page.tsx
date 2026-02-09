@@ -4,8 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { AlertTriangle, Home, ArrowLeft, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAuth } from '@/hooks/auth/useAuth'
-import { usePermissions } from '@/hooks/auth/usePermissions'
+import { useAuth, usePermissions } from '@/features/auth'
 
 export default function AccesoDenegadoPage() {
     const router = useRouter()

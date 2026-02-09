@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import type { UserProfile, RegisterCredentials } from '@/types/auth'
+import type { UserProfile, RegisterCredentials } from '../types/auth.types'
 import type { User } from '@supabase/supabase-js'
 
 export class AuthService {

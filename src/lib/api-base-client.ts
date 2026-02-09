@@ -5,7 +5,7 @@ import {
   PaginationParams,
   FilterParams,
   ErrorData
-} from '../../types/api-base-client-types';
+} from '@/types/api-base-client-types';
 
 export class ApiClient {
   private baseURL: string;

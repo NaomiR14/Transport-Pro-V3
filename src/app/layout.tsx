@@ -3,7 +3,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { QueryProvider } from "@/providers/query-provider"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/providers/theme-provider"
 import { AuthInitializer, AuthLoading } from "@/features/auth"
 import ProtectedLayout from '@/components/layout/ProtectedLayout'
 

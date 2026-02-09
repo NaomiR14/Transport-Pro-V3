@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/hooks/auth/useAuth'
+import { useAuth } from '../hooks/useAuth'
 import { Loader2 } from 'lucide-react'
 
 export default function AuthLoading() {

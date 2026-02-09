@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { LogOut, User, Settings, ChevronDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
-import { useAuth } from '@/hooks/auth/useAuth'
+import { useAuth } from '../hooks/useAuth'
 
 export default function UserMenu() {
     const [isOpen, setIsOpen] = useState(false)

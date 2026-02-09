@@ -18,7 +18,7 @@ import {
   type MantenimientoVehiculo, 
   type CreateMantenimientoVehiculoRequest 
 } from "@/features/mantenimiento"
-import { commonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/lib/common-info-service"
 
 // Definir interfaces locales basadas en lo que devuelve CommonInfoService
 interface MaintenanceType {

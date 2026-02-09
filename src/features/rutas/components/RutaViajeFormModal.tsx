@@ -27,7 +27,7 @@ import {
   useCreateRuta, 
   useUpdateRuta 
 } from "@/features/rutas"
-import { commonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/lib/common-info-service"
 
 
 interface EditRutaViajeModalProps {

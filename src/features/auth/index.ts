@@ -1,11 +1,26 @@
 // Public exports for auth feature
 
 // Types
-export type { UserRole, UserProfile, AuthUser, LoginCredentials, RegisterCredentials } from './types/auth.types'
+export type { 
+    UserRole, 
+    UserProfile, 
+    AuthUser, 
+    LoginCredentials, 
+    RegisterCredentials,
+    AuthStore as AuthStoreType
+} from './types/auth.types'
+export { getFullName } from './types/auth.types'
 
 // Hooks
 export { useAuth } from './hooks/useAuth'
 export { usePermissions } from './hooks/usePermissions'
+export type { Module, Action } from './hooks/usePermissions'
+
+// Store
+export { useAuthStore } from './store/auth-store'
+
+// Service
+export { authService, AuthService } from './services/auth-service'
 
 // Components
 export { default as LoginForm } from './components/LoginForm'

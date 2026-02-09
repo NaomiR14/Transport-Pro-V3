@@ -25,8 +25,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSidebar } from "./sidebar-context"
-import { useAuth } from "@/hooks/auth/useAuth" // ← Cambiar a nuevo hook
-import { usePermissions } from "@/hooks/auth/usePermissions"
+import { useAuth, usePermissions } from "@/features/auth"
 
 interface SidebarNavProps {
   className?: string

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { type Vehicle, type CreateVehicleRequest, useCreateVehicle, useUpdateVehicle } from "@/features/vehiculos"
-import { commonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/lib/common-info-service"
 
 interface EditVehicleModalProps {
     vehicle: Vehicle | null

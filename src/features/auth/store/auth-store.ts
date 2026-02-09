@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { AuthStore, UserProfile } from '@/types/auth'
+import type { AuthStore, UserProfile } from '../types/auth.types'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 

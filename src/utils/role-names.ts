@@ -1,4 +1,4 @@
-import { UserRole } from '@/types/auth'
+import { UserRole } from '@/features/auth'
 
 export function getRoleName(role: UserRole): string {
     const roleNames: Record<UserRole, string> = {

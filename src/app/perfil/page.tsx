@@ -1,7 +1,6 @@
 'use client'
 
-import { useAuth } from '@/hooks/auth/useAuth'
-import { usePermissions } from '@/hooks/auth/usePermissions'
+import { useAuth, usePermissions } from '@/features/auth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'

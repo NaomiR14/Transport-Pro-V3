@@ -1,7 +1,7 @@
 'use client'
 
-import { useAuth } from '@/hooks/auth/useAuth'
-import { usePermissions, Module, Action } from '@/hooks/auth/usePermissions'
+import { useAuth } from '../hooks/useAuth'
+import { usePermissions, Module, Action } from '../hooks/usePermissions'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { AlertTriangle } from 'lucide-react'

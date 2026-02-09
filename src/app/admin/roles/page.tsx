@@ -1,6 +1,6 @@
 'use client'
 
-import { RequirePermission } from '@/components/auth'
+import { RequirePermission } from '@/features/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Shield, Users, Lock, AlertCircle } from 'lucide-react'

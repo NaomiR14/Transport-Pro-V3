@@ -21,7 +21,7 @@ import {
   type MultaConductor, 
   type UpdateMultaConductorRequest 
 } from "@/features/multas"
-import { commonInfoService } from "@/services/api/common-info-service"
+import { commonInfoService } from "@/lib/common-info-service"
 import { TrafficTicketType } from "@/types/common-info-types"
 
 interface EditMultasConductoresModalProps {
