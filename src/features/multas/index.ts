@@ -6,3 +6,6 @@ export * from './store/multas-store'
 
 // Components
 export { default as MultaFormModal } from './components/MultaFormModal'
+export { MultasStats } from './components/MultasStats'
+export { MultasFilters } from './components/MultasFilters'
+export { MultasTable } from './components/MultasTable'

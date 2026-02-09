@@ -121,3 +121,7 @@ export function useFilteredMultasConductores() {
         filters,
     }
 }
+
+// Alias exports para mantener consistencia de nombres
+export { useMultasConductoresStats as useMultasStats }
+export { useMultasConductoresStore as useMultasStore }

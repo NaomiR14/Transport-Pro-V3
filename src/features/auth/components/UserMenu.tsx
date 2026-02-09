@@ -58,37 +58,37 @@ export default function UserMenu() {
         <div className="relative" ref={menuRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 aria-expanded={isOpen}
                 aria-haspopup="true"
             >
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full">
+                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full">
                     <User className="h-5 w-5" />
                 </div>
                 <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium text-gray-900 truncate max-w-[150px]">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[150px]">
                         {displayName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate max-w-[150px]">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[150px]">
                         {userEmail}
                     </p>
                 </div>
-                <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 text-slate-500 dark:text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-2 z-50">
                     {/* User Info */}
-                    <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                    <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
                             {displayName}
                         </p>
-                        <p className="text-xs text-gray-500 truncate mt-1">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-1">
                             {userEmail}
                         </p>
                         {profile?.role && (
                             <div className="mt-1">
-                                <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                <span className="inline-block px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-full">
                                     {profile.role === 'director' ? 'Administrador' :
                                         profile.role === 'conductor' ? 'Conductor' : 'Usuario'}
                                 </span>
@@ -103,9 +103,9 @@ export default function UserMenu() {
                                 setIsOpen(false)
                                 router.push('/perfil')
                             }}
-                            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors text-left"
+                            className="w-full flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors text-left"
                         >
-                            <User className="h-4 w-4 mr-3 text-gray-400" />
+                            <User className="h-4 w-4 mr-3 text-slate-400 dark:text-slate-500" />
                             Mi Perfil
                         </button>
 
@@ -114,18 +114,18 @@ export default function UserMenu() {
                                 setIsOpen(false)
                                 router.push('/configuracion')
                             }}
-                            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors text-left"
+                            className="w-full flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors text-left"
                         >
-                            <Settings className="h-4 w-4 mr-3 text-gray-400" />
+                            <Settings className="h-4 w-4 mr-3 text-slate-400 dark:text-slate-500" />
                             Configuración
                         </button>
                     </div>
 
                     {/* Logout */}
-                    <div className="border-t border-gray-100 pt-2">
+                    <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
                         <button
                             onClick={handleLogout}
-                            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors text-left"
+                            className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-800 dark:hover:text-red-300 transition-colors text-left"
                         >
                             <LogOut className="h-4 w-4 mr-3" />
                             Cerrar Sesión

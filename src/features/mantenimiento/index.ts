@@ -6,3 +6,6 @@ export * from './store/mantenimiento-store'
 
 // Components
 export { default as MantenimientoFormModal } from './components/MantenimientoFormModal'
+export { MantenimientoStats } from './components/MantenimientoStats'
+export { MantenimientoFilters } from './components/MantenimientoFilters'
+export { MantenimientoTable } from './components/MantenimientoTable'

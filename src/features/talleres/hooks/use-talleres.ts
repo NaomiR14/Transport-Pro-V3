@@ -145,6 +145,9 @@ export function useFilteredTalleres() {
   }
 }
 
+// Re-export store for components
+export { useTallerStore } from '../store/talleres-store'
+
 // Hook simple alternativo (para componentes que no necesitan React Query)
 export const useTalleresSimple = () => {
   const [talleres, setTalleres] = useState<Taller[]>([]);

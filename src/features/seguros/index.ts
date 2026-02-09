@@ -6,3 +6,6 @@ export * from './store/seguros-store'
 
 // Components
 export { default as SeguroFormModal } from './components/SeguroFormModal'
+export { SeguroStats } from './components/SeguroStats'
+export { SeguroFilters } from './components/SeguroFilters'
+export { SeguroTable } from './components/SeguroTable'

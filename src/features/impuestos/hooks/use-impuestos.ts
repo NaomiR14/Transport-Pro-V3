@@ -162,6 +162,19 @@ export function useFilteredImpuestos() {
     }
 }
 
+// Re-export store for components
+export { useImpuestoStore } from '../store/impuestos-store'
+
+// Hook para obtener opciones de filtros
+export function useImpuestoFilterOptions() {
+    const { impuestos } = useImpuestoStore()
+    return {
+        tipos: [...new Set(impuestos.map(i => i.tipo_impuesto))],
+        years: [...new Set(impuestos.map(i => i.anio_impuesto))],
+        estados: ['pagado', 'pendiente', 'vencido']
+    }
+}
+
 // Hook simple alternativo (para componentes que no necesitan React Query)
 export const useImpuestosSimple = () => {
     const [impuestos, setImpuestos] = useState<ImpuestoVehicular[]>([]);
@@ -236,23 +249,3 @@ export const useImpuestosSimple = () => {
         deleteImpuesto,
     };
 };
-
-// Hook para opciones de filtro
-export function useImpuestoFilterOptions() {
-    const { impuestos } = useImpuestoStore()
-    const { data: allImpuestos } = useImpuestos()
-
-    const impuestosToUse = allImpuestos || impuestos
-
-    const estados = ['pagado', 'pendiente', 'vencido'];
-    const tiposImpuesto = [...new Set(impuestosToUse.map(s => s.tipo_impuesto))].filter(Boolean);
-    const placas = [...new Set(impuestosToUse.map(s => s.placa_vehiculo))].filter(Boolean);
-    const anios = [...new Set(impuestosToUse.map(s => s.anio_impuesto))].sort((a, b) => b - a);
-
-    return {
-        estados,
-        tiposImpuesto,
-        placas,
-        anios,
-    };
-}

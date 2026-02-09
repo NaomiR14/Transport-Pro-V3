@@ -11,6 +11,9 @@ import {
     RutaViajeFilters,
 } from '../types/rutas.types'
 
+// Re-export store for components
+export { useRutaViajeStore } from '../store/rutas-store'
+
 // Query keys
 const QUERY_KEYS = {
     rutas: ['rutas'] as const,

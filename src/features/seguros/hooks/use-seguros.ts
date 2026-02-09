@@ -162,6 +162,9 @@ export function useFilteredSeguros() {
     }
 }
 
+// Re-export store for components
+export { useSeguroStore } from '../store/seguros-store'
+
 // Hook simple alternativo (para componentes que no necesitan React Query)
 export const useSegurosSimple = () => {
     const [seguros, setSeguros] = useState<SeguroVehiculo[]>([]);

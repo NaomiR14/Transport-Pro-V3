@@ -127,6 +127,11 @@ export const useMultasConductoresStore = create<MultaConductorStore>()(
                 const { multas } = get()
                 return multas.find(m => m.id === id)
             },
+
+            clearFilters: () =>
+                set((state) => {
+                    state.filters = initialFilters
+                }),
         })),
         {
             name: 'multas-conductores-store',

@@ -39,14 +39,27 @@ export default function VehiculosPage() {
 
     const getMaintenanceStatusBadge = (status: string) => {
         const statusConfig = {
-            'Al día': { color: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400', icon: '✅' },
-            'Próximo': { color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400', icon: '⚠️' },
-            'Urgente': { color: 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400', icon: '🚨' },
-            'Vencido': { color: 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400', icon: '❌' }
+            'Al día': { 
+                color: 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text', 
+                icon: '✅' 
+            },
+            'Próximo': { 
+                color: 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text', 
+                icon: '⚠️' 
+            },
+            'Urgente': { 
+                color: 'bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-400', 
+                icon: '🚨' 
+            },
+            'Vencido': { 
+                color: 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text', 
+                icon: '❌' 
+            }
         }
 
         const config = statusConfig[status as keyof typeof statusConfig] || {
-            color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400', icon: '❓'
+            color: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400', 
+            icon: '❓'
         }
 
         return (
@@ -58,14 +71,16 @@ export default function VehiculosPage() {
 
     const getVehicleStateBadge = (state: string) => {
         const stateConfig = {
-            'Disponible': 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400',
-            'En Mantenimiento': 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400',
-            'En Uso': 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400',
-            'Inactivo': 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+            'Disponible': 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text',
+            'En Mantenimiento': 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text',
+            'En Uso': 'bg-info-bg text-info-text dark:bg-info-bg/20 dark:text-info-text',
+            'Inactivo': 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
         }
 
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${stateConfig[state as keyof typeof stateConfig] || 'bg-gray-100 text-gray-800'}`}>
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                stateConfig[state as keyof typeof stateConfig] || 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300'
+            }`}>
                 {state}
             </span>
         )
@@ -93,15 +108,17 @@ export default function VehiculosPage() {
 
     if (error) {
         return (
-            <div className="p-6">
+            <div className="p-6 container-padding">
                 <div className="mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestión de Vehículos</h1>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                        Gestión de Vehículos
+                    </h1>
                 </div>
-                <Card className="w-full max-w-md mx-auto">
+                <Card className="w-full max-w-md mx-auto border-border-light dark:border-border-dark">
                     <CardContent className="pt-6">
-                        <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+                        <p className="text-error-text mb-4">{error}</p>
                         <Button
-                            className="w-full bg-blue-600 hover:bg-blue-700"
+                            className="w-full bg-gradient-to-r from-primary-blue to-primary-purple hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                             onClick={() => window.location.reload()}
                         >
                             Reintentar
@@ -113,39 +130,45 @@ export default function VehiculosPage() {
     }
 
     return (
-        <div className="p-6">
+        <div className="p-6 container-padding">
             {/* Page Header */}
-            <div className="mb-6 flex justify-between items-center">
+            <div className="mb-8 flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestión de Vehículos</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">Administra la flota de vehículos y su estado de mantenimiento</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                        Gestión de Vehículos
+                    </h1>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                        Administra la flota de vehículos y su estado de mantenimiento
+                    </p>
                 </div>
-                <Button onClick={handleCreateVehicle} className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="h-4 w-4 mr-2" />
+                <Button 
+                    onClick={handleCreateVehicle} 
+                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                >
+                    <Plus className="h-5 w-5 mr-2" />
                     Nuevo Vehículo
                 </Button>
             </div>
-           
 
             {/* Estadísticas */}
-            <div className="mb-6">
+            <div className="mb-8">
                 <VehiculoStats stats={stats} loading={isLoading} />
             </div>
 
             {/* Main Card */}
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800 bg-card dark:bg-card-dark">
                 <CardContent className="pt-6">
                     {/* Filters and Actions */}
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
                             {/* Search */}
                             <div className="relative">
-                                <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+                                <Search className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
                                 <Input
                                     placeholder="Buscar vehículos..."
                                     value={filters.searchTerm || ''}
                                     onChange={(e) => setFilters({ searchTerm: e.target.value })}
-                                    className="pl-10 w-64 bg-gray-50 dark:bg-gray-800"
+                                    className="pl-10 w-64 bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-primary-blue"
                                 />
                             </div>
 
@@ -156,7 +179,7 @@ export default function VehiculosPage() {
                                     setFilters({ type: value === "all" ? undefined : value })
                                 }
                             >
-                                <SelectTrigger className="w-40">
+                                <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
                                     <SelectValue placeholder="Tipo" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -174,7 +197,7 @@ export default function VehiculosPage() {
                                     setFilters({ brand: value === "all" ? undefined : value })
                                 }
                             >
-                                <SelectTrigger className="w-40">
+                                <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
                                     <SelectValue placeholder="Marca" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -192,7 +215,7 @@ export default function VehiculosPage() {
                                     setFilters({ vehicleState: value === "all" ? undefined : value })
                                 }
                             >
-                                <SelectTrigger className="w-40">
+                                <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
                                     <SelectValue placeholder="Estado" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -205,94 +228,156 @@ export default function VehiculosPage() {
 
                             {/* Clear Filters */}
                             {(filters.searchTerm || filters.type || filters.brand || filters.vehicleState) && (
-                                <Button variant="outline" onClick={clearFilters} size="sm">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={clearFilters} 
+                                    size="sm"
+                                    className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                                >
                                     <X className="h-4 w-4 mr-2" />
                                     Limpiar
                                 </Button>
                             )}
                         </div>
+                    </div>
 
                     {/* Table */}
                     {isLoading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                            <span className="ml-2 text-gray-600 dark:text-gray-400">Cargando vehículos...</span>
+                        <div className="flex justify-center items-center py-16">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary-blue" />
+                            <span className="ml-3 text-slate-600 dark:text-slate-400">
+                                Cargando vehículos...
+                            </span>
                         </div>
                     ) : vehicles.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                        <div className="text-center py-16">
+                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                                <Car className="h-10 w-10 text-slate-400 dark:text-slate-500" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
                                 No se encontraron vehículos
                             </h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-4">
+                            <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
                                 {filters.searchTerm || filters.type || filters.brand || filters.vehicleState
                                     ? "Intenta ajustar los filtros de búsqueda"
                                     : "Comienza agregando tu primer vehículo"
                                 }
                             </p>
                             {!(filters.searchTerm || filters.type || filters.brand || filters.vehicleState) && (
-                                <Button onClick={handleCreateVehicle} className="bg-blue-600 hover:bg-blue-700">
-                                    <Plus className="h-4 w-4 mr-2" />
+                                <Button 
+                                    onClick={handleCreateVehicle} 
+                                    className="bg-gradient-to-r from-primary-blue to-primary-purple hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                >
+                                    <Plus className="h-5 w-5 mr-2" />
                                     Agregar Vehículo
                                 </Button>
                             )}
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
                             <Table>
-                                <TableHeader>
-                                    <TableRow className="hover:bg-transparent">
-                                        <TableHead className="font-semibold">ID</TableHead>
-                                        <TableHead className="font-semibold">Tipo</TableHead>
-                                        <TableHead className="font-semibold">Marca</TableHead>
-                                        <TableHead className="font-semibold">Modelo</TableHead>
-                                        <TableHead className="font-semibold">Placa</TableHead>
-                                        <TableHead className="font-semibold">Color</TableHead>
-                                        <TableHead className="font-semibold">Año</TableHead>
-                                        <TableHead className="font-semibold">Estado</TableHead>
-                                        <TableHead className="font-semibold">Km Actual</TableHead>
-                                        <TableHead className="font-semibold">Estado Mnto</TableHead>
-                                        <TableHead className="font-semibold">Acciones</TableHead>
+                                <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
+                                    <TableRow className="hover:bg-transparent border-b border-slate-200 dark:border-slate-700">
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            ID
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Tipo
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Marca
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Modelo
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Placa
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Color
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Año
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Estado
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Km Actual
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Estado Mnto
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Acciones
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {vehicles.map((vehicle) => (
-                                        <TableRow key={vehicle.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                                            <TableCell className="font-medium">{vehicle.id}</TableCell>
-                                            <TableCell>{vehicle.type}</TableCell>
-                                            <TableCell>{vehicle.brand}</TableCell>
-                                            <TableCell>{vehicle.model}</TableCell>
-                                            <TableCell className="font-mono font-bold">{vehicle.licensePlate}</TableCell>
+                                        <TableRow 
+                                            key={vehicle.id} 
+                                            className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
+                                        >
+                                            <TableCell className="font-medium text-slate-900 dark:text-white">
+                                                {vehicle.id}
+                                            </TableCell>
+                                            <TableCell className="text-slate-700 dark:text-slate-300">
+                                                {vehicle.type}
+                                            </TableCell>
+                                            <TableCell className="text-slate-700 dark:text-slate-300">
+                                                {vehicle.brand}
+                                            </TableCell>
+                                            <TableCell className="text-slate-700 dark:text-slate-300">
+                                                {vehicle.model}
+                                            </TableCell>
+                                            <TableCell className="font-mono font-bold text-slate-900 dark:text-white">
+                                                {vehicle.licensePlate}
+                                            </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <div
-                                                        className="w-4 h-4 rounded border border-gray-300"
+                                                        className="w-4 h-4 rounded border border-slate-300 dark:border-slate-600"
                                                         style={{ backgroundColor: vehicle.color?.toLowerCase() }}
                                                     />
-                                                    <span>{vehicle.color}</span>
+                                                    <span className="text-slate-700 dark:text-slate-300">
+                                                        {vehicle.color}
+                                                    </span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{vehicle.year}</TableCell>
-                                            <TableCell>{getVehicleStateBadge(vehicle.vehicleState)}</TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex items-center gap-2 justify-end">
-                                                    <Gauge className="h-4 w-4 text-gray-500" />
-                                                    <span>{vehicle.maintenanceData.currentKm || 0}</span>
+                                            <TableCell className="text-slate-700 dark:text-slate-300">
+                                                {vehicle.year}
+                                            </TableCell>
+                                            <TableCell>
+                                                {getVehicleStateBadge(vehicle.vehicleState)}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2 justify-start">
+                                                    <Gauge className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                                                    <span className="text-slate-700 dark:text-slate-300">
+                                                        {vehicle.maintenanceData.currentKm || 0}
+                                                    </span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{getMaintenanceStatusBadge(vehicle.maintenanceData.maintenanceStatus || "Al día")}</TableCell>
+                                            <TableCell>
+                                                {getMaintenanceStatusBadge(vehicle.maintenanceData.maintenanceStatus || "Al día")}
+                                            </TableCell>
                                             <TableCell>
                                                 <div className="flex gap-1">
-                                                    <Button variant="ghost" size="sm" className="hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                        <Eye className="h-4 w-4" />
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="sm" 
+                                                        className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                    >
+                                                        <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => handleEditVehicle(vehicle)}
-                                                        className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                        className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
                                                     >
-                                                        <Edit className="h-4 w-4" />
+                                                        <Edit className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
@@ -303,12 +388,12 @@ export default function VehiculosPage() {
                                                             }
                                                         }}
                                                         disabled={deleteVehicleMutation.isPending}
-                                                        className="hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                        className="h-8 w-8 p-0 hover:bg-error-bg dark:hover:bg-error-bg/20"
                                                     >
                                                         {deleteVehicleMutation.isPending ? (
                                                             <Loader2 className="h-4 w-4 animate-spin" />
                                                         ) : (
-                                                            <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                                            <X className="h-4 w-4 text-error-text dark:text-error-text" />
                                                         )}
                                                     </Button>
                                                 </div>
@@ -319,7 +404,6 @@ export default function VehiculosPage() {
                             </Table>
                         </div>
                     )}
-                    </div>
                 </CardContent>
             </Card>
 

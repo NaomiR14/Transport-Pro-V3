@@ -174,7 +174,7 @@ export default function ConductoresPage() {
                 </div>
                 <Button 
                     onClick={handleCreateConductor} 
-                    className="bg-gradient-to-r from-primary-blue to-primary-purple hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
                 >
                     <Plus className="h-5 w-5 mr-2" />
                     Nuevo Conductor

@@ -10,6 +10,9 @@ import type {
     ConductorFilters,
 } from '../types/conductor.types'
 
+// Re-export store for components
+export { useConductorStore } from '../store/conductor-store'
+
 // Query keys
 const QUERY_KEYS = {
     conductores: ['conductores'] as const,

@@ -41,6 +41,7 @@ interface MantenimientoVehiculoStoreActions {
     addMantenimiento: (mantenimiento: MantenimientoVehiculo) => void
     updateMantenimiento: (updatedMantenimiento: MantenimientoVehiculo) => void
     removeMantenimiento: (mantenimientoId: number) => void
+    clearFilters: () => void
     getFilteredMantenimientos: () => MantenimientoVehiculo[]
     getMantenimientoById: (id: number) => MantenimientoVehiculo | undefined
 }
@@ -111,6 +112,11 @@ export const useMantenimientoVehiculoStore = create<MantenimientoVehiculoStoreSt
                 set((state) => {
                     state.mantenimientos = state.mantenimientos.filter(m => m.id !== mantenimientoId)
                     state.stats = calculateStats(state.mantenimientos)
+                }),
+
+            clearFilters: () =>
+                set((state) => {
+                    state.filters = initialFilters
                 }),
 
             getFilteredMantenimientos: (): MantenimientoVehiculo[] => {

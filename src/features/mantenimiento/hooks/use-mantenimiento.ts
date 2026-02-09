@@ -4,6 +4,9 @@ import { toast } from 'sonner'
 import { useEffect } from 'react'
 import { mantenimientoVehiculoService } from '../services/mantenimiento-service'
 import { useMantenimientoVehiculoStore } from '../store/mantenimiento-store'
+
+// Re-export store for components
+export { useMantenimientoVehiculoStore } from '../store/mantenimiento-store'
 import {
     // MantenimientoVehiculo,
     // CreateMantenimientoVehiculoRequest,

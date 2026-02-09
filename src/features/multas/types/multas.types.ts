@@ -82,4 +82,5 @@ export interface MultaConductorStore {
     removeMulta: (id: string) => void
     getFilteredMultas: () => MultaConductor[]
     getMultaById: (id: string) => MultaConductor | undefined
+    clearFilters: () => void
 }
