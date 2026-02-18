@@ -4,6 +4,7 @@
 export type {
   Vehicle,
   CreateVehicleRequest,
+  UpdateVehicleRequest,
   VehicleFilters,
   VehicleStats,
   VehicleStore
@@ -18,12 +19,10 @@ export { vehicleService, VehicleService } from './services/vehiculo-service'
 // Hooks
 export {
   useVehicles,
-  useVehicle,
   useCreateVehicle,
   useUpdateVehicle,
   useDeleteVehicle,
   useVehiclesStats,
-  useSearchVehicles,
   useFilteredVehicles,
   useVehicleFilterOptions
 } from './hooks/use-vehiculos'
@@ -32,5 +31,5 @@ export {
 export { VehiculoStats } from './components/VehiculoStats'
 export { VehiculoFilters } from './components/VehiculoFilters'
 export { default as VehiculoFormModal } from './components/VehiculoFormModal'
-// export { VehiculosTable } from './components/VehiculosTable'
+export { VehiculosTable } from './components/VehiculosTable'
 // export { VehiculoForm } from './components/VehiculoForm'

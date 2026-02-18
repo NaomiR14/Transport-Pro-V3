@@ -51,15 +51,6 @@ export function useVehicles(filters?: VehicleFilters) {
     return query;
 }
 
-// Hook para un vehículo específico
-export function useVehicle(id: string | null) {
-    return useQuery({
-        queryKey: QUERY_KEYS.detail(id!),
-        queryFn: () => vehicleService.getVehicleById(id!),
-        enabled: !!id,
-        staleTime: 30 * 1000,
-    });
-}
 
 // Hook para crear vehículo
 export function useCreateVehicle() {
@@ -87,7 +78,7 @@ export function useUpdateVehicle() {
     const { updateVehicle } = useVehicleStore();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: CreateVehicleRequest }) => {
+        mutationFn: ({ id, data }: { id: string; data: import('../types/vehiculo.types').UpdateVehicleRequest }) => {
             console.log('🟡 UPDATE HOOK - Iniciando actualización:', { id, data });
             return vehicleService.updateVehicle(id, data);
         },
@@ -140,15 +131,7 @@ export function useVehiclesStats() {
 }
 
 
-// Hook para búsqueda
-export function useSearchVehicles(searchTerm: string) {
-    return useQuery({
-        queryKey: QUERY_KEYS.search(searchTerm),
-        queryFn: () => vehicleService.search(searchTerm),
-        enabled: searchTerm.length >= 2,
-        staleTime: 30 * 1000,
-    });
-}
+
 
 // Hook combinado para filtros del store
 export function useFilteredVehicles() {
@@ -173,7 +156,7 @@ export function useVehicleFilterOptions() {
 
     const types = [...new Set(vehiclesToUse.map(v => v.type))].filter(Boolean);
     const brands = [...new Set(vehiclesToUse.map(v => v.brand))].filter(Boolean);
-    const states = [...new Set(vehiclesToUse.map(v => v.vehicleState))].filter(Boolean);
+    const states = [...new Set(vehiclesToUse.map(v => v.calculatedData?.estadoCalculado))].filter(Boolean);
     const years = [...new Set(vehiclesToUse.map(v => v.year))].sort((a, b) => Number(b) - Number(a));
 
     return {

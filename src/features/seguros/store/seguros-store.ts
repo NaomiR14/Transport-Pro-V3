@@ -7,7 +7,7 @@ import { SeguroVehiculo, SeguroFilters, SeguroStats, SeguroStore } from '../type
 // Filtros iniciales
 const initialFilters: SeguroFilters = {
     searchTerm: '',
-    estado_poliza: '',
+    estado_calculado: '',
 }
 
 // Función helper para ordenar seguros
@@ -33,9 +33,9 @@ const sortSeguros = (seguros: SeguroVehiculo[]): SeguroVehiculo[] => {
 // Función para calcular estadísticas
 const calculateSeguroStats = (seguros: SeguroVehiculo[]): SeguroStats => {
     const total = seguros.length
-    const vigentes = seguros.filter(s => s.estado_poliza === 'vigente').length
-    const por_vencer = seguros.filter(s => s.estado_poliza === 'por_vencer').length
-    const vencidas = seguros.filter(s => s.estado_poliza === 'vencida').length
+    const vigentes = seguros.filter(s => s.estado_calculado === 'Vigente').length
+    const por_vencer = seguros.filter(s => s.estado_calculado === 'Por Vencer').length
+    const vencidas = seguros.filter(s => s.estado_calculado === 'Vencida').length
 
     return {
         total,
@@ -47,17 +47,10 @@ const calculateSeguroStats = (seguros: SeguroVehiculo[]): SeguroStats => {
 
 // FUNCIÓN PARA CALCULAR CAMPOS ADICIONALES SOLO FRONTEND (no calculados por DB)
 const calculateSeguroFields = (seguro: SeguroVehiculo): SeguroVehiculo => {
-    // Calcular días restantes para UI (solo informativo)
-    const fechaVencimiento = new Date(seguro.fecha_vencimiento)
-    const hoy = new Date()
-    const diffTime = fechaVencimiento.getTime() - hoy.getTime()
-    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-    // NOTA: estado_poliza ya viene calculado por trigger de Supabase, no lo recalculamos
+    // diasRestantes y estado_calculado ya vienen de la vista de Supabase
+    // Esta función se mantiene por si necesitamos calcular campos adicionales en el futuro
     return {
         ...seguro,
-        dias_restantes: diasRestantes
-        // estado_poliza: viene de DB trigger automáticamente
     }
 }
 
@@ -175,8 +168,8 @@ export const useSeguroStore = create<SeguroStore>()(
                         }
                     }
 
-                    // Filtro por estado de póliza
-                    if (filters.estado_poliza && seguro.estado_poliza !== filters.estado_poliza) {
+                    // Filtro por estado calculado
+                    if (filters.estado_calculado && seguro.estado_calculado !== filters.estado_calculado) {
                         return false;
                     }
 

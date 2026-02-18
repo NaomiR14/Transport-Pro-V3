@@ -2,11 +2,17 @@ import { SupabaseRepository } from '@/lib/supabase/repository';
 import { SeguroVehiculo, CreateSeguroRequest, UpdateSeguroRequest, SeguroFilters } from '../types/seguros.types';
 
 export class SeguroService {
+    // Usar la vista con campos calculados para lectura
     private static repository = new SupabaseRepository<any>({
+        tableName: 'seguros_vehiculos_with_calculated_state',
+    });
+    
+    // Usar la tabla base para escritura (create, update, delete)
+    private static baseRepository = new SupabaseRepository<any>({
         tableName: 'seguros_vehiculos',
     });
 
-    // Mapear de DB a Frontend (en este caso no hay cambios, ambos usan snake_case)
+    // Mapear de DB a Frontend
     private static mapFromDB(dbSeguro: any): SeguroVehiculo {
         return {
             id: dbSeguro.id,
@@ -17,7 +23,8 @@ export class SeguroService {
             fecha_vencimiento: dbSeguro.fecha_vencimiento,
             importe_pagado: dbSeguro.importe_pagado,
             fecha_pago: dbSeguro.fecha_pago,
-            estado_poliza: dbSeguro.estado_poliza as "vigente" | "vencida" | "por_vencer" | "cancelada",
+            estado_calculado: dbSeguro.estado_calculado,
+            dias_restantes: dbSeguro.dias_restantes,
         };
     }
 
@@ -47,8 +54,8 @@ export class SeguroService {
                 ]);
             } else {
                 const dbFilters: Record<string, unknown> = {};
-                if (filters?.estado_poliza) {
-                    dbFilters.estado_poliza = filters.estado_poliza;
+                if (filters?.estado_calculado) {
+                    dbFilters.estado_calculado = filters.estado_calculado;
                 }
                 seguros = await this.repository.getAll(dbFilters);
             }
@@ -71,8 +78,10 @@ export class SeguroService {
     static async createSeguro(seguroData: CreateSeguroRequest): Promise<SeguroVehiculo> {
         try {
             const dbData = this.mapToDB(seguroData);
-            const dbSeguro = await this.repository.create(dbData);
-            return this.mapFromDB(dbSeguro);
+            const dbSeguro = await this.baseRepository.create(dbData);
+            // Leer desde la vista para obtener campos calculados
+            const createdSeguro = await this.repository.getById(dbSeguro.id);
+            return this.mapFromDB(createdSeguro);
         } catch (error) {
             throw error;
         }
@@ -81,8 +90,10 @@ export class SeguroService {
     static async updateSeguro(id: string, seguroData: UpdateSeguroRequest): Promise<SeguroVehiculo> {
         try {
             const dbData = this.mapToDB(seguroData);
-            const dbSeguro = await this.repository.update(id, dbData);
-            return this.mapFromDB(dbSeguro);
+            await this.baseRepository.update(id, dbData);
+            // Leer desde la vista para obtener campos calculados
+            const updatedSeguro = await this.repository.getById(id);
+            return this.mapFromDB(updatedSeguro);
         } catch (error) {
             throw error;
         }
@@ -90,7 +101,7 @@ export class SeguroService {
 
     static async deleteSeguro(id: string): Promise<void> {
         try {
-            await this.repository.delete(id);
+            await this.baseRepository.delete(id);
         } catch (error) {
             throw error;
         }
@@ -98,7 +109,7 @@ export class SeguroService {
 
     // Método auxiliar para obtener opciones de filtro
     static getFilterOptions(seguros: SeguroVehiculo[]) {
-        const estados = [...new Set(seguros.map(s => s.estado_poliza))].filter(Boolean);
+        const estados = [...new Set(seguros.map(s => s.estado_calculado))].filter(Boolean);
         const aseguradoras = [...new Set(seguros.map(s => s.aseguradora))].filter(Boolean);
 
         return {

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
     Dialog,
     DialogContent,
@@ -12,6 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
 import { Loader2 } from "lucide-react"
 import { 
   type SeguroVehiculo, 
@@ -19,6 +21,7 @@ import {
   useCreateSeguro, 
   useUpdateSeguro 
 } from "@/features/seguros"
+import { useVehicles } from "@/features/vehiculos"
 
 interface EditSeguroModalProps {
     seguro: SeguroVehiculo | null
@@ -34,6 +37,10 @@ export default function EditSeguroModal({ seguro, onSave, onClose, isOpen }: Edi
     // Hook de React Query para seguros
     const createSeguroMutation = useCreateSeguro()
     const updateSeguroMutation = useUpdateSeguro()
+    
+    // Obtener vehículos disponibles
+    const { data: vehicles } = useVehicles()
+    const vehiculosDisponibles = vehicles?.map(v => v.licensePlate) || []
 
     // Inicializar formData cuando cambia el seguro o se abre el modal
     useEffect(() => {
@@ -171,14 +178,22 @@ export default function EditSeguroModal({ seguro, onSave, onClose, isOpen }: Edi
                         {/* Placa del Vehículo */}
                         <div className="space-y-2">
                             <Label htmlFor="placa_vehiculo">Placa del Vehículo *</Label>
-                            <Input
-                                id="placa_vehiculo"
+                            <Select
                                 value={formData.placa_vehiculo || ""}
-                                onChange={(e) => handleInputChange("placa_vehiculo", e.target.value.toUpperCase())}
-                                className={errors.placa_vehiculo ? "border-red-500" : ""}
-                                placeholder="ABC-123-A"
+                                onValueChange={(value) => handleInputChange("placa_vehiculo", value)}
                                 disabled={updateSeguroMutation.isPending}
-                            />
+                            >
+                                <SelectTrigger className={errors.placa_vehiculo ? "border-red-500" : ""}>
+                                    <SelectValue placeholder="Seleccionar vehículo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {vehiculosDisponibles.map((placa) => (
+                                        <SelectItem key={placa} value={placa}>
+                                            {placa}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             {errors.placa_vehiculo && <p className="text-sm text-red-500">{errors.placa_vehiculo}</p>}
                         </div>
 
@@ -270,26 +285,64 @@ export default function EditSeguroModal({ seguro, onSave, onClose, isOpen }: Edi
                         </div>
                     </div>
 
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 mb-2">Resumen de la Póliza</h4>
+                    <div className="bg-blue-50 dark:bg-slate-800 p-4 rounded-lg border border-blue-200 dark:border-slate-700">
+                        <h4 className="font-semibold text-blue-900 dark:text-white mb-3">Resumen de la Póliza</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
-                                <span className="font-medium text-blue-800">Vehículo:</span>
-                                <span className="ml-2 text-blue-900 font-semibold">{formData.placa_vehiculo || "No especificado"}</span>
+                                <span className="font-medium text-blue-800 dark:text-slate-300">Vehículo:</span>
+                                <span className="ml-2 text-blue-900 dark:text-white font-semibold">{formData.placa_vehiculo || "No especificado"}</span>
                             </div>
                             <div>
-                                <span className="font-medium text-blue-800">Aseguradora:</span>
-                                <span className="ml-2 text-blue-900">{formData.aseguradora || "No especificada"}</span>
+                                <span className="font-medium text-blue-800 dark:text-slate-300">Aseguradora:</span>
+                                <span className="ml-2 text-blue-900 dark:text-white">{formData.aseguradora || "No especificada"}</span>
                             </div>
                             <div>
-                                <span className="font-medium text-blue-800">Póliza:</span>
-                                <span className="ml-2 text-blue-900">{formData.poliza_seguro || "No asignada"}</span>
+                                <span className="font-medium text-blue-800 dark:text-slate-300">Póliza:</span>
+                                <span className="ml-2 text-blue-900 dark:text-white">{formData.poliza_seguro || "No asignada"}</span>
                             </div>
                             <div>
-                                <span className="font-medium text-blue-800">Importe:</span>
-                                <span className="ml-2 text-blue-900">${formData.importe_pagado?.toLocaleString() || "0"}</span>
+                                <span className="font-medium text-blue-800 dark:text-slate-300">Importe:</span>
+                                <span className="ml-2 text-blue-900 dark:text-white">${formData.importe_pagado?.toLocaleString() || "0"}</span>
                             </div>
                         </div>
+                        
+                        {/* Campos calculados - Solo al editar */}
+                        {seguro && (
+                            <div className="mt-4 pt-4 border-t border-blue-200 dark:border-slate-700">
+                                <h5 className="font-semibold text-blue-900 dark:text-white mb-3 text-sm">Campos Calculados (Automáticos)</h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="font-medium text-blue-800 dark:text-slate-300">Estado Calculado:</span>
+                                        <Badge className={`ml-2 ${
+                                            seguro.estado_calculado === 'Vigente' 
+                                                ? 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text'
+                                                : seguro.estado_calculado === 'Por Vencer'
+                                                ? 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text'
+                                                : 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text'
+                                        }`}>
+                                            {seguro.estado_calculado}
+                                        </Badge>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-blue-800 dark:text-slate-300">Días Restantes:</span>
+                                        <Badge className={`ml-2 ${
+                                            (seguro.dias_restantes ?? 0) > 30 
+                                                ? 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text'
+                                                : (seguro.dias_restantes ?? 0) > 0
+                                                ? 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text'
+                                                : 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text'
+                                        }`}>
+                                            {seguro.dias_restantes !== undefined 
+                                                ? (seguro.dias_restantes > 30 ? `✅ ${seguro.dias_restantes} días` 
+                                                    : seguro.dias_restantes > 0 ? `⚠️ ${seguro.dias_restantes} días` 
+                                                    : '❌ Vencida')
+                                                : 'No calculado'
+                                            }
+                                        </Badge>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <DialogFooter className="flex justify-end space-x-2">

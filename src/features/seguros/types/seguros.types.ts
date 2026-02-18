@@ -13,8 +13,8 @@ export interface SeguroVehiculo {
     fecha_vencimiento: string
     importe_pagado: number
     fecha_pago: string
-    estado_poliza: "vigente" | "vencida" | "por_vencer" | "cancelada"
-    // Campos calculados
+    // Campos calculados automáticamente de la vista (no editables)
+    estado_calculado: "Vigente" | "Vencida" | "Por Vencer"
     dias_restantes?: number
 }
 
@@ -40,7 +40,7 @@ export interface UpdateSeguroRequest extends Partial<CreateSeguroRequest> {
 
 export interface SeguroFilters extends FilterParams {
     searchTerm?: string
-    estado_poliza?: string
+    estado_calculado?: string
 }
 
 export interface SeguroStats {

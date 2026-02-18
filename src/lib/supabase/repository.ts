@@ -173,11 +173,22 @@ export class SupabaseRepository<T> {
   async delete(id: string): Promise<void> {
     try {
       console.log(`[SupabaseRepository] DELETE ${this.tableName} - ID:`, id);
+      console.log(`[SupabaseRepository] DELETE ${this.tableName} - Iniciando operación...`);
       
-      const { error } = await this.client
+      const deletePromise = this.client
         .from(this.tableName)
         .delete()
         .eq(this.idField, id);
+      
+      console.log(`[SupabaseRepository] DELETE ${this.tableName} - Esperando respuesta...`);
+      const { error, data, status, statusText } = await deletePromise;
+      
+      console.log(`[SupabaseRepository] DELETE ${this.tableName} - Respuesta recibida:`, {
+        hasError: !!error,
+        status,
+        statusText,
+        data
+      });
 
       if (error) {
         console.error(`[SupabaseRepository] DELETE ${this.tableName} - ERROR:`, {

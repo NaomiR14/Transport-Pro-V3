@@ -89,20 +89,21 @@ export function MantenimientoTable({
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Tipo</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Descripción</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Taller</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Fecha</TableHead>
+            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Kilometraje</TableHead>
+            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Fechas</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Costo</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Estado</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mantenimientos.map((mantenimiento) => (
+          {mantenimientos.map((mantenimiento, index) => (
             <TableRow 
               key={mantenimiento.id} 
               className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
               <TableCell className="font-medium text-slate-900 dark:text-white">
-                {mantenimiento.id}
+                {index + 1}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -132,11 +133,29 @@ export function MantenimientoTable({
                 </div>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-slate-500" />
-                  <span className="text-slate-600 dark:text-slate-400">
-                    {formatDate(mantenimiento.fechaEntrada)}
+                <div className="flex items-center gap-1">
+                  <span className="font-mono text-slate-900 dark:text-white font-semibold">
+                    {mantenimiento.kilometraje.toLocaleString('es-MX')}
                   </span>
+                  <span className="text-xs text-slate-500">km</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3 text-green-600" />
+                    <span className="text-xs text-slate-600 dark:text-slate-400">
+                      Entrada: {formatDate(mantenimiento.fechaEntrada)}
+                    </span>
+                  </div>
+                  {mantenimiento.fechaSalida && (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-blue-600" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400">
+                        Salida: {formatDate(mantenimiento.fechaSalida)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </TableCell>
               <TableCell>

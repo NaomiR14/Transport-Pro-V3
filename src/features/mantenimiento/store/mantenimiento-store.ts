@@ -2,11 +2,7 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import {
-    MantenimientoVehiculo,
-    MantenimientoVehiculoFilters,
-    MantenimientoVehiculoStats
-} from '../types/mantenimiento.types'
+import { MantenimientoVehiculo, MantenimientoVehiculoFilters, MantenimientoVehiculoStats} from '../types/mantenimiento.types'
 
 const initialFilters: MantenimientoVehiculoFilters = {
     searchTerm: '',
@@ -14,6 +10,7 @@ const initialFilters: MantenimientoVehiculoFilters = {
     estado: 'all'
 }
 
+//Esto tal vez ya no se use, pero lo dejo por si acaso
 const calculateStats = (mantenimientos: MantenimientoVehiculo[]): MantenimientoVehiculoStats => {
     const total = mantenimientos.length
     const completados = mantenimientos.filter(m => m.estado === 'Completado').length

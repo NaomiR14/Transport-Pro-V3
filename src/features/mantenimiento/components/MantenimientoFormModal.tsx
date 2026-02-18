@@ -10,47 +10,53 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { CalendarIcon, DollarSign, Settings, Wrench } from "lucide-react"
 import { 
   type MantenimientoVehiculo, 
-  type CreateMantenimientoVehiculoRequest 
+  type CreateMantenimientoVehiculoRequest,
+  type UpdateMantenimientoVehiculoRequest,
+  useUpdateMantenimiento,
+  useCreateMantenimiento
 } from "@/features/mantenimiento"
 import { commonInfoService } from "@/lib/common-info-service"
-
-// Definir interfaces locales basadas en lo que devuelve CommonInfoService
-interface MaintenanceType {
-    id: number
-    name: string
-    nombre?: string
-}
-
-interface MaintenancePlan {
-    id: number
-    name: string
-}
+import { set } from "date-fns"
+import { useVehicles } from "@/features/vehiculos";
+import { useTalleres } from "@/features/talleres"
+import type { MaintenanceType, MaintenancePlan } from '@/types/common-info-types'
 
 interface EditMantenimientoVehiculoModalProps {
     mantenimiento: MantenimientoVehiculo | null
     isOpen: boolean
     onClose: () => void
-    onSubmit: (data: CreateMantenimientoVehiculoRequest) => void
-    isLoading?: boolean
+    onSave: (data: CreateMantenimientoVehiculoRequest) => void
 }
 
 export default function EditMantenimientoVehiculoModal({
     mantenimiento,
     isOpen,
     onClose,
-    onSubmit,
-    isLoading = false,
+    onSave,
 }: EditMantenimientoVehiculoModalProps) {
+    const { data: vehicles } = useVehicles(); 
+     
+    // Extraer solo las placas
+    const vehiculosDisponibles = vehicles?.map(v => v.licensePlate) || [];
+
+    const { data: talleres } = useTalleres();
+    const talleresDisponibles = talleres?.map(t => t.name) || [];
+
+    const [errors, setErrors] = useState<Record<string, string>>({})
+    const createMantenimiento = useCreateMantenimiento()
+    const updateMantenimiento = useUpdateMantenimiento()
     const [formData, setFormData] = useState<CreateMantenimientoVehiculoRequest>({
         placaVehiculo: "",
         taller: "",
         fechaEntrada: "",
+        fechaSalida: "",
         tipo: "",
         kilometraje: 0,
         paqueteMantenimiento: "",
@@ -73,30 +79,14 @@ export default function EditMantenimientoVehiculoModal({
                     commonInfoService.getMaintenanceTypes(),
                     commonInfoService.getMaintenancePlans()
                 ])
-                // Normalizar respuesta: algunos endpoints pueden devolver 'name' o 'nombre'
-                const normalizedTypes = (types as unknown as Array<{ id: number; name?: string; nombre?: string }>)
-                    .map((t) => ({
-                        id: t.id,
-                        name: t.name ?? t.nombre ?? "",
-                    }))
+                
+                console.log('[MantenimientoFormModal] Tipos de mantenimiento:', types)
+                console.log('[MantenimientoFormModal] Planes de mantenimiento:', plans)
 
-                setMaintenanceTypes(normalizedTypes)
-                setMaintenancePlans(plans as MaintenancePlan[])
+                setMaintenanceTypes(types)
+                setMaintenancePlans(plans)
             } catch (error) {
-                console.error("Error loading common info:", error)
-                // Fallback data en caso de error
-                setMaintenanceTypes([
-                    { id: 1, name: "Preventivo" },
-                    { id: 2, name: "Correctivo" }
-                ])
-                setMaintenancePlans([
-                    { id: 1, name: "Mantenimiento 15K" },
-                    { id: 2, name: "Mantenimiento 30K" },
-                    { id: 3, name: "Mantenimiento 45K" },
-                    { id: 4, name: "Mantenimiento 60K" },
-                    { id: 5, name: "Reparación Frenos" },
-                    { id: 6, name: "Reparación Motor" }
-                ])
+                console.error("[MantenimientoFormModal] Error loading common info:", error)
             } finally {
                 setIsLoadingCommonInfo(false)
             }
@@ -113,6 +103,7 @@ export default function EditMantenimientoVehiculoModal({
                 placaVehiculo: mantenimiento.placaVehiculo,
                 taller: mantenimiento.taller,
                 fechaEntrada: mantenimiento.fechaEntrada,
+                fechaSalida: mantenimiento.fechaSalida || "",
                 tipo: mantenimiento.tipo,
                 kilometraje: mantenimiento.kilometraje,
                 paqueteMantenimiento: mantenimiento.paqueteMantenimiento,
@@ -126,6 +117,7 @@ export default function EditMantenimientoVehiculoModal({
                 placaVehiculo: "",
                 taller: "",
                 fechaEntrada: new Date().toISOString().split("T")[0],
+                fechaSalida: "",
                 tipo: "",
                 kilometraje: 0,
                 paqueteMantenimiento: "",
@@ -144,9 +136,65 @@ export default function EditMantenimientoVehiculoModal({
         } as CreateMantenimientoVehiculoRequest))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {}
+        if (!formData.placaVehiculo.trim()) {
+            newErrors.placaVehiculo = "La placa del vehículo es obligatoria."
+        }   
+        if (!formData.taller.trim()) {
+            newErrors.taller = "El taller es obligatorio."
+        }
+        if (!formData.fechaEntrada.trim()) {
+            newErrors.fechaEntrada = "La fecha de entrada es obligatoria."
+        }
+        if (!formData.fechaSalida.trim()) {
+            newErrors.fechaSalida = "La fecha de salida es obligatoria."
+        }
+        if (!formData.tipo.trim()) {
+            newErrors.tipo = "El tipo de mantenimiento es obligatorio."
+        }
+        if (formData.kilometraje <= 0) {
+            newErrors.kilometraje = "El kilometraje debe ser un número positivo."
+        }
+        if (!formData.paqueteMantenimiento.trim()) {
+            newErrors.paqueteMantenimiento = "El paquete de mantenimiento es obligatorio."
+        }
+        if (!formData.causas.trim()) {
+            newErrors.causas = "Las causas del mantenimiento son obligatorias."
+        }
+        if (formData.costoTotal < 0) {
+            newErrors.costoTotal = "El costo total no puede ser negativo."
+        }
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        onSubmit(formData)
+        //Prevenir doble envío
+        if (createMantenimiento.isPending  || updateMantenimiento.isPending) {
+            return;
+        }
+
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+        if (mantenimiento?.id) {
+            const updated = await updateMantenimiento.mutateAsync({
+                id: mantenimiento.id.toString(),
+                data: formData
+            })
+            onSave(updated)
+        } else {
+            const created = await createMantenimiento.mutateAsync(formData)
+            onSave(created)
+            }
+        onClose()
+        } catch (error) {
+        console.error(error)
+        }
     }
 
     const getEstadoBadge = (estado: string) => {
@@ -158,9 +206,7 @@ export default function EditMantenimientoVehiculoModal({
         return variants[estado] || "bg-gray-100 text-gray-800"
     }
 
-    const vehiculosDisponibles = ["ABC-123", "DEF-456", "GHI-789", "JKL-012", "MNO-345"]
-    const talleresDisponibles = ["Taller Central", "AutoServicio Norte", "Mecánica Express", "Taller Sur"]
-
+    
     if (!isOpen) return null
 
     return (
@@ -206,13 +252,15 @@ export default function EditMantenimientoVehiculoModal({
                             <div className="space-y-2">
                                 <Label htmlFor="taller">Taller *</Label>
                                 <Select value={formData.taller} onValueChange={(value) => handleInputChange("taller", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Seleccionar taller" />
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Seleccionar taller" className="truncate" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="max-w-[400px]">
                                         {talleresDisponibles.map((taller) => (
-                                            <SelectItem key={taller} value={taller}>
-                                                {taller}
+                                            <SelectItem key={taller} value={taller} className="max-w-full">
+                                                <span className="block truncate" title={taller}>
+                                                    {taller}
+                                                </span>
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -232,6 +280,23 @@ export default function EditMantenimientoVehiculoModal({
                                         required
                                     />
                                 </div>
+                                {errors.fechaEntrada && <p className="text-sm text-red-500">{errors.fechaEntrada}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="fechaSalida">Fecha de Salida *</Label>
+                                <div className="relative">
+                                    <CalendarIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        id="fechaSalida"
+                                        type="date"
+                                        value={formData.fechaSalida}
+                                        onChange={(e) => handleInputChange("fechaSalida", e.target.value)}
+                                        className="pl-10"
+                                        required
+                                    />
+                                </div>
+                                {errors.fechaSalida && <p className="text-sm text-red-500">{errors.fechaSalida}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -247,11 +312,13 @@ export default function EditMantenimientoVehiculoModal({
                                         } />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {maintenanceTypes.map((type) => (
-                                            <SelectItem key={type.id} value={type.name}>
-                                                {type.name}
-                                            </SelectItem>
-                                        ))}
+                                        {maintenanceTypes
+                                            .filter((type) => type.type && type.type.trim() !== "")
+                                            .map((type) => (
+                                                <SelectItem key={type.id} value={type.type}>
+                                                    {type.type}
+                                                </SelectItem>
+                                            ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -293,11 +360,13 @@ export default function EditMantenimientoVehiculoModal({
                                         } />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {maintenancePlans.map((plan) => (
-                                            <SelectItem key={plan.id} value={plan.name}>
-                                                {plan.name}
-                                            </SelectItem>
-                                        ))}
+                                        {maintenancePlans
+                                            .filter((plan) => plan.name && plan.name.trim() !== "")
+                                            .map((plan) => (
+                                                <SelectItem key={plan.id} value={plan.name}>
+                                                    {plan.name}
+                                                </SelectItem>
+                                            ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -345,6 +414,7 @@ export default function EditMantenimientoVehiculoModal({
                                         id="costoTotal"
                                         type="number"
                                         step="0.01"
+                                        min="0"
                                         value={formData.costoTotal}
                                         onChange={(e) => handleInputChange("costoTotal", Number.parseFloat(e.target.value) || 0)}
                                         className="pl-10"
@@ -352,6 +422,7 @@ export default function EditMantenimientoVehiculoModal({
                                         required
                                     />
                                 </div>
+                                {errors.costoTotal && <p className="text-sm text-red-500">{errors.costoTotal}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -383,11 +454,21 @@ export default function EditMantenimientoVehiculoModal({
 
                     {/* Botones de acción */}
                     <div className="flex justify-end space-x-4">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={onClose} 
+                            disabled={createMantenimiento.isPending || updateMantenimiento.isPending}
+                        >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isLoading || isLoadingCommonInfo}>
-                            {isLoading ? "Procesando..." : mantenimiento ? "Actualizar" : "Crear"} Mantenimiento
+                        <Button 
+                            type="submit" 
+                            disabled={createMantenimiento.isPending || updateMantenimiento.isPending || isLoadingCommonInfo}
+                        >
+                            {(createMantenimiento.isPending || updateMantenimiento.isPending) 
+                                ? "Procesando..." 
+                                : mantenimiento ? "Actualizar" : "Crear"} Mantenimiento
                         </Button>
                     </div>
                 </form>
@@ -395,4 +476,3 @@ export default function EditMantenimientoVehiculoModal({
         </Dialog>
     )
 }
-// ...existing code...

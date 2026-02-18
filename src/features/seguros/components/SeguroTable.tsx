@@ -20,40 +20,58 @@ export function SeguroTable({
   onDelete,
   isDeleting = false 
 }: SeguroTableProps) {
-  const getEstadoPolizaBadge = (estado: string) => {
+  const getEstadoCalculadoBadge = (estado: string) => {
     const stateConfig = {
-      'vigente': 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text',
-      'por_vencer': 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text',
-      'vencida': 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text',
-      'cancelada': 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+      'Vigente': 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text',
+      'Por Vencer': 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text',
+      'Vencida': 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text',
     }
 
     const estadoIcon = {
-      'vigente': '✅',
-      'por_vencer': '⚠️',
-      'vencida': '❌',
-      'cancelada': '🚫'
+      'Vigente': '✅',
+      'Por Vencer': '⚠️',
+      'Vencida': '❌',
     }
 
     return (
       <Badge className={`${stateConfig[estado as keyof typeof stateConfig] || 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300'}`}>
-        {estadoIcon[estado as keyof typeof estadoIcon]} {estado.charAt(0).toUpperCase() + estado.slice(1).replace('_', ' ')}
+        {estadoIcon[estado as keyof typeof estadoIcon]} {estado}
       </Badge>
     )
   }
 
   const getDiasRestantesBadge = (dias: number | undefined) => {
     if (dias === undefined || dias === null) {
-      return <span className="text-slate-500 dark:text-slate-400 font-medium">-- No calculado</span>
+      return (
+        <Badge className="bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400">
+          No calculado
+        </Badge>
+      )
     }
     if (dias > 30) {
-      return <span className="text-green-600 dark:text-green-400 font-medium">✅ {dias} días</span>
+      return (
+        <Badge className="bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text">
+          ✅ {dias} días
+        </Badge>
+      )
     } else if (dias > 7) {
-      return <span className="text-yellow-600 dark:text-yellow-400 font-medium">⚠️ {dias} días</span>
+      return (
+        <Badge className="bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text">
+          ⚠️ {dias} días
+        </Badge>
+      )
     } else if (dias > 0) {
-      return <span className="text-orange-600 dark:text-orange-400 font-medium">🚨 {dias} días</span>
+      return (
+        <Badge className="bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text">
+          🚨 {dias} días
+        </Badge>
+      )
     } else {
-      return <span className="text-red-600 dark:text-red-400 font-medium">❌ Vencida</span>
+      return (
+        <Badge className="bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text">
+          ❌ Vencida
+        </Badge>
+      )
     }
   }
 
@@ -101,13 +119,13 @@ export function SeguroTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {seguros.map((seguro) => (
+          {seguros.map((seguro, index) => (
             <TableRow 
               key={seguro.id} 
               className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
               <TableCell className="font-medium text-slate-900 dark:text-white">
-                {seguro.id}
+                {index + 1}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -146,7 +164,7 @@ export function SeguroTable({
                 {getDiasRestantesBadge(seguro.dias_restantes)}
               </TableCell>
               <TableCell>
-                {getEstadoPolizaBadge(seguro.estado_poliza)}
+                {getEstadoCalculadoBadge(seguro.estado_calculado)}
               </TableCell>
               <TableCell>
                 <div className="flex gap-1">

@@ -6,7 +6,7 @@ import { Vehicle, VehicleFilters, VehicleStats, VehicleStore } from '../types/ve
 
 const initialFilters: VehicleFilters = {
     searchTerm: '',
-    vehicleState: undefined,
+    estadoCalculado: undefined,  // Cambio de vehicleState a estadoCalculado
     maintenanceStatus: undefined,
 }
 
@@ -29,13 +29,15 @@ const sortVehicles = (vehicles: Vehicle[]): Vehicle[] => {
         return idA.localeCompare(idB)
     })
 }
-
+//Esto tal vez ya no se use, pero lo dejo por si acaso
 export const calculateStats = (vehicles: Vehicle[]): VehicleStats => {
     const total = vehicles.length
-    const available = vehicles.filter(v => v.vehicleState === 'Disponible').length
-    const inMaintenance = vehicles.filter(v => v.maintenanceData?.maintenanceStatus === 'en_mantenimiento').length
+    const available = vehicles.filter(v => v.calculatedData?.estadoCalculado === 'Disponible').length
+    const inMaintenance = vehicles.filter(v => v.calculatedData?.tieneMantenimientoActivo === true).length
     const requierenMantenimiento = vehicles.filter(v =>
-        v.maintenanceData?.maintenanceStatus === 'requiere_mantenimiento').length
+        v.calculatedData?.alertaMantenimiento === 'Mantener' || 
+        v.calculatedData?.alertaMantenimiento === 'Falta poco'
+    ).length
 
     return {
         total,
@@ -185,7 +187,7 @@ export const useVehicleStore = create<VehicleStore>()(
                             vehicle.licensePlate || '',
                             vehicle.serialNumber || '',
                             vehicle.color || '',
-                            vehicle.vehicleState || '',
+                            vehicle.calculatedData?.estadoCalculado || '',
                         ].filter(Boolean);
 
                         const searchableText = searchableFields.join(' ').toLowerCase();
@@ -205,8 +207,8 @@ export const useVehicleStore = create<VehicleStore>()(
                         return false;
                     }
 
-                    // Filtro por estado
-                    if (filters.vehicleState && vehicle.vehicleState !== filters.vehicleState) {
+                    // Filtro por estado calculado
+                    if (filters.estadoCalculado && vehicle.calculatedData?.estadoCalculado !== filters.estadoCalculado) {
                         return false;
                     }
 

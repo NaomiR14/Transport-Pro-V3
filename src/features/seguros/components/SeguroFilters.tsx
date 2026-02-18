@@ -14,7 +14,7 @@ import { useSeguroStore } from '../hooks/use-seguros'
 export function SeguroFilters() {
   const { filters, setFilters, clearFilters } = useSeguroStore()
   
-  const hasActiveFilters = !!(filters.searchTerm || filters.estado_poliza || filters.aseguradora)
+  const hasActiveFilters = !!(filters.searchTerm || filters.estado_calculado)
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -32,18 +32,17 @@ export function SeguroFilters() {
 
         {/* Estado Filter */}
         <Select
-          value={filters.estado_poliza || 'all'}
-          onValueChange={(value) => setFilters({ estado_poliza: value === 'all' ? undefined : value })}
+          value={filters.estado_calculado || 'all'}
+          onValueChange={(value) => setFilters({ estado_calculado: value === 'all' ? undefined : value })}
         >
           <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="vigente">Vigente</SelectItem>
-            <SelectItem value="por_vencer">Por Vencer</SelectItem>
-            <SelectItem value="vencida">Vencida</SelectItem>
-            <SelectItem value="cancelada">Cancelada</SelectItem>
+            <SelectItem value="Vigente">Vigente</SelectItem>
+            <SelectItem value="Por Vencer">Por Vencer</SelectItem>
+            <SelectItem value="Vencida">Vencida</SelectItem>
           </SelectContent>
         </Select>
 

@@ -106,29 +106,45 @@ export class CommonInfoService {
     }
 
     async getVehicleBrands(): Promise<VehicleBrand[]> {
+        console.log('[CommonInfoService] getVehicleBrands - Iniciando...');
         if (this.cache.vehicleBrands && this.isCacheValid()) {
+            console.log('[CommonInfoService] getVehicleBrands - Retornando desde cache:', this.cache.vehicleBrands.length);
             return this.cache.vehicleBrands;
         }
-        return this.vehicleBrandsRepo.getAll();
+        console.log('[CommonInfoService] getVehicleBrands - Consultando base de datos...');
+        const brands = await this.vehicleBrandsRepo.getAll();
+        console.log('[CommonInfoService] getVehicleBrands - Resultado:', brands?.length || 0, brands);
+        return brands;
     }
 
     async getVehicleModels(): Promise<VehicleModel[]> {
+        console.log('[CommonInfoService] getVehicleModels - Iniciando...');
         if (this.cache.vehicleModels && this.isCacheValid()) {
+            console.log('[CommonInfoService] getVehicleModels - Retornando desde cache:', this.cache.vehicleModels.length);
             return this.cache.vehicleModels;
         }
+        console.log('[CommonInfoService] getVehicleModels - Consultando base de datos...');
         const modelsDB = await this.vehicleModelsRepo.getAll();
-        return modelsDB.map(model => ({
+        console.log('[CommonInfoService] getVehicleModels - Datos DB:', modelsDB?.length || 0, modelsDB);
+        const mapped = modelsDB.map(model => ({
             id: model.id,
             brandId: model.brand_id,
             name: model.name,
         }));
+        console.log('[CommonInfoService] getVehicleModels - Resultado mapeado:', mapped?.length || 0, mapped);
+        return mapped;
     }
 
     async getVehicleTypes(): Promise<VehicleType[]> {
+        console.log('[CommonInfoService] getVehicleTypes - Iniciando...');
         if (this.cache.vehicleTypes && this.isCacheValid()) {
+            console.log('[CommonInfoService] getVehicleTypes - Retornando desde cache:', this.cache.vehicleTypes.length);
             return this.cache.vehicleTypes;
         }
-        return this.vehicleTypesRepo.getAll();
+        console.log('[CommonInfoService] getVehicleTypes - Consultando base de datos...');
+        const types = await this.vehicleTypesRepo.getAll();
+        console.log('[CommonInfoService] getVehicleTypes - Resultado:', types?.length || 0, types);
+        return types;
     }
 
     async getMaintenanceTypes(): Promise<MaintenanceType[]> {

@@ -72,15 +72,19 @@ export function useUpdateMantenimiento() {
     const { updateMantenimiento } = useMantenimientoVehiculoStore()
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: UpdateMantenimientoVehiculoRequest }) =>
-            mantenimientoVehiculoService.updateMantenimiento(id, data),
+        mutationFn: ({ id, data }: { id: string; data: UpdateMantenimientoVehiculoRequest }) => {
+            console.log("🔄 UPDATE HOOK - ID:", id, "Data:", data)
+            return mantenimientoVehiculoService.updateMantenimiento(id, data)
+        },
         onSuccess: (updatedMantenimiento) => {
+            console.log("🟢 UPDATE HOOK - Mantenimiento actualizado:", updatedMantenimiento)
             updateMantenimiento(updatedMantenimiento)
             queryClient.setQueryData(QUERY_KEYS.detail(updatedMantenimiento.id.toString()), updatedMantenimiento)
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.mantenimientos })
             toast.success('Mantenimiento actualizado exitosamente')
         },
         onError: (error: Error) => {
+            console.error("🔴 UPDATE HOOK - Error:", error)
             toast.error(error.message || 'Error al actualizar mantenimiento')
         },
     })
@@ -105,14 +109,6 @@ export function useDeleteMantenimiento() {
     })
 }
 
-// Hook para estadísticas
-export function useMantenimientosStats() {
-    return useQuery({
-        queryKey: QUERY_KEYS.stats(),
-        queryFn: mantenimientoVehiculoService.getStats,
-        staleTime: 2 * 60 * 1000,
-    })
-}
 
 // Hook combinado para filtros del store
 export function useFilteredMantenimientos() {

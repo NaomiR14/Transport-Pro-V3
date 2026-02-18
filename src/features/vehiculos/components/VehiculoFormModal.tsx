@@ -19,8 +19,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Loader2 } from "lucide-react"
-import { type Vehicle, type CreateVehicleRequest, useCreateVehicle, useUpdateVehicle } from "@/features/vehiculos"
+import { Loader2, Gauge, AlertTriangle, Shield } from "lucide-react"
+import { 
+    type Vehicle, 
+    type CreateVehicleRequest,
+    type UpdateVehicleRequest,
+    useCreateVehicle, 
+    useUpdateVehicle 
+} from "@/features/vehiculos"
 import { commonInfoService } from "@/lib/common-info-service"
 
 interface EditVehicleModalProps {
@@ -31,7 +37,7 @@ interface EditVehicleModalProps {
 }
 
 export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: EditVehicleModalProps) {
-    const [formData, setFormData] = useState<Partial<CreateVehicleRequest>>({})
+    const [formData, setFormData] = useState<Partial<CreateVehicleRequest | UpdateVehicleRequest>>({})
     const [errors, setErrors] = useState<Record<string, string>>({})
     const [commonInfo, setCommonInfo] = useState({
         vehicleTypes: [] as { id: number; type: string }[],
@@ -96,14 +102,14 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                 color: vehicle.color,
                 year: vehicle.year,
                 maxLoadCapacity: vehicle.maxLoadCapacity,
-                vehicleState: vehicle.vehicleState,
+                // vehicleState NO se incluye - se usa el calculado
                 maintenanceData: {
-                    maintenanceCycle: vehicle.maintenanceData.maintenanceCycle,
-                    initialKm: vehicle.maintenanceData.initialKm,
+                    maintenanceCycle: vehicle.maintenanceData.maintenanceCycle || 5000,
+                    initialKm: vehicle.maintenanceData.initialKm || 0,
                 }
             })
         } else {
-            // Valores por defecto para nuevo vehículo
+            // Valores por defecto para nuevo vehículo (sin vehicleState)
             setFormData({
                 type: "",
                 brand: "",
@@ -113,9 +119,9 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                 color: "",
                 year: new Date().getFullYear(),
                 maxLoadCapacity: 0,
-                vehicleState: "activo",
+                // vehicleState NO se incluye en creación, será "activo" por defecto
                 maintenanceData: {
-                    maintenanceCycle: 10000,
+                    maintenanceCycle: 5000,  // Valor por defecto
                     initialKm: 0,
                 }
             })
@@ -191,8 +197,13 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
         if (!formData.maxLoadCapacity || isNaN(Number(formData.maxLoadCapacity)) || Number(formData.maxLoadCapacity) < 0) {
             newErrors.maxLoadCapacity = "La capacidad máxima de carga debe ser un número válido"
         }
-        if (!formData.vehicleState?.trim()) {
-            newErrors.vehicleState = "El estado del vehículo es requerido"
+        // vehicleState ya no existe - se usa solo el calculado
+        // Validar campos de mantenimiento (requeridos)
+        if (!formData.maintenanceData?.maintenanceCycle || formData.maintenanceData.maintenanceCycle <= 0) {
+            newErrors.maintenanceCycle = "El ciclo de mantenimiento es requerido"
+        }
+        if (formData.maintenanceData?.initialKm === undefined || formData.maintenanceData.initialKm < 0) {
+            newErrors.initialKm = "El kilometraje inicial es requerido"
         }
 
         setErrors(newErrors)
@@ -217,35 +228,48 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
         console.log('[EditVehicleModal] Validación exitosa, preparando datos...');
 
         try {
-            // Preparar datos para la API (convertir strings a números donde sea necesario)
-            const apiData: CreateVehicleRequest = {
-                type: formData.type!,
-                brand: formData.brand!,
-                model: formData.model!,
-                licensePlate: formData.licensePlate!,
-                serialNumber: formData.serialNumber!,
-                color: formData.color!,
-                year: Number(formData.year!),
-                maxLoadCapacity: Number(formData.maxLoadCapacity!),
-                vehicleState: formData.vehicleState!,
-                maintenanceData: formData.maintenanceData!
-            }
-
-            console.log('[EditVehicleModal] Datos preparados:', apiData);
-
             if (vehicle?.id) {
-                // Actualizar vehículo existente
-                console.log('[EditVehicleModal] Actualizando vehículo...');
+                // Actualizar vehículo existente - incluye vehicleState
+                const updateData: UpdateVehicleRequest = {
+                    type: formData.type!,
+                    brand: formData.brand!,
+                    model: formData.model!,
+                    licensePlate: formData.licensePlate!,
+                    serialNumber: formData.serialNumber!,
+                    color: formData.color!,
+                    year: Number(formData.year!),
+                    maxLoadCapacity: Number(formData.maxLoadCapacity!),
+                    // vehicleState no se incluye - siempre calculado
+                    maintenanceData: {
+                        maintenanceCycle: Number(formData.maintenanceData!.maintenanceCycle!),
+                        initialKm: Number(formData.maintenanceData!.initialKm!),
+                    }
+                }
+                console.log('[EditVehicleModal] Actualizando vehículo...', updateData);
                 const updatedVehicle = await updateVehicleMutation.mutateAsync({
                     id: vehicle.id,
-                    data: apiData
+                    data: updateData
                 })
                 console.log('[EditVehicleModal] Vehículo actualizado:', updatedVehicle);
                 onSave(updatedVehicle)
             } else {
-                // Crear nuevo vehículo
-                console.log('[EditVehicleModal] Creando nuevo vehículo...');
-                const newVehicle = await createVehicleMutation.mutateAsync(apiData)
+                // Crear nuevo vehículo - NO incluye vehicleState (será "activo" por defecto)
+                const createData: CreateVehicleRequest = {
+                    type: formData.type!,
+                    brand: formData.brand!,
+                    model: formData.model!,
+                    licensePlate: formData.licensePlate!,
+                    serialNumber: formData.serialNumber!,
+                    color: formData.color!,
+                    year: Number(formData.year!),
+                    maxLoadCapacity: Number(formData.maxLoadCapacity!),
+                    maintenanceData: {
+                        maintenanceCycle: Number(formData.maintenanceData!.maintenanceCycle!),
+                        initialKm: Number(formData.maintenanceData!.initialKm!),
+                    }
+                }
+                console.log('[EditVehicleModal] Creando nuevo vehículo...', createData);
+                const newVehicle = await createVehicleMutation.mutateAsync(createData)
                 console.log('[EditVehicleModal] Vehículo creado:', newVehicle);
                 onSave(newVehicle)
             }
@@ -415,74 +439,144 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                             {errors.maxLoadCapacity && <p className="text-sm text-red-500">{errors.maxLoadCapacity}</p>}
                         </div>
 
-                        {/* Estado del Vehículo */}
-                        <div className="space-y-2">
-                            <Label htmlFor="vehicleState">Estado *</Label>
-                            <Select
-                                value={formData.vehicleState || ""}
-                                onValueChange={(value) => handleInputChange("vehicleState", value)}
-                                disabled={updateVehicleMutation.isPending}
-                            >
-                                <SelectTrigger className={errors.vehicleState ? "border-red-500" : ""}>
-                                    <SelectValue placeholder="Seleccionar estado" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="activo">Activo</SelectItem>
-                                    <SelectItem value="inactivo">Inactivo</SelectItem>
-                                    <SelectItem value="mantenimiento">En Mantenimiento</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {errors.vehicleState && <p className="text-sm text-red-500">{errors.vehicleState}</p>}
-                        </div>
+                        {/* vehicleState eliminado - se usa solo el calculado */}
 
                         {/* Ciclo de Mantenimiento */}
                         <div className="space-y-2">
-                            <Label htmlFor="maintenanceCycle">Ciclo de Mantenimiento (km)</Label>
+                            <Label htmlFor="maintenanceCycle">Ciclo de Mantenimiento (km) *</Label>
                             <Input
                                 id="maintenanceCycle"
                                 type="number"
                                 value={formData.maintenanceData?.maintenanceCycle || ""}
                                 onChange={(e) => handleInputChange("maintenanceData.maintenanceCycle", e.target.value)}
+                                className={errors.maintenanceCycle ? "border-red-500" : ""}
                                 placeholder="5000"
-                                min="0"
+                                min="1"
                                 disabled={updateVehicleMutation.isPending}
                             />
+                            {errors.maintenanceCycle && <p className="text-sm text-red-500">{errors.maintenanceCycle}</p>}
                         </div>
 
                         {/* Kilometraje Inicial */}
                         <div className="space-y-2">
-                            <Label htmlFor="initialKm">Kilometraje Inicial</Label>
+                            <Label htmlFor="initialKm">Kilometraje Inicial (km) *</Label>
                             <Input
                                 id="initialKm"
                                 type="number"
-                                value={formData.maintenanceData?.initialKm || ""}
+                                value={formData.maintenanceData?.initialKm !== undefined ? formData.maintenanceData.initialKm : ""}
                                 onChange={(e) => handleInputChange("maintenanceData.initialKm", e.target.value)}
+                                className={errors.initialKm ? "border-red-500" : ""}
                                 placeholder="0"
                                 min="0"
                                 disabled={updateVehicleMutation.isPending}
                             />
+                            {errors.initialKm && <p className="text-sm text-red-500">{errors.initialKm}</p>}
                         </div>
                     </div>
 
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 mb-2">Resumen del Vehículo</h4>
+                    {/* Resumen del Vehículo */}
+                    <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+                            <Gauge className="h-5 w-5 mr-2 text-primary-blue" />
+                            Resumen del Vehículo
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            {/* Información Básica */}
                             <div>
-                                <span className="font-medium text-blue-800">Tipo:</span>
-                                <span className="ml-2 text-blue-900">{formData.type || "No especificado"}</span>
+                                <span className="font-medium text-slate-600 dark:text-slate-400">Tipo:</span>
+                                <span className="ml-2 text-slate-900 dark:text-white">{formData.type || "No especificado"}</span>
                             </div>
                             <div>
-                                <span className="font-medium text-blue-800">Marca/Modelo:</span>
-                                <span className="ml-2 text-blue-900">{formData.brand} {formData.model}</span>
+                                <span className="font-medium text-slate-600 dark:text-slate-400">Marca/Modelo:</span>
+                                <span className="ml-2 text-slate-900 dark:text-white">{formData.brand} {formData.model}</span>
                             </div>
                             <div>
-                                <span className="font-medium text-blue-800">Placa:</span>
-                                <span className="ml-2 text-blue-900 font-semibold">{formData.licensePlate || "No asignada"}</span>
+                                <span className="font-medium text-slate-600 dark:text-slate-400">Placa:</span>
+                                <span className="ml-2 text-slate-900 dark:text-white font-mono font-bold">{formData.licensePlate || "No asignada"}</span>
                             </div>
                             <div>
-                                <span className="font-medium text-blue-800">Estado:</span>
-                                <span className="ml-2 text-blue-900">{formData.vehicleState || "No especificado"}</span>
+                                <span className="font-medium text-slate-600 dark:text-slate-400">Estado Calculado:</span>
+                                <span className="ml-2">
+                                    {vehicle?.calculatedData?.estadoCalculado ? (
+                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                            vehicle.calculatedData.estadoCalculado === 'Disponible' 
+                                                ? 'bg-green-100 text-green-800'
+                                                : vehicle.calculatedData.estadoCalculado === 'En Mantenimiento'
+                                                    ? 'bg-blue-100 text-blue-800'
+                                                    : vehicle.calculatedData.estadoCalculado === 'Seguro Vencido'
+                                                        ? 'bg-red-100 text-red-800'
+                                                        : 'bg-gray-100 text-gray-800'
+                                        }`}>
+                                            {vehicle.calculatedData.estadoCalculado}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Disponible
+                                        </span>
+                                    )}
+                                </span>
                             </div>
+                            
+                            {/* Datos de Mantenimiento */}
+                            <div className="col-span-full border-t border-slate-200 dark:border-slate-700 pt-3 mt-2">
+                                <h5 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Información de Mantenimiento</h5>
+                            </div>
+                            <div>
+                                <span className="font-medium text-slate-600 dark:text-slate-400">Ciclo de Mantenimiento:</span>
+                                <span className="ml-2 text-slate-900 dark:text-white">
+                                    {formData.maintenanceData?.maintenanceCycle?.toLocaleString() || "5,000"} km
+                                </span>
+                            </div>
+                            <div>
+                                <span className="font-medium text-slate-600 dark:text-slate-400">Kilometraje Inicial:</span>
+                                <span className="ml-2 text-slate-900 dark:text-white">
+                                    {formData.maintenanceData?.initialKm?.toLocaleString() || "0"} km
+                                </span>
+                            </div>
+                            
+                            {/* Campos Calculados - Solo en Edición */}
+                            {vehicle?.calculatedData && (
+                                <>
+                                    <div>
+                                        <span className="font-medium text-slate-600 dark:text-slate-400">Último Km Preventivo:</span>
+                                        <span className="ml-2 text-slate-900 dark:text-white">
+                                            {vehicle.calculatedData.ultimoKmPreventivo?.toLocaleString()} km
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-slate-600 dark:text-slate-400">Último Km Odómetro:</span>
+                                        <span className="ml-2 text-slate-900 dark:text-white">
+                                            {vehicle.calculatedData.ultimoKmOdometro?.toLocaleString()} km
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-slate-600 dark:text-slate-400">Kms Restantes:</span>
+                                        <span className={`ml-2 font-semibold ${
+                                            vehicle.calculatedData.kmsRestantesMantenimiento < 500 
+                                                ? 'text-red-600' 
+                                                : vehicle.calculatedData.kmsRestantesMantenimiento < 1000
+                                                    ? 'text-yellow-600'
+                                                    : 'text-green-600'
+                                        }`}>
+                                            {vehicle.calculatedData.kmsRestantesMantenimiento?.toLocaleString()} km
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-slate-600 dark:text-slate-400">Alerta Mantenimiento:</span>
+                                        <span className="ml-2">
+                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                                vehicle.calculatedData.alertaMantenimiento === 'Mantener' 
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : vehicle.calculatedData.alertaMantenimiento === 'Falta poco'
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-green-100 text-green-800'
+                                            }`}>
+                                                {vehicle.calculatedData.alertaMantenimiento}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 

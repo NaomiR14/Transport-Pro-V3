@@ -14,8 +14,7 @@ export interface Vehicle {
     color: string
     year: number
     maxLoadCapacity: number
-    vehicleState: string
-    // Campos opcionales que podrían no venir de la API
+    // vehicleState ELIMINADO - solo se usa estadoCalculado
     maintenanceData: {
         maintenanceCycle?: number
         initialKm?: number
@@ -24,8 +23,24 @@ export interface Vehicle {
         remainingMaintenanceKm?: number
         maintenanceStatus?: string
     }
+    // Campos calculados desde la vista vehicles_with_calculated_stats
+    calculatedData?: {
+        cicloMantenimiento: number
+        kmInicial: number
+        ultimoKmPreventivo: number
+        ultimoKmOdometro: number
+        estadoSeguro: string
+        fechaVencimientoSeguro: string | null
+        kmsRestantesMantenimiento: number
+        porcentajeCicloUsado: number
+        estadoCalculado: string
+        alertaMantenimiento: string
+        tieneMantenimientoActivo: boolean
+        tieneSeguroVencido: boolean
+    }
 }
 
+// Para crear un nuevo vehículo (no incluye vehicleState, se asigna "activo" por defecto)
 export interface CreateVehicleRequest {
     type: string
     brand: string
@@ -35,21 +50,32 @@ export interface CreateVehicleRequest {
     color: string
     year: number
     maxLoadCapacity: number
-    vehicleState: string
-    // Campos opcionales que no vienen de la API
     maintenanceData: {
-        maintenanceCycle?: number
-        initialKm?: number
-        prevMaintenanceKm?: number
-        currentKm?: number
-        remainingMaintenanceKm?: number
-        maintenanceStatus?: string
+        maintenanceCycle: number  // Requerido
+        initialKm: number         // Requerido
+    }
+}
+
+// Para actualizar un vehículo existente (sin vehicleState, será calculado)
+export interface UpdateVehicleRequest {
+    type: string
+    brand: string
+    model: string
+    licensePlate: string
+    serialNumber: string
+    color: string
+    year: number
+    maxLoadCapacity: number
+    // vehicleState se elimina - será siempre calculado desde la vista
+    maintenanceData: {
+        maintenanceCycle: number
+        initialKm: number
     }
 }
 
 export interface VehicleFilters extends FilterParams {
     searchTerm?: string
-    vehicleState?: string
+    estadoCalculado?: string  // Cambio de vehicleState a estadoCalculado
     maintenanceStatus?: boolean
     type?: string
     brand?: string

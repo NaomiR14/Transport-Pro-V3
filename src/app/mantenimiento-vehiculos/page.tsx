@@ -87,7 +87,7 @@ export default function MantenimientoVehiculosPage() {
                 <MantenimientoFormModal
                     mantenimiento={selectedMantenimiento}
                     onClose={handleCloseModal}
-                    onSubmit={handleSaveMantenimiento}
+                    onSave={handleSaveMantenimiento}
                     isOpen={isEditModalOpen}
                 />
             )}

@@ -38,6 +38,7 @@ export class MantenimientoVehiculoService {
             placa_vehiculo: mant.placaVehiculo,
             taller: mant.taller,
             fecha_entrada: mant.fechaEntrada,
+            fecha_salida: mant.fechaSalida,
             tipo: mant.tipo,
             kilometraje: mant.kilometraje,
             paquete_mantenimiento: mant.paqueteMantenimiento,
