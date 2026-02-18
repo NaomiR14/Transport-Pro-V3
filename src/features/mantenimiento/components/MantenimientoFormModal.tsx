@@ -32,7 +32,7 @@ interface EditMantenimientoVehiculoModalProps {
     mantenimiento: MantenimientoVehiculo | null
     isOpen: boolean
     onClose: () => void
-    onSave: (data: CreateMantenimientoVehiculoRequest) => void
+    onSave: (data: MantenimientoVehiculo) => void
 }
 
 export default function EditMantenimientoVehiculoModal({
