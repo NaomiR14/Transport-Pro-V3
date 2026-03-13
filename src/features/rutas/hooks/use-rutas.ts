@@ -249,7 +249,19 @@ export function useRutaFilterOptions() {
     const rutasToUse = allRutas || rutas
 
     const placas = [...new Set(rutasToUse.map(s => s.placa_vehiculo))].filter(Boolean);
-    const conductores = [...new Set(rutasToUse.map(s => s.conductor))].filter(Boolean);
+    
+    // Obtener conductores únicos con su nombre
+    const conductoresMap = new Map<string, string>();
+    rutasToUse.forEach(ruta => {
+        if (ruta.conductor && !conductoresMap.has(ruta.conductor)) {
+            conductoresMap.set(ruta.conductor, ruta.nombre_conductor || ruta.conductor);
+        }
+    });
+    const conductores = Array.from(conductoresMap.entries()).map(([documento, nombre]) => ({
+        documento,
+        nombre
+    }));
+    
     const origenes = [...new Set(rutasToUse.map(s => s.origen))].filter(Boolean);
     const destinos = [...new Set(rutasToUse.map(s => s.destino))].filter(Boolean);
 

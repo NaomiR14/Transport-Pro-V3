@@ -37,17 +37,31 @@ export interface DriverByRegion {
 async function fetchDashboardMetrics(): Promise<DashboardMetrics> {
   const supabase = createClient()
 
-  // Obtener vehículos
-  const { data: vehicles, error: vehiclesError } = await supabase
-    .from('vehicles')
-    .select('vehicle_state')
+  console.log('[useDashboardMetrics] Fetching dashboard metrics...')
 
-  if (vehiclesError) throw vehiclesError
+  // Obtener vehículos desde la vista con estado calculado
+  const { data: vehicles, error: vehiclesError } = await supabase
+    .from('vehicles_with_calculated_stats')
+    .select('estado_calculado')
+
+  if (vehiclesError) {
+    console.error('[useDashboardMetrics] Error fetching vehicles:', vehiclesError)
+    throw vehiclesError
+  }
+
+  console.log('[useDashboardMetrics] Vehicles fetched:', vehicles?.length || 0)
 
   const totalVehicles = vehicles?.length || 0
-  const availableVehicles = vehicles?.filter(v => v.vehicle_state === 'Disponible').length || 0
-  const inRouteVehicles = vehicles?.filter(v => v.vehicle_state === 'En Uso').length || 0
-  const maintenanceVehicles = vehicles?.filter(v => v.vehicle_state === 'En Mantenimiento').length || 0
+  const availableVehicles = vehicles?.filter(v => v.estado_calculado === 'Disponible').length || 0
+  const inRouteVehicles = vehicles?.filter(v => v.estado_calculado === 'En Uso').length || 0
+  const maintenanceVehicles = vehicles?.filter(v => v.estado_calculado === 'En Mantenimiento').length || 0
+
+  console.log('[useDashboardMetrics] Vehicle stats:', {
+    total: totalVehicles,
+    available: availableVehicles,
+    inRoute: inRouteVehicles,
+    maintenance: maintenanceVehicles
+  })
 
   // Obtener conductores
   const { data: drivers, error: driversError } = await supabase
