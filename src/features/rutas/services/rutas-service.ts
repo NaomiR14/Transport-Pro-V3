@@ -5,7 +5,13 @@ import { RutaViaje, CreateRutaViajeRequest, UpdateRutaViajeRequest, RutaViajeFil
 
 
 export class RutaViajeService {
+    // Usar la vista con estado calculado del vehículo para lectura
     private static repository = new SupabaseRepository<RutaViaje>({
+        tableName: 'rutas_viajes_with_vehicle_state',
+    });
+    
+    // Usar la tabla base para escritura (create, update, delete)
+    private static baseRepository = new SupabaseRepository<RutaViaje>({
         tableName: 'rutas_viajes',
     });
 
@@ -25,62 +31,71 @@ export class RutaViajeService {
             estacion_combustible: ruta.estacion_combustible,
             tipo_combustible: ruta.tipo_combustible,
             precio_por_galon: ruta.precio_por_galon,
-            volumen_combustible_gal: ruta.total_combustible / ruta.precio_por_galon, // Calcular volumen
+            total_combustible: ruta.total_combustible, // User input - DB calculates volumen_combustible_gal
             gasto_peajes: ruta.gasto_peajes,
             gasto_comidas: ruta.gasto_comidas,
             otros_gastos: ruta.otros_gastos,
             observaciones: ruta.observaciones,
-            // NO ENVIAR: kms_recorridos, ingreso_total, total_combustible, gasto_total, recorrido_por_galon, ingreso_por_km
+            // NO ENVIAR: kms_recorridos, ingreso_total, volumen_combustible_gal, gasto_total, recorrido_por_galon, ingreso_por_km
             // Estos son GENERATED ALWAYS en la DB
         };
     }
     static async getRutas(filters?: RutaViajeFilters): Promise<RutaViaje[]> {
         try {
-            // Usar query personalizada para hacer JOIN con vehicles y obtener estado_vehiculo
+            console.log('[RutaViajeService] getRutas called with filters:', filters);
+            
             const client = this.repository.getClient();
             
+            console.log('[RutaViajeService] Querying view: rutas_viajes_with_vehicle_state');
+            
             let query = client
-                .from('rutas_viajes')
-                .select(`
-                    *,
-                    vehicles:placa_vehiculo(
-                        vehicle_state
-                    )
-                `);
+                .from('rutas_viajes_with_vehicle_state')
+                .select('*');
 
             // Aplicar filtros
             if (filters?.searchTerm) {
+                console.log('[RutaViajeService] Applying searchTerm filter:', filters.searchTerm);
                 query = query.or(`placa_vehiculo.ilike.%${filters.searchTerm}%,conductor.ilike.%${filters.searchTerm}%,origen.ilike.%${filters.searchTerm}%,destino.ilike.%${filters.searchTerm}%`);
             }
             if (filters?.placa_vehiculo) {
+                console.log('[RutaViajeService] Applying placa_vehiculo filter:', filters.placa_vehiculo);
                 query = query.eq('placa_vehiculo', filters.placa_vehiculo);
             }
             if (filters?.conductor) {
+                console.log('[RutaViajeService] Applying conductor filter:', filters.conductor);
                 query = query.eq('conductor', filters.conductor);
             }
             if (filters?.fecha_desde) {
+                console.log('[RutaViajeService] Applying fecha_desde filter:', filters.fecha_desde);
                 query = query.gte('fecha_salida', filters.fecha_desde);
             }
             if (filters?.fecha_hasta) {
+                console.log('[RutaViajeService] Applying fecha_hasta filter:', filters.fecha_hasta);
                 query = query.lte('fecha_salida', filters.fecha_hasta);
             }
 
+            console.log('[RutaViajeService] Executing query...');
             const { data, error } = await query;
 
             if (error) {
                 console.error('[RutaViajeService] Error en getRutas:', error);
+                console.error('[RutaViajeService] Error details:', {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code
+                });
                 throw new Error(`Error al obtener rutas: ${error.message}`);
             }
 
-            // Transformar datos: aplanar vehicles.vehicle_state a estado_vehiculo
-            const rutas = (data || []).map((row: any) => ({
-                ...row,
-                estado_vehiculo: row.vehicles?.vehicle_state || null,
-                vehicles: undefined, // Eliminar el objeto anidado
-            }));
+            console.log('[RutaViajeService] Query successful. Records fetched:', data?.length || 0);
+            if (data && data.length > 0) {
+                console.log('[RutaViajeService] First record sample:', data[0]);
+            }
 
-            return rutas as RutaViaje[];
+            return (data || []) as RutaViaje[];
         } catch (error) {
+            console.error('[RutaViajeService] Exception in getRutas:', error);
             throw error;
         }
     }
@@ -90,13 +105,8 @@ export class RutaViajeService {
             const client = this.repository.getClient();
             
             const { data, error } = await client
-                .from('rutas_viajes')
-                .select(`
-                    *,
-                    vehicles:placa_vehiculo(
-                        vehicle_state
-                    )
-                `)
+                .from('rutas_viajes_with_vehicle_state')
+                .select('*')
                 .eq('id', id)
                 .single();
 
@@ -108,14 +118,7 @@ export class RutaViajeService {
                 throw new Error('Ruta no encontrada');
             }
 
-            // Transformar datos
-            const ruta = {
-                ...data,
-                estado_vehiculo: data.vehicles?.vehicle_state || null,
-                vehicles: undefined,
-            };
-
-            return ruta as RutaViaje;
+            return data as RutaViaje;
         } catch (error) {
             throw error;
         }
@@ -124,7 +127,9 @@ export class RutaViajeService {
     static async createRuta(rutaData: CreateRutaViajeRequest): Promise<RutaViaje> {
         try {
             const dbData = this.mapToDB(rutaData);
-            return await this.repository.create(dbData);
+            const created = await this.baseRepository.create(dbData);
+            // Leer desde la vista para obtener estado calculado del vehículo
+            return await this.getRutaById(created.id);
         } catch (error) {
             throw error;
         }
@@ -133,7 +138,9 @@ export class RutaViajeService {
     static async updateRuta(id: string, rutaData: UpdateRutaViajeRequest): Promise<RutaViaje> {
         try {
             const dbData = this.mapToDB(rutaData);
-            return await this.repository.update(id, dbData);
+            await this.baseRepository.update(id, dbData);
+            // Leer desde la vista para obtener estado calculado del vehículo
+            return await this.getRutaById(id);
         } catch (error) {
             throw error;
         }
@@ -141,7 +148,7 @@ export class RutaViajeService {
 
     static async deleteRuta(id: string): Promise<void> {
         try {
-            await this.repository.delete(id);
+            await this.baseRepository.delete(id);
         } catch (error) {
             throw error;
         }

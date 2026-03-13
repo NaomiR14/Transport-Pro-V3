@@ -1,12 +1,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Eye, Edit, X, Loader2, Truck, Map, Calendar, User, Fuel, BarChart3 } from "lucide-react"
+import { Edit, X, Loader2, Truck, Map, Calendar, User, Fuel, BarChart3 } from "lucide-react"
 import { RutaViaje } from "../types/rutas.types"
 
 interface RutasTableProps {
   rutas: RutaViaje[]
   loading?: boolean
-  onView: (ruta: RutaViaje) => void
   onEdit: (ruta: RutaViaje) => void
   onDelete: (rutaId: string) => void
   isDeleting?: boolean
@@ -15,7 +14,6 @@ interface RutasTableProps {
 export function RutasTable({ 
   rutas, 
   loading = false, 
-  onView,
   onEdit, 
   onDelete,
   isDeleting = false 
@@ -40,18 +38,23 @@ export function RutasTable({
       )
     }
 
+    // Estados desde la vista de vehículos calculados
     const estadoConfig = {
-      'activo': { 
+      'Disponible': { 
         color: 'bg-success-bg text-success-text dark:bg-success-bg/20 dark:text-success-text', 
         icon: '✅' 
       },
-      'inactivo': { 
-        color: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400', 
-        icon: '⏸️' 
-      },
-      'mantenimiento': { 
+      'En Mantenimiento': { 
         color: 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text', 
         icon: '🔧' 
+      },
+      'Seguro Vencido': { 
+        color: 'bg-error-bg text-error-text dark:bg-error-bg/20 dark:text-error-text', 
+        icon: '❌' 
+      },
+      'Seguro Por Vencer': { 
+        color: 'bg-warning-bg text-warning-text dark:bg-warning-bg/20 dark:text-warning-text', 
+        icon: '⚠️' 
       }
     }
 
@@ -62,7 +65,7 @@ export function RutasTable({
 
     return (
       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-        {config.icon} {estado.charAt(0).toUpperCase() + estado.slice(1)}
+        {config.icon} {estado}
       </span>
     )
   }
@@ -114,12 +117,12 @@ export function RutasTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rutas.map((ruta) => (
+          {rutas.map((ruta, index) => (
             <TableRow 
               key={ruta.id}
               className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
-              <TableCell className="font-medium text-slate-900 dark:text-white">{ruta.id}</TableCell>
+              <TableCell className="font-medium text-slate-900 dark:text-white">{index + 1}</TableCell>
 
               {/* Fechas */}
               <TableCell>
@@ -144,7 +147,7 @@ export function RutasTable({
                       {ruta.placa_vehiculo}
                     </span>
                   </div>
-                  {getEstadoVehiculoBadge(ruta.estado_vehiculo)}
+                  {getEstadoVehiculoBadge(ruta.estado_vehiculo_calculado)}
                 </div>
               </TableCell>
 
@@ -153,7 +156,7 @@ export function RutasTable({
                 <div className="flex items-center">
                   <User className="h-4 w-4 mr-1 text-slate-500 dark:text-slate-400" />
                   <span className="text-sm text-slate-900 dark:text-white">
-                    {ruta.conductor}
+                    {ruta.nombre_conductor}
                   </span>
                 </div>
               </TableCell>
@@ -256,14 +259,6 @@ export function RutasTable({
               {/* Acciones */}
               <TableCell>
                 <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onView(ruta)}
-                    className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  >
-                    <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"

@@ -100,9 +100,11 @@ export class VehicleService {
   // Obtener todos los vehículos con campos calculados desde la vista
   async getVehicles(filters?: VehicleFilters): Promise<Vehicle[]> {
     try {
+      console.log('[VehicleService] getVehicles - filters:', filters);
       let vehicles: any[];
 
       if (filters?.searchTerm) {
+        console.log('[VehicleService] Searching with term:', filters.searchTerm);
         // Buscar por término en múltiples columnas - usa la VISTA
         vehicles = await this.viewRepository.search(filters.searchTerm, [
           'license_plate',
@@ -115,13 +117,18 @@ export class VehicleService {
         // Obtener todos con filtros opcionales - usa la VISTA
         const dbFilters: Record<string, unknown> = {};
         if (filters?.vehicleState) {
-          dbFilters.vehicle_state = filters.vehicleState;
+          console.log('[VehicleService] Filtering by vehicle state:', filters.vehicleState);
+          // Usar estado_calculado en lugar de vehicle_state
+          dbFilters.estado_calculado = filters.vehicleState;
         }
+        console.log('[VehicleService] Getting all vehicles with filters:', dbFilters);
         vehicles = await this.viewRepository.getAll(dbFilters);
       }
 
+      console.log('[VehicleService] Vehicles fetched:', vehicles?.length || 0);
       return vehicles.map(v => this.mapFromDB(v));
     } catch (error) {
+      console.error('[VehicleService] Error in getVehicles:', error);
       throw error;
     }
   }

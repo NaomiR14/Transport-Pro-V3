@@ -9,8 +9,10 @@ export interface RutaViaje {
     fecha_salida: string
     fecha_llegada: string
     placa_vehiculo: string
-    estado_vehiculo: "activo" | "inactivo" | "mantenimiento" | null
-    conductor: string
+    // Estado calculado del vehículo desde la vista de vehículos
+    estado_vehiculo_calculado: string | null
+    conductor: string // documento_identidad (FK)
+    nombre_conductor: string // Nombre completo del conductor desde la vista
     origen: string
     destino: string
     kms_inicial: number
@@ -47,8 +49,7 @@ export interface CreateRutaViajeRequest {
     estacion_combustible: string
     tipo_combustible: string
     precio_por_galon: number
-    volumen_combustible_gal: number
-    total_combustible: number
+    total_combustible: number // User provides this, DB calculates volumen_combustible_gal
     gasto_peajes: number
     gasto_comidas: number
     otros_gastos: number
@@ -69,8 +70,7 @@ export interface UpdateRutaViajeRequest extends Partial<CreateRutaViajeRequest> 
     estacion_combustible: string
     tipo_combustible: string
     precio_por_galon: number
-    volumen_combustible_gal: number
-    total_combustible: number
+    total_combustible: number // User provides this, DB calculates volumen_combustible_gal
     gasto_peajes: number
     gasto_comidas: number
     otros_gastos: number

@@ -1,15 +1,12 @@
--- ============================================================================
--- Vista vehicles_with_calculated_stats
--- Implementa las fórmulas del Excel de Control de Flota
--- ============================================================================
+-- Forzar recreación de todas las vistas para eliminar referencias a vehicle_state
 
--- Eliminar vista si existe (para poder recrearla)
-DROP VIEW IF EXISTS vehicles_with_calculated_stats;
+-- Paso 1: Eliminar todas las vistas dependientes primero
+DROP VIEW IF EXISTS rutas_viajes_with_vehicle_state CASCADE;
+DROP VIEW IF EXISTS vehicles_with_calculated_stats CASCADE;
 
--- Crear la vista con todos los campos calculados
+-- Paso 2: Recrear vehicles_with_calculated_stats SIN vehicle_state
 CREATE VIEW vehicles_with_calculated_stats AS
 WITH 
--- Subquery: Último mantenimiento preventivo por vehículo
 ultimo_mantenimiento_preventivo AS (
     SELECT 
         placa_vehiculo,
@@ -19,16 +16,12 @@ ultimo_mantenimiento_preventivo AS (
     WHERE tipo = 'Preventivo'
     GROUP BY placa_vehiculo
 ),
-
--- Subquery: Mantenimiento activo (fecha_salida > hoy o sin fecha_salida)
 mantenimiento_activo AS (
     SELECT DISTINCT placa_vehiculo
     FROM mantenimientos_vehiculos
     WHERE fecha_salida IS NULL 
        OR fecha_salida > CURRENT_DATE
 ),
-
--- Subquery: Último km del odómetro desde rutas
 ultimo_odometro AS (
     SELECT 
         placa_vehiculo,
@@ -36,8 +29,6 @@ ultimo_odometro AS (
     FROM rutas_viajes
     GROUP BY placa_vehiculo
 ),
-
--- Subquery: Estado del seguro más reciente
 seguro_actual AS (
     SELECT DISTINCT ON (placa_vehiculo)
         placa_vehiculo,
@@ -46,9 +37,8 @@ seguro_actual AS (
     FROM seguros_vehiculos
     ORDER BY placa_vehiculo, fecha_vencimiento DESC
 )
-
 SELECT 
-    -- Campos originales del vehículo
+    -- Campos originales del vehículo (SIN vehicle_state)
     v.id,
     v.type,
     v.brand,
@@ -62,31 +52,16 @@ SELECT
     v.created_at,
     v.updated_at,
     
-    -- ========== CAMPOS CALCULADOS ==========
-    
-    -- Ciclo de mantenimiento (desde maintenance_data JSON)
+    -- Campos calculados
     COALESCE((v.maintenance_data->>'maintenanceCycle')::NUMERIC, 5000) AS ciclo_mantenimiento,
-    
-    -- Km inicial del vehículo
     COALESCE((v.maintenance_data->>'initialKm')::NUMERIC, 0) AS km_inicial,
-    
-    -- Último Km de Mantenimiento Preventivo
     COALESCE(ump.ultimo_km_preventivo, (v.maintenance_data->>'prevMaintenanceKm')::NUMERIC, 0) AS ultimo_km_preventivo,
-    
-    -- Último Km del Odómetro (el mayor entre rutas y maintenance_data)
     GREATEST(
         COALESCE(uo.ultimo_km_odometro, 0),
         COALESCE((v.maintenance_data->>'currentKm')::NUMERIC, 0)
     ) AS ultimo_km_odometro,
-    
-    -- Estado del seguro
     COALESCE(sa.estado_poliza, 'sin_seguro') AS estado_seguro,
-    
-    -- Fecha vencimiento seguro
     sa.fecha_vencimiento AS fecha_vencimiento_seguro,
-    
-    -- Kms Restantes para Mantenimiento
-    -- Fórmula: ciclo - (odómetro_actual - último_km_preventivo)
     GREATEST(
         COALESCE((v.maintenance_data->>'maintenanceCycle')::NUMERIC, 5000) - (
             GREATEST(
@@ -96,8 +71,6 @@ SELECT
         ),
         0
     ) AS kms_restantes_mantenimiento,
-    
-    -- Porcentaje de km usados del ciclo
     CASE 
         WHEN COALESCE((v.maintenance_data->>'maintenanceCycle')::NUMERIC, 5000) = 0 THEN 0
         ELSE ROUND(
@@ -110,18 +83,13 @@ SELECT
             1
         )
     END AS porcentaje_ciclo_usado,
-    
-    -- Estado Calculado del Vehículo
-    -- Prioridad: 1) En Mantenimiento, 2) Seguro Vencido, 3) Disponible
+    -- Estado Calculado del Vehículo (SIN referencia a vehicle_state)
     CASE 
         WHEN ma.placa_vehiculo IS NOT NULL THEN 'En Mantenimiento'
         WHEN sa.estado_poliza IN ('vencida') THEN 'Seguro Vencido'
         WHEN sa.estado_poliza IN ('por_vencer') THEN 'Seguro Por Vencer'
         ELSE 'Disponible'
     END AS estado_calculado,
-    
-    -- Alerta de Mantenimiento
-    -- ≤5% restante → "Mantener", ≤20% → "Falta poco", otro → "Aun no"
     CASE 
         WHEN ma.placa_vehiculo IS NOT NULL THEN 'En Mantenimiento'
         WHEN COALESCE((v.maintenance_data->>'maintenanceCycle')::NUMERIC, 5000) = 0 THEN 'Sin Ciclo'
@@ -139,53 +107,62 @@ SELECT
         ) >= COALESCE((v.maintenance_data->>'maintenanceCycle')::NUMERIC, 5000) * 0.80 THEN 'Falta poco'
         ELSE 'Al día'
     END AS alerta_mantenimiento,
-    
-    -- Indicador si tiene mantenimiento activo
     (ma.placa_vehiculo IS NOT NULL) AS tiene_mantenimiento_activo,
-    
-    -- Indicador si tiene seguro vencido
     (sa.estado_poliza = 'vencida') AS tiene_seguro_vencido
-
 FROM vehicles v
 LEFT JOIN ultimo_mantenimiento_preventivo ump ON ump.placa_vehiculo = v.license_plate
 LEFT JOIN mantenimiento_activo ma ON ma.placa_vehiculo = v.license_plate
 LEFT JOIN ultimo_odometro uo ON uo.placa_vehiculo = v.license_plate
 LEFT JOIN seguro_actual sa ON sa.placa_vehiculo = v.license_plate;
 
--- ============================================================================
--- Comentarios para documentación
--- ============================================================================
+-- Paso 3: Recrear rutas_viajes_with_vehicle_state
+CREATE VIEW rutas_viajes_with_vehicle_state AS
+SELECT 
+    r.id,
+    r.fecha_salida,
+    r.fecha_llegada,
+    r.placa_vehiculo,
+    v.estado_calculado AS estado_vehiculo_calculado,
+    r.conductor,
+    c.nombre_conductor,
+    r.origen,
+    r.destino,
+    r.kms_inicial,
+    r.kms_final,
+    r.kms_recorridos,
+    r.peso_carga_kg,
+    r.costo_por_kg,
+    r.ingreso_total,
+    r.estacion_combustible,
+    r.tipo_combustible,
+    r.precio_por_galon,
+    r.volumen_combustible_gal,
+    r.total_combustible,
+    r.gasto_peajes,
+    r.gasto_comidas,
+    r.otros_gastos,
+    r.gasto_total,
+    r.recorrido_por_galon,
+    r.ingreso_por_km,
+    r.observaciones,
+    r.created_at,
+    r.updated_at
+FROM rutas_viajes r
+LEFT JOIN vehicles_with_calculated_stats v ON r.placa_vehiculo = v.license_plate
+LEFT JOIN conductores c ON r.conductor = c.documento_identidad;
+
+-- Comentarios
 COMMENT ON VIEW vehicles_with_calculated_stats IS 
-'Vista que extiende vehicles con campos calculados basados en las fórmulas del Excel de Control de Flota.
-Incluye: estado calculado, alertas de mantenimiento, kms restantes, estado de seguro, etc.';
+'Vista que extiende vehicles con campos calculados. El estado es 100% calculado, no usa vehicle_state.';
 
-COMMENT ON COLUMN vehicles_with_calculated_stats.estado_calculado IS 
-'Estado automático: "En Mantenimiento" si tiene manto activo, "Seguro Vencido" si póliza vencida, sino "Disponible"';
+COMMENT ON VIEW rutas_viajes_with_vehicle_state IS 
+'Vista que proporciona toda la información de rutas_viajes con el estado calculado del vehículo desde vehicles_with_calculated_stats.';
 
-COMMENT ON COLUMN vehicles_with_calculated_stats.alerta_mantenimiento IS 
-'Alerta basada en % del ciclo: "Mantener" (≥95%), "Falta poco" (≥80%), "Al día" (<80%)';
+-- Permisos
+ALTER VIEW vehicles_with_calculated_stats SET (security_invoker = true);
+ALTER VIEW rutas_viajes_with_vehicle_state SET (security_invoker = true);
 
-COMMENT ON COLUMN vehicles_with_calculated_stats.kms_restantes_mantenimiento IS 
-'Kilómetros restantes = ciclo - (odómetro_actual - último_km_preventivo)';
-
--- ============================================================================
--- Política RLS para la vista (hereda de vehicles)
--- ============================================================================
--- Nota: Las vistas en PostgreSQL heredan los permisos de las tablas base
--- No requiere políticas RLS adicionales
-
--- ============================================================================
--- Índices adicionales para mejorar rendimiento de la vista
--- ============================================================================
-CREATE INDEX IF NOT EXISTS idx_mantenimientos_tipo_placa 
-    ON mantenimientos_vehiculos(placa_vehiculo, tipo);
-
--- Índice simplificado sin predicado CURRENT_DATE (no es inmutable)
-CREATE INDEX IF NOT EXISTS idx_mantenimientos_fecha_salida 
-    ON mantenimientos_vehiculos(fecha_salida);
-
-CREATE INDEX IF NOT EXISTS idx_rutas_placa_kms 
-    ON rutas_viajes(placa_vehiculo, kms_final DESC);
-
-CREATE INDEX IF NOT EXISTS idx_seguros_placa_vencimiento 
-    ON seguros_vehiculos(placa_vehiculo, fecha_vencimiento DESC);
+GRANT SELECT ON vehicles_with_calculated_stats TO authenticated;
+GRANT SELECT ON vehicles_with_calculated_stats TO anon;
+GRANT SELECT ON rutas_viajes_with_vehicle_state TO authenticated;
+GRANT SELECT ON rutas_viajes_with_vehicle_state TO anon;
