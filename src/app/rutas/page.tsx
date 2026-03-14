@@ -35,6 +35,9 @@ export default function RutasViajePage() {
     const { data: stats } = useRutasStats()
     const filterOptions = useRutaFilterOptions()
     const deleteRutaMutation = useDeleteRuta()
+    
+    // Verificar si hay filtros activos
+    const hasActiveFilters = !!(filters.searchTerm || filters.placa_vehiculo || filters.conductor || filters.fecha_desde || filters.fecha_hasta)
 
     const handleCreateRuta = () => {
         setEditingRuta(null)
@@ -163,10 +166,11 @@ export default function RutasViajePage() {
                             </Select>
 
                             {/* Clear Filters */}
-                            {(filters.searchTerm || filters.placa_vehiculo || filters.conductor || filters.fecha_desde || filters.fecha_hasta) && (
+                            {hasActiveFilters && (
                                 <Button 
                                     variant="outline" 
                                     onClick={clearFilters}
+                                    size="sm"
                                     className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
                                 >
                                     <X className="h-4 w-4 mr-2" />

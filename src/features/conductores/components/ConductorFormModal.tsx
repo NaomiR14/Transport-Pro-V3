@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { Switch } from "@/components/ui/switch"
-import { Loader2, Star } from "lucide-react"
+import { Loader2, Star, User } from "lucide-react"
 import { 
   type Conductor, 
   type CreateConductorRequest, 
@@ -340,32 +340,59 @@ export default function EditConductorModal({ conductor, onSave, onClose, isOpen 
                         {errors.calificacion && <p className="text-sm text-red-500">{errors.calificacion}</p>}
                     </div>
 
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 mb-2">Resumen del Conductor</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span className="font-medium text-blue-800">Estado:</span>
-                                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${formData.activo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                    }`}>
-                                    {formData.activo ? 'Activo' : 'Inactivo'}
-                                </span>
-                            </div>
-                            <div>
-                                <span className="font-medium text-blue-800">Calificación:</span>
-                                <span className="ml-2 text-blue-900 font-semibold">{formData.calificacion?.toFixed(1) || "0.0"}</span>
-                            </div>
-                            <div>
-                                <span className="font-medium text-blue-800">Licencia:</span>
-                                <span className="ml-2 text-blue-900">{formData.numero_licencia || "No asignada"}</span>
-                            </div>
-                            <div>
-                                <span className="font-medium text-blue-800">Vencimiento:</span>
-                                <span className="ml-2 text-blue-900">
-                                    {formData.fecha_vencimiento_licencia ? new Date(formData.fecha_vencimiento_licencia).toLocaleDateString('es-MX') : "No especificada"}
-                                </span>
+                    {/* Resumen del Conductor */}
+                    {conductor && (
+                        <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+                                <User className="h-5 w-5 mr-2 text-primary-blue" />
+                                Resumen del Conductor
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Nombre Completo</div>
+                                    <div className="text-slate-900 dark:text-white">{conductor.nombre_conductor}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Documento</div>
+                                    <div className="text-slate-900 dark:text-white font-mono">{conductor.documento_identidad}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Estado</div>
+                                    <div>
+                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${formData.activo ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'}`}>
+                                            {formData.activo ? '✅ Activo' : '❌ Inactivo'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Número de Licencia</div>
+                                    <div className="text-slate-900 dark:text-white font-mono">{conductor.numero_licencia}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Vencimiento Licencia</div>
+                                    <div className="text-slate-900 dark:text-white">
+                                        {new Date(conductor.fecha_vencimiento_licencia).toLocaleDateString('es-MX')}
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Calificación</div>
+                                    <div className="text-slate-900 dark:text-white font-semibold">{conductor.calificacion.toFixed(1)}/5</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Teléfono</div>
+                                    <div className="text-slate-900 dark:text-white">{conductor.telefono}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Email</div>
+                                    <div className="text-slate-900 dark:text-white break-all">{conductor.email}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Estado Licencia</div>
+                                    <div className="text-slate-900 dark:text-white capitalize">{conductor.estado_licencia.replace('_', ' ')}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     <DialogFooter className="flex justify-end space-x-2">
                         <Button

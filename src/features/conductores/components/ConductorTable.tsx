@@ -154,13 +154,13 @@ export function ConductorTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {conductores.map((conductor) => (
+          {conductores.map((conductor, index) => (
             <TableRow 
               key={conductor.id} 
               className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
               <TableCell className="font-medium text-slate-900 dark:text-white">
-                {conductor.id}
+                {index + 1}
               </TableCell>
               <TableCell>
                 <div className="flex items-center space-x-2">

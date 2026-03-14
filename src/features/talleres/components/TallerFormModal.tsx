@@ -183,12 +183,12 @@ export default function EditTallerModal({ taller, onSave, onClose, isOpen }: Edi
             {taller ? "Editar Taller de Mantenimiento" : "Crear Nuevo Taller"}
           </DialogTitle>
           <DialogDescription>
-            {taller ? `Modifica la información del taller ${formData.id}` : "Completa la información del nuevo taller"}
+            {taller ? `Modifica la información del taller ${formData.name}` : "Completa la información del nuevo taller"}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Nombre del Taller */}
             <div className="space-y-2">
               <Label htmlFor="name">Nombre del Taller *</Label>
@@ -202,8 +202,8 @@ export default function EditTallerModal({ taller, onSave, onClose, isOpen }: Edi
               {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
             </div>
 
-            {/* Dirección - Span full width */}
-            <div className="space-y-2 md:col-span-2 lg:col-span-3">
+            {/* Dirección */}
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="address">Dirección *</Label>
               <Textarea
                 id="address"
@@ -288,15 +288,41 @@ export default function EditTallerModal({ taller, onSave, onClose, isOpen }: Edi
             />
           </div>
 
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-900 mb-2">Resumen del Taller</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-blue-800">Calificación:</span>
-                <span className="ml-2 text-blue-900 font-semibold">{formData.rate}</span>
+          {/* Resumen del Taller */}
+          {taller && (
+            <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+                <Wrench className="h-5 w-5 mr-2 text-primary-blue" />
+                Resumen del Taller
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
+                <div className="space-y-1">
+                  <div className="font-medium text-slate-600 dark:text-slate-400">Nombre</div>
+                  <div className="text-slate-900 dark:text-white">{taller.name}</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-slate-600 dark:text-slate-400">Teléfono</div>
+                  <div className="text-slate-900 dark:text-white">{taller.phoneNumber}</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-slate-600 dark:text-slate-400">Calificación</div>
+                  <div className="text-slate-900 dark:text-white font-semibold">{taller.rate}/5</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-slate-600 dark:text-slate-400">Contacto Principal</div>
+                  <div className="text-slate-900 dark:text-white">{taller.contactPerson}</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-slate-600 dark:text-slate-400">Email</div>
+                  <div className="text-slate-900 dark:text-white break-all">{taller.email}</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-slate-600 dark:text-slate-400">Horario de Atención</div>
+                  <div className="text-slate-900 dark:text-white">{taller.openHours || 'No especificado'}</div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <DialogFooter className="flex justify-end space-x-2">
             <Button

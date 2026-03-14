@@ -90,13 +90,13 @@ export function ImpuestoTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {impuestos.map((impuesto) => (
+          {impuestos.map((impuesto, index) => (
             <TableRow 
               key={impuesto.id} 
               className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
               <TableCell className="font-medium text-slate-900 dark:text-white">
-                {impuesto.id}
+                {index + 1}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">

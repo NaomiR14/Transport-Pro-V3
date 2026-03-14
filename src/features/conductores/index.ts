@@ -32,3 +32,5 @@ export {
 
 // Components
 export { default as ConductorFormModal } from './components/ConductorFormModal'
+export { ConductorTable } from './components/ConductorTable'
+export { ConductorFilters as ConductorFiltersComponent } from './components/ConductorFilters'
