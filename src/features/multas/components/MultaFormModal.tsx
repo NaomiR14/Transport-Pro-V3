@@ -184,8 +184,8 @@ export default function EditMultasConductoresModal({
             return
         }
 
-        // Preparar datos para la API (sin campos calculados)
-        const apiData = {
+        // Preparar datos para la API
+        const apiData: UpdateMultaConductorRequest = {
             fecha: formData.fecha!,
             numero_viaje: formData.numero_viaje!,
             placa_vehiculo: formData.placa_vehiculo!,
@@ -194,6 +194,8 @@ export default function EditMultasConductoresModal({
             importe_multa: formData.importe_multa!,
             importe_pagado: formData.importe_pagado!,
             observaciones: formData.observaciones || '',
+            debe: calcularDebe(),
+            estado_pago: getEstadoPagoCalculado(),
         }
 
         if (multa?.id) {
