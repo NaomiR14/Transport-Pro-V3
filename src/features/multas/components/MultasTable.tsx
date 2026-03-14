@@ -75,6 +75,7 @@ export function MultasTable({
       <Table>
         <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
           <TableRow className="hover:bg-transparent border-b border-slate-200 dark:border-slate-700">
+            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">ID</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">N° Viaje</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Placa</TableHead>
             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Conductor</TableHead>
@@ -88,11 +89,14 @@ export function MultasTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {multas.map((multa) => (
+          {multas.map((multa, index) => (
             <TableRow 
               key={multa.id} 
               className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
+              <TableCell className="font-medium text-slate-600 dark:text-slate-400">
+                {index + 1}
+              </TableCell>
               <TableCell className="font-medium text-slate-900 dark:text-white">
                 {multa.numero_viaje}
               </TableCell>
@@ -107,7 +111,7 @@ export function MultasTable({
               <TableCell>
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-slate-500" />
-                  <span className="text-slate-900 dark:text-white">{multa.conductor}</span>
+                  <span className="text-slate-900 dark:text-white">{multa.nombre_conductor || multa.conductor}</span>
                 </div>
               </TableCell>
               <TableCell>

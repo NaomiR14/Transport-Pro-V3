@@ -14,7 +14,11 @@ import { useMantenimientoVehiculoStore } from '../hooks/use-mantenimiento'
 export function MantenimientoFilters() {
   const { filters, setFilters, clearFilters } = useMantenimientoVehiculoStore()
   
-  const hasActiveFilters = !!(filters.searchTerm || filters.tipo || filters.estado)
+  const hasActiveFilters = !!(
+    filters.searchTerm || 
+    (filters.tipo && filters.tipo !== 'all') || 
+    (filters.estado && filters.estado !== 'all')
+  )
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">

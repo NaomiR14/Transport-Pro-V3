@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Loader2 } from "lucide-react"
+import { Loader2, Receipt } from "lucide-react"
 import { 
   type ImpuestoVehicular, 
   type CreateImpuestoRequest, 
@@ -27,6 +27,7 @@ import {
   useCreateImpuesto, 
   useUpdateImpuesto 
 } from "@/features/impuestos"
+import { useVehicles } from "@/features/vehiculos"
 
 interface EditImpuestoModalProps {
     impuesto: ImpuestoVehicular | null
@@ -42,6 +43,10 @@ export default function EditImpuestoModal({ impuesto, onSave, onClose, isOpen }:
     // Hook de React Query para impuestos
     const createImpuestoMutation = useCreateImpuesto()
     const updateImpuestoMutation = useUpdateImpuesto()
+    
+    // Obtener vehículos disponibles
+    const { data: vehicles } = useVehicles()
+    const vehiculosDisponibles = vehicles?.map(v => v.licensePlate) || []
 
     // Inicializar formData cuando cambia el impuesto o se abre el modal
     useEffect(() => {
@@ -154,7 +159,7 @@ export default function EditImpuestoModal({ impuesto, onSave, onClose, isOpen }:
 
     return (
         <Dialog open={isOpen} onOpenChange={() => !updateImpuestoMutation.isPending && onClose()}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
                         {impuesto ? "Editar Impuesto Vehicular" : "Crear Nuevo Impuesto Vehicular"}
@@ -168,15 +173,23 @@ export default function EditImpuestoModal({ impuesto, onSave, onClose, isOpen }:
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Placa del Vehículo */}
                         <div className="space-y-2">
-                            <Label htmlFor="placa_vehiculo">Placa del Vehículo *</Label>
-                            <Input
-                                id="placa_vehiculo"
+                            <Label htmlFor="placa_vehiculo">Vehículo *</Label>
+                            <Select
                                 value={formData.placa_vehiculo || ""}
-                                onChange={(e) => handleInputChange("placa_vehiculo", e.target.value.toUpperCase())}
-                                className={errors.placa_vehiculo ? "border-red-500" : ""}
-                                placeholder="ABC-123-A"
+                                onValueChange={(value) => handleInputChange("placa_vehiculo", value)}
                                 disabled={updateImpuestoMutation.isPending}
-                            />
+                            >
+                                <SelectTrigger className={errors.placa_vehiculo ? "border-red-500" : ""}>
+                                    <SelectValue placeholder="Seleccionar vehículo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {vehiculosDisponibles.map((placa) => (
+                                        <SelectItem key={placa} value={placa}>
+                                            {placa}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             {errors.placa_vehiculo && <p className="text-sm text-red-500">{errors.placa_vehiculo}</p>}
                         </div>
 
@@ -252,27 +265,41 @@ export default function EditImpuestoModal({ impuesto, onSave, onClose, isOpen }:
                         </div>
                     </div>
 
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 mb-2">Resumen del Impuesto</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span className="font-medium text-blue-800">Vehículo:</span>
-                                <span className="ml-2 text-blue-900 font-semibold">{formData.placa_vehiculo || "No especificado"}</span>
-                            </div>
-                            <div>
-                                <span className="font-medium text-blue-800">Tipo:</span>
-                                <span className="ml-2 text-blue-900">{formData.tipo_impuesto || "No especificado"}</span>
-                            </div>
-                            <div>
-                                <span className="font-medium text-blue-800">Año:</span>
-                                <span className="ml-2 text-blue-900">{formData.anio_impuesto || "No especificado"}</span>
-                            </div>
-                            <div>
-                                <span className="font-medium text-blue-800">Monto:</span>
-                                <span className="ml-2 text-blue-900">${formData.impuesto_monto?.toLocaleString() || "0"}</span>
+                    {/* Resumen del Impuesto */}
+                    {impuesto && (
+                        <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+                                <Receipt className="h-5 w-5 mr-2 text-primary-blue" />
+                                Resumen del Impuesto
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Vehículo</div>
+                                    <div className="text-slate-900 dark:text-white font-mono font-semibold">{impuesto.placa_vehiculo}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Tipo de Impuesto</div>
+                                    <div className="text-slate-900 dark:text-white">{impuesto.tipo_impuesto}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Año</div>
+                                    <div className="text-slate-900 dark:text-white">{impuesto.anio_impuesto}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Monto</div>
+                                    <div className="text-slate-900 dark:text-white font-semibold">${impuesto.impuesto_monto.toLocaleString()}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Fecha de Pago</div>
+                                    <div className="text-slate-900 dark:text-white">{new Date(impuesto.fecha_pago).toLocaleDateString('es-MX')}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="font-medium text-slate-600 dark:text-slate-400">Estado de Pago</div>
+                                    <div className="text-slate-900 dark:text-white capitalize">{impuesto.estado_pago}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     <DialogFooter className="flex justify-end space-x-2">
                         <Button

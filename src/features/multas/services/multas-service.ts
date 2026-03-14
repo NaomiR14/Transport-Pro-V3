@@ -10,7 +10,13 @@ import {
 // Datos mock eliminados - ahora usamos Supabase
 
 export class MultasConductoresService {
+    // Usar la vista con nombre del conductor para lectura
     private static repository = new SupabaseRepository<MultaConductor>({
+        tableName: 'multas_conductores_with_names',
+    });
+    
+    // Usar la tabla base para escritura (create, update, delete)
+    private static baseRepository = new SupabaseRepository<MultaConductor>({
         tableName: 'multas_conductores',
     });
 
@@ -67,7 +73,9 @@ export class MultasConductoresService {
     async createMulta(data: CreateMultaConductorRequest): Promise<MultaConductor> {
         try {
             const dbData = MultasConductoresService.mapToDB(data);
-            return await MultasConductoresService.repository.create(dbData);
+            const created = await MultasConductoresService.baseRepository.create(dbData);
+            // Leer desde la vista para obtener nombre del conductor
+            return await MultasConductoresService.repository.getById(created.id);
         } catch (error) {
             throw error;
         }
@@ -76,7 +84,9 @@ export class MultasConductoresService {
     async updateMulta(id: string, data: UpdateMultaConductorRequest): Promise<MultaConductor> {
         try {
             const dbData = MultasConductoresService.mapToDB(data);
-            return await MultasConductoresService.repository.update(id, dbData);
+            await MultasConductoresService.baseRepository.update(id, dbData);
+            // Leer desde la vista para obtener nombre del conductor
+            return await MultasConductoresService.repository.getById(id);
         } catch (error) {
             throw error;
         }
@@ -84,7 +94,7 @@ export class MultasConductoresService {
 
     async deleteMulta(id: string): Promise<void> {
         try {
-            await MultasConductoresService.repository.delete(id);
+            await MultasConductoresService.baseRepository.delete(id);
         } catch (error) {
             throw error;
         }

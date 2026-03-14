@@ -19,10 +19,14 @@ import {
 import { Loader2 } from "lucide-react"
 import { 
   type MultaConductor, 
-  type UpdateMultaConductorRequest 
+  type UpdateMultaConductorRequest,
+  useCreateMultaConductor,
+  useUpdateMultaConductor
 } from "@/features/multas"
 import { commonInfoService } from "@/lib/common-info-service"
 import { TrafficTicketType } from "@/types/common-info-types"
+import { useVehicles } from "@/features/vehiculos"
+import { useConductores } from "@/features/conductores"
 
 interface EditMultasConductoresModalProps {
     multa: MultaConductor | null
@@ -52,7 +56,19 @@ export default function EditMultasConductoresModal({
     const [errors, setErrors] = useState<Record<string, string>>({})
     const [isLoading, setIsLoading] = useState(false)
     const [tiposInfraccion, setTiposInfraccion] = useState<TrafficTicketType[]>([])
-    const [conductores, setConductores] = useState<{documento: string, nombre: string}[]>([])
+    
+    // Hooks de React Query
+    const createMultaMutation = useCreateMultaConductor()
+    const updateMultaMutation = useUpdateMultaConductor()
+    
+    // Obtener vehículos y conductores disponibles
+    const { data: vehicles } = useVehicles()
+    const { data: conductoresData } = useConductores()
+    const vehiculosDisponibles = vehicles?.map(v => v.licensePlate) || []
+    const conductoresDisponibles = conductoresData?.map(c => ({
+        documento: c.documento_identidad,
+        nombre: c.nombre_conductor
+    })) || []
 
     // Cargar tipos de infracción y conductores al abrir el modal
     useEffect(() => {
@@ -65,17 +81,6 @@ export default function EditMultasConductoresModal({
                     infraccion.type && infraccion.type.trim() !== ''
                 )
                 setTiposInfraccion(infraccionesValidas)
-                
-                // Cargar conductores
-                const conductoresResponse = await fetch('/api/conductores')
-                if (conductoresResponse.ok) {
-                    const conductoresData = await conductoresResponse.json()
-                    const conductoresConDocs = conductoresData.map((c: any) => ({
-                        documento: c.documento_identidad,
-                        nombre: c.nombre_conductor
-                    }))
-                    setConductores(conductoresConDocs)
-                }
             } catch (error) {
                 console.error('Error loading common info:', error)
             } finally {
@@ -175,22 +180,39 @@ export default function EditMultasConductoresModal({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (validateForm()) {
-            // NOTA: 'debe' y 'estado_pago' son calculados automáticamente por Supabase
-            // (debe = GENERATED column, estado_pago = trigger)
-            // NO los incluimos en el update, vendrán en la respuesta del servidor
-            const multaData: MultaConductor = multa ? {
-                ...multa,
-                ...formData,
-                // debe y estado_pago se calculan automáticamente en DB
-            } : {
-                id: '', // Se generará en el servidor
-                ...formData,
-                debe: 0, // Se calculará automáticamente
-                estado_pago: 'pendiente' // Se calculará automáticamente
-            }
+        if (!validateForm()) {
+            return
+        }
 
-            onSave(multaData)
+        // Preparar datos para la API (sin campos calculados)
+        const apiData = {
+            fecha: formData.fecha!,
+            numero_viaje: formData.numero_viaje!,
+            placa_vehiculo: formData.placa_vehiculo!,
+            conductor: formData.conductor!,
+            infraccion: formData.infraccion!,
+            importe_multa: formData.importe_multa!,
+            importe_pagado: formData.importe_pagado!,
+            observaciones: formData.observaciones || '',
+        }
+
+        if (multa?.id) {
+            // Actualizar multa existente
+            updateMultaMutation.mutate(
+                { id: multa.id, data: apiData },
+                {
+                    onSuccess: () => {
+                        onClose()
+                    }
+                }
+            )
+        } else {
+            // Crear nueva multa
+            createMultaMutation.mutate(apiData, {
+                onSuccess: () => {
+                    onClose()
+                }
+            })
         }
     }
 
@@ -242,7 +264,7 @@ export default function EditMultasConductoresModal({
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Información General */}
                         <div className="space-y-2">
                             <Label htmlFor="fecha">Fecha *</Label>
@@ -270,14 +292,23 @@ export default function EditMultasConductoresModal({
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="placa_vehiculo">Placa Vehículo *</Label>
-                            <Input
-                                id="placa_vehiculo"
+                            <Label htmlFor="placa_vehiculo">Vehículo *</Label>
+                            <Select
                                 value={formData.placa_vehiculo}
-                                onChange={(e) => handleInputChange("placa_vehiculo", e.target.value.toUpperCase())}
-                                className={errors.placa_vehiculo ? "border-red-500" : ""}
-                                placeholder="ABC-123"
-                            />
+                                onValueChange={(value) => handleInputChange("placa_vehiculo", value)}
+                                disabled={isLoading}
+                            >
+                                <SelectTrigger className={errors.placa_vehiculo ? "border-red-500" : ""}>
+                                    <SelectValue placeholder="Seleccionar vehículo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {vehiculosDisponibles.map((placa) => (
+                                        <SelectItem key={placa} value={placa}>
+                                            {placa}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             {errors.placa_vehiculo && <p className="text-sm text-red-500">{errors.placa_vehiculo}</p>}
                         </div>
 
@@ -292,18 +323,20 @@ export default function EditMultasConductoresModal({
                                     <SelectValue placeholder="Seleccionar conductor" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {conductores.map((conductor) => (
+                                    {conductoresDisponibles.map((conductor) => (
                                         <SelectItem key={conductor.documento} value={conductor.documento}>
-                                            {conductor.nombre} ({conductor.documento})
+                                            {conductor.nombre}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                             {errors.conductor && <p className="text-sm text-red-500">{errors.conductor}</p>}
                         </div>
+                    </div>
 
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="infraccion">Infracción *</Label>
+                    {/* Infracción */}
+                    <div className="space-y-2">
+                        <Label htmlFor="infraccion">Infracción *</Label>
                             <Select
                                 value={formData.infraccion}
                                 onValueChange={(value) => handleInputChange("infraccion", value)}
@@ -323,13 +356,12 @@ export default function EditMultasConductoresModal({
                                 </SelectContent>
                             </Select>
                             {errors.infraccion && <p className="text-sm text-red-500">{errors.infraccion}</p>}
-                        </div>
                     </div>
 
                     {/* Información Financiera */}
-                    <div className="bg-red-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-red-900 mb-4">Información Financiera</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Información Financiera</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="importe_multa">Importe Multa ($) *</Label>
                                 <Input
@@ -359,45 +391,20 @@ export default function EditMultasConductoresModal({
                                 {errors.importe_pagado && <p className="text-sm text-red-500">{errors.importe_pagado}</p>}
                             </div>
 
-                            <div className="space-y-2">
-                                <Label>Debe ($)</Label>
-                                <Input
-                                    value={`$${calcularDebe().toLocaleString()}`}
-                                    disabled
-                                    className={`bg-gray-100 font-semibold ${calcularDebe() > 0 ? "text-red-600" : "text-green-600"
-                                        }`}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Estado de Pago</Label>
-                                <Input
-                                    value={getEstadoPagoText(getEstadoPagoCalculado())}
-                                    disabled
-                                    className={`bg-gray-100 font-semibold ${getEstadoPagoCalculado() === "pagado"
-                                            ? "text-green-600"
-                                            : getEstadoPagoCalculado() === "vencido"
-                                                ? "text-red-600"
-                                                : getEstadoPagoCalculado() === "parcial"
-                                                    ? "text-blue-600"
-                                                    : "text-yellow-600"
-                                        }`}
-                                />
-                            </div>
                         </div>
 
-                        <div className="mt-4 p-3 bg-white rounded border">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="mt-4 p-4 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <span className="font-medium text-gray-800">Porcentaje Pagado:</span>
-                                    <span className="ml-2 font-semibold text-blue-600">
-                                        {calcularPorcentajePago().toFixed(1)}%
+                                    <span className="font-medium text-slate-600 dark:text-slate-400">Debe:</span>
+                                    <span className={`ml-2 font-semibold text-lg ${calcularDebe() > 0 ? "text-red-600" : "text-green-600"}`}>
+                                        ${calcularDebe().toLocaleString()}
                                     </span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-800">Estado:</span>
+                                    <span className="font-medium text-slate-600 dark:text-slate-400">Estado de Pago:</span>
                                     <span
-                                        className={`ml-2 font-semibold ${getEstadoPagoCalculado() === "pagado"
+                                        className={`ml-2 font-semibold text-lg ${getEstadoPagoCalculado() === "pagado"
                                                 ? "text-green-600"
                                                 : getEstadoPagoCalculado() === "vencido"
                                                     ? "text-red-600"
@@ -410,9 +417,9 @@ export default function EditMultasConductoresModal({
                                     </span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-800">Saldo Pendiente:</span>
-                                    <span className={`ml-2 font-semibold ${calcularDebe() > 0 ? "text-red-600" : "text-green-600"}`}>
-                                        ${calcularDebe().toLocaleString()}
+                                    <span className="font-medium text-slate-600 dark:text-slate-400">Porcentaje Pagado:</span>
+                                    <span className="ml-2 font-semibold text-blue-600">
+                                        {calcularPorcentajePago().toFixed(1)}%
                                     </span>
                                 </div>
                             </div>
@@ -432,17 +439,25 @@ export default function EditMultasConductoresModal({
                     </div>
 
                     <DialogFooter className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={onClose}>
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={onClose}
+                            disabled={updateMultaMutation.isPending || createMultaMutation.isPending}
+                        >
                             Cancelar
                         </Button>
-                        <Button type="submit">
-                            {isLoading ? (
+                        <Button 
+                            type="submit"
+                            disabled={updateMultaMutation.isPending || createMultaMutation.isPending}
+                        >
+                            {(updateMultaMutation.isPending || createMultaMutation.isPending) ? (
                                 <>
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                     Guardando...
                                 </>
                             ) : (
-                                "Guardar Cambios"
+                                multa ? "Guardar Cambios" : "Crear Multa"
                             )}
                         </Button>
                     </DialogFooter>

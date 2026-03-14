@@ -10,7 +10,8 @@ export interface MultaConductor {
     fecha: string
     numero_viaje: number
     placa_vehiculo: string
-    conductor: string
+    conductor: string // documento_identidad (FK)
+    nombre_conductor: string // Nombre del conductor desde la vista
     infraccion: string
     importe_multa: number
     importe_pagado: number
