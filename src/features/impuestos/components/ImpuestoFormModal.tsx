@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NumericInput } from "@/components/ui/numeric-input"
 import { Label } from "@/components/ui/label"
 import {
     Dialog,
@@ -219,7 +220,7 @@ export default function EditImpuestoModal({ impuesto, onSave, onClose, isOpen }:
                         {/* Año del Impuesto */}
                         <div className="space-y-2">
                             <Label htmlFor="anio_impuesto">Año del Impuesto *</Label>
-                            <Input
+                            <NumericInput
                                 id="anio_impuesto"
                                 type="number"
                                 value={formData.anio_impuesto || ""}
@@ -236,7 +237,7 @@ export default function EditImpuestoModal({ impuesto, onSave, onClose, isOpen }:
                         {/* Monto del Impuesto */}
                         <div className="space-y-2">
                             <Label htmlFor="impuesto_monto">Monto del Impuesto ($) *</Label>
-                            <Input
+                            <NumericInput
                                 id="impuesto_monto"
                                 type="number"
                                 value={formData.impuesto_monto || ""}

@@ -12,13 +12,14 @@ export type Module =
     | 'multas'
     | 'flujo_caja'
     | 'indicadores_vehiculo'
-    | 'indicadores_conductor'
+    | 'reporte_general'
     | 'liquidaciones'
     | 'talleres'
     | 'mantenimiento_vehiculos'
     | 'seguros'
     | 'impuestos_vehiculares'
     | 'clientes'
+    | 'indicadores_conductor'
 
 export type Action = 'view' | 'create' | 'edit' | 'delete'
 
@@ -29,18 +30,18 @@ export function usePermissions() {
     const roleModules: Record<UserRole, Module[]> = {
         admin: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'indicadores_conductor', 'liquidaciones',
-            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes'
+            'flujo_caja', 'indicadores_vehiculo', 'reporte_general', 'liquidaciones',
+            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         director: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'indicadores_conductor', 'liquidaciones',
-            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes'
+            'flujo_caja', 'indicadores_vehiculo', 'reporte_general', 'liquidaciones',
+            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         gerente: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'indicadores_conductor', 'liquidaciones',
-            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes'
+            'flujo_caja', 'indicadores_vehiculo', 'reporte_general', 'liquidaciones',
+            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         coordinador: [
             'dashboard', 'ordenes', 'rutas', 'conductores', 'vehiculos',
@@ -58,7 +59,7 @@ export function usePermissions() {
         ],
         contador: [
             'dashboard', 'flujo_caja', 'liquidaciones', 'impuestos_vehiculares',
-            'seguros', 'indicadores_vehiculo'
+            'seguros', 'indicadores_vehiculo', 'reporte_general'
         ],
         comercial: [
             'dashboard', 'clientes', 'ordenes'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { LucideIcon } from 'lucide-react'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 interface StatsCardProps {
@@ -35,24 +35,26 @@ export function StatsCard({
   return (
     <Card className={cn('hover:shadow-lg transition-shadow duration-200 border-gray-200 dark:border-gray-700', className)}>
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-          {Icon && (
+        <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          {title}
+        </CardTitle>
+        {Icon && (
+          <CardAction>
             <div className={cn('p-2 rounded-lg', iconBgColor)}>
               <Icon className={cn('h-5 w-5', iconColor)} />
             </div>
-          )}
-        </div>
+          </CardAction>
+        )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-w-0">
         {loading ? (
           <div className="space-y-2">
             <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
             <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full" />
           </div>
         ) : (
-          <div>
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{value}</h3>
+          <div className="min-w-0 overflow-hidden">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white truncate">{value}</h3>
             {subtitle && (
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
             )}

@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NumericInput } from "@/components/ui/numeric-input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
@@ -282,7 +283,7 @@ export default function EditMultasConductoresModal({
 
                         <div className="space-y-2">
                             <Label htmlFor="numero_viaje">Número de Viaje *</Label>
-                            <Input
+                            <NumericInput
                                 id="numero_viaje"
                                 type="number"
                                 value={formData.numero_viaje}
@@ -366,7 +367,7 @@ export default function EditMultasConductoresModal({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="importe_multa">Importe Multa ($) *</Label>
-                                <Input
+                                <NumericInput
                                     id="importe_multa"
                                     type="number"
                                     value={formData.importe_multa}
@@ -380,7 +381,7 @@ export default function EditMultasConductoresModal({
 
                             <div className="space-y-2">
                                 <Label htmlFor="importe_pagado">Importe Pagado ($)</Label>
-                                <Input
+                                <NumericInput
                                     id="importe_pagado"
                                     type="number"
                                     value={formData.importe_pagado}

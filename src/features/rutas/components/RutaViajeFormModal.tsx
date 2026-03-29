@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NumericInput } from "@/components/ui/numeric-input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -385,7 +386,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* KM Inicial */}
                         <div className="space-y-2">
                             <Label htmlFor="kms_inicial">Kilometraje Inicial *</Label>
-                            <Input
+                            <NumericInput
                                 id="kms_inicial"
                                 type="number"
                                 value={formData.kms_inicial || ""}
@@ -401,7 +402,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* KM Final */}
                         <div className="space-y-2">
                             <Label htmlFor="kms_final">Kilometraje Final *</Label>
-                            <Input
+                            <NumericInput
                                 id="kms_final"
                                 type="number"
                                 value={formData.kms_final || ""}
@@ -417,7 +418,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* Peso Carga */}
                         <div className="space-y-2">
                             <Label htmlFor="peso_carga_kg">Peso de Carga (kg) *</Label>
-                            <Input
+                            <NumericInput
                                 id="peso_carga_kg"
                                 type="number"
                                 value={formData.peso_carga_kg || ""}
@@ -434,7 +435,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* Costo por KG */}
                         <div className="space-y-2">
                             <Label htmlFor="costo_por_kg">Costo por KG ($) *</Label>
-                            <Input
+                            <NumericInput
                                 id="costo_por_kg"
                                 type="number"
                                 value={formData.costo_por_kg || ""}
@@ -495,7 +496,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* Precio por Galón */}
                         <div className="space-y-2">
                             <Label htmlFor="precio_por_galon">Precio por Galón ($) *</Label>
-                            <Input
+                            <NumericInput
                                 id="precio_por_galon"
                                 type="number"
                                 value={formData.precio_por_galon || ""}
@@ -512,7 +513,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* Total Combustible */}
                         <div className="space-y-2">
                             <Label htmlFor="total_combustible">Total Gastado en Combustible ($) *</Label>
-                            <Input
+                            <NumericInput
                                 id="total_combustible"
                                 type="number"
                                 value={formData.total_combustible || ""}
@@ -529,7 +530,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* Gasto Peajes */}
                         <div className="space-y-2">
                             <Label htmlFor="gasto_peajes">Gasto en Peajes ($) *</Label>
-                            <Input
+                            <NumericInput
                                 id="gasto_peajes"
                                 type="number"
                                 value={formData.gasto_peajes || ""}
@@ -546,7 +547,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* Gasto Comidas */}
                         <div className="space-y-2">
                             <Label htmlFor="gasto_comidas">Gasto en Comidas ($) *</Label>
-                            <Input
+                            <NumericInput
                                 id="gasto_comidas"
                                 type="number"
                                 value={formData.gasto_comidas || ""}
@@ -563,7 +564,7 @@ export default function EditRutaViajeModal({ ruta, onSave, onClose, isOpen }: Ed
                         {/* Otros Gastos */}
                         <div className="space-y-2">
                             <Label htmlFor="otros_gastos">Otros Gastos ($) *</Label>
-                            <Input
+                            <NumericInput
                                 id="otros_gastos"
                                 type="number"
                                 value={formData.otros_gastos || ""}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NumericInput } from "@/components/ui/numeric-input"
 import { Label } from "@/components/ui/label"
 import {
     Dialog,
@@ -410,7 +411,7 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                         {/* Año */}
                         <div className="space-y-2">
                             <Label htmlFor="year">Año *</Label>
-                            <Input
+                            <NumericInput
                                 id="year"
                                 type="number"
                                 value={formData.year || ""}
@@ -426,7 +427,7 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                         {/* Capacidad Máxima de Carga */}
                         <div className="space-y-2">
                             <Label htmlFor="maxLoadCapacity">Capacidad Máxima (kg) *</Label>
-                            <Input
+                            <NumericInput
                                 id="maxLoadCapacity"
                                 type="number"
                                 value={formData.maxLoadCapacity || ""}
@@ -444,7 +445,7 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                         {/* Ciclo de Mantenimiento */}
                         <div className="space-y-2">
                             <Label htmlFor="maintenanceCycle">Ciclo de Mantenimiento (km) *</Label>
-                            <Input
+                            <NumericInput
                                 id="maintenanceCycle"
                                 type="number"
                                 value={formData.maintenanceData?.maintenanceCycle || ""}
@@ -460,7 +461,7 @@ export default function EditVehicleModal({ vehicle, onSave, onClose, isOpen }: E
                         {/* Kilometraje Inicial */}
                         <div className="space-y-2">
                             <Label htmlFor="initialKm">Kilometraje Inicial (km) *</Label>
-                            <Input
+                            <NumericInput
                                 id="initialKm"
                                 type="number"
                                 value={formData.maintenanceData?.initialKm !== undefined ? formData.maintenanceData.initialKm : ""}

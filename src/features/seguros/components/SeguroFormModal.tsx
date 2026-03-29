@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NumericInput } from "@/components/ui/numeric-input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
@@ -228,7 +229,7 @@ export default function EditSeguroModal({ seguro, onSave, onClose, isOpen }: Edi
                         {/* Importe Pagado */}
                         <div className="space-y-2">
                             <Label htmlFor="importe_pagado">Importe Pagado *</Label>
-                            <Input
+                            <NumericInput
                                 id="importe_pagado"
                                 type="number"
                                 value={formData.importe_pagado || ""}

@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NumericInput } from "@/components/ui/numeric-input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -325,7 +326,7 @@ export default function EditMantenimientoVehiculoModal({
 
                             <div className="space-y-2">
                                 <Label htmlFor="kilometraje">Kilometraje del Odómetro *</Label>
-                                <Input
+                                <NumericInput
                                     id="kilometraje"
                                     type="number"
                                     value={formData.kilometraje}
@@ -410,7 +411,7 @@ export default function EditMantenimientoVehiculoModal({
                                 <Label htmlFor="costoTotal">Costo Total ($) *</Label>
                                 <div className="relative">
                                     <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                    <Input
+                                    <NumericInput
                                         id="costoTotal"
                                         type="number"
                                         step="0.01"
