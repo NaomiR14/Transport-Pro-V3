@@ -13,7 +13,6 @@ export type Module =
     | 'flujo_caja'
     | 'indicadores_vehiculo'
     | 'reporte_general'
-    | 'liquidaciones'
     | 'talleres'
     | 'mantenimiento_vehiculos'
     | 'seguros'
@@ -30,17 +29,17 @@ export function usePermissions() {
     const roleModules: Record<UserRole, Module[]> = {
         admin: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'reporte_general', 'liquidaciones',
+            'flujo_caja', 'indicadores_vehiculo', 'reporte_general',
             'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         director: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'reporte_general', 'liquidaciones',
+            'flujo_caja', 'indicadores_vehiculo', 'reporte_general',
             'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         gerente: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'reporte_general', 'liquidaciones',
+            'flujo_caja', 'indicadores_vehiculo', 'reporte_general',
             'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         coordinador: [
@@ -52,13 +51,13 @@ export function usePermissions() {
             'seguros', 'impuestos_vehiculares'
         ],
         recursos_humanos: [
-            'dashboard', 'conductores', 'multas', 'liquidaciones'
+            'dashboard', 'conductores', 'multas'
         ],
         administrativo: [
-            'dashboard', 'conductores', 'multas', 'liquidaciones'
+            'dashboard', 'conductores', 'multas'
         ],
         contador: [
-            'dashboard', 'flujo_caja', 'liquidaciones', 'impuestos_vehiculares',
+            'dashboard', 'flujo_caja', 'impuestos_vehiculares',
             'seguros', 'indicadores_vehiculo', 'reporte_general'
         ],
         comercial: [
