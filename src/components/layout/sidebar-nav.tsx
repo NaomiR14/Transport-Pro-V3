@@ -89,13 +89,6 @@ export function SidebarNav({ className }: SidebarNavProps) {
       module: "flujo_caja" as const,
     },
     {
-      title: "Indicadores por Vehículo",
-      href: "/indicadores-vehiculo",
-      icon: BarChart3,
-      color: "text-indigo-600",
-      module: "indicadores_vehiculo" as const,
-    },
-    {
       title: "Reporte General",
       href: "/reporte-general",
       icon: FileBarChart2,

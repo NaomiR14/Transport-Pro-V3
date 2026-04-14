@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -40,6 +40,7 @@ interface OrdenFormModalProps {
 export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: OrdenFormModalProps) {
     const [formData, setFormData] = useState<Partial<CreateOrdenRequest>>({})
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const isUserRutaChange = useRef(false)
 
     const createOrdenMutation = useCreateOrden()
     const updateOrdenMutation = useUpdateOrden()
@@ -48,18 +49,26 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
     const { data: vehicles } = useVehicles()
     const { data: rutas } = useRutas()
 
-    const vehiculosDisponibles = vehicles?.map(v => v.licensePlate) || []
-    const rutasDisponibles = rutas?.map(r => ({
+    const vehiculosDisponibles = useMemo(() => {
+        const plates = vehicles?.map(v => v.licensePlate).filter(Boolean) || []
+        // Asegurar que la placa de la orden actual esté en las opciones
+        if (orden?.placa_vehiculo && !plates.includes(orden.placa_vehiculo)) {
+            plates.unshift(orden.placa_vehiculo)
+        }
+        return plates
+    }, [vehicles, orden])
+    const rutasDisponibles = useMemo(() => rutas?.map(r => ({
         id: r.id,
         label: `${r.origen} → ${r.destino} (${r.placa_vehiculo})`,
         placa_vehiculo: r.placa_vehiculo,
         conductor: r.nombre_conductor || r.conductor,
-    })) || []
+    })) || [], [rutas])
 
     const isSaving = createOrdenMutation.isPending || updateOrdenMutation.isPending
 
     // Inicializar formData
     useEffect(() => {
+        isUserRutaChange.current = false
         if (orden) {
             setFormData({
                 numero_orden: orden.numero_orden,
@@ -80,9 +89,9 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
         setErrors({})
     }, [orden, isOpen])
 
-    // Auto-seleccionar vehículo cuando se elige una ruta
+    // Auto-seleccionar vehículo solo cuando el USUARIO elige una ruta (no durante inicialización)
     useEffect(() => {
-        if (formData.ruta_viaje_id) {
+        if (isUserRutaChange.current && formData.ruta_viaje_id) {
             const selectedRuta = rutasDisponibles.find(r => r.id === formData.ruta_viaje_id)
             if (selectedRuta) {
                 setFormData(prev => ({
@@ -94,6 +103,9 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
     }, [formData.ruta_viaje_id, rutasDisponibles])
 
     const handleInputChange = (field: keyof CreateOrdenRequest, value: string) => {
+        if (field === "ruta_viaje_id") {
+            isUserRutaChange.current = true
+        }
         setFormData(prev => ({ ...prev, [field]: value }))
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: "" }))
@@ -184,7 +196,7 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
                     <div className="space-y-2">
                         <Label htmlFor="ruta_viaje_id">Ruta Asignada *</Label>
                         <Select
-                            value={formData.ruta_viaje_id || ""}
+                            value={formData.ruta_viaje_id || undefined}
                             onValueChange={(value) => handleInputChange("ruta_viaje_id", value)}
                             disabled={isSaving}
                         >
@@ -211,7 +223,7 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
                     <div className="space-y-2">
                         <Label htmlFor="placa_vehiculo">Vehículo *</Label>
                         <Select
-                            value={formData.placa_vehiculo || ""}
+                            value={formData.placa_vehiculo || undefined}
                             onValueChange={(value) => handleInputChange("placa_vehiculo", value)}
                             disabled={isSaving}
                         >

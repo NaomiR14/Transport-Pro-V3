@@ -137,14 +137,6 @@ export default function DashboardContent() {
             module: "flujo_caja" as const,
         },
         {
-            title: "Indicadores por Vehículo",
-            description: "Reportes e indicadores de rendimiento por vehículo",
-            icon: BarChart3,
-            href: "/indicadores-vehiculo",
-            color: "bg-violet-500 dark:bg-violet-600",
-            module: "indicadores_vehiculo" as const,
-        },
-        {
             title: "Reporte Conductores",
             description: "Indicadores de rendimiento por conductor — viajes, carga, ingresos y multas",
             icon: Users,

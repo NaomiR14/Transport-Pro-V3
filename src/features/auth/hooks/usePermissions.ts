@@ -11,7 +11,6 @@ export type Module =
     | 'rutas'
     | 'multas'
     | 'flujo_caja'
-    | 'indicadores_vehiculo'
     | 'reporte_general'
     | 'talleres'
     | 'mantenimiento_vehiculos'
@@ -29,17 +28,17 @@ export function usePermissions() {
     const roleModules: Record<UserRole, Module[]> = {
         admin: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'reporte_general',
+            'flujo_caja', 'reporte_general',
             'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         director: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'reporte_general',
+            'flujo_caja', 'reporte_general',
             'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         gerente: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
-            'flujo_caja', 'indicadores_vehiculo', 'reporte_general',
+            'flujo_caja', 'reporte_general',
             'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
         ],
         coordinador: [
@@ -58,7 +57,7 @@ export function usePermissions() {
         ],
         contador: [
             'dashboard', 'flujo_caja', 'impuestos_vehiculares',
-            'seguros', 'indicadores_vehiculo', 'reporte_general'
+            'seguros', 'reporte_general'
         ],
         comercial: [
             'dashboard', 'clientes', 'ordenes'
