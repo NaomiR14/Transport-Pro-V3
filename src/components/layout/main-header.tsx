@@ -1,6 +1,6 @@
 "use client"
 
-import { Bell, LogOut, Menu, Moon, Settings, Sun, User, Truck } from "lucide-react"
+import { Bell, LogOut, Menu, Moon, Settings, Shield, Sun, User, Truck } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -321,7 +321,7 @@ export function MainHeader() {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuContent className="w-56 bg-white dark:bg-slate-900" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
@@ -349,6 +349,20 @@ export function MainHeader() {
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Configuración</span>
                     </DropdownMenuItem>
+                    {(profile?.role === 'admin' || profile?.role === 'director') && (
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setIsOpen(false)
+                          router.push('/admin/roles')
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Gestión de Roles</span>
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

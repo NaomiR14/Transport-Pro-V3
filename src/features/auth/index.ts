@@ -28,4 +28,11 @@ export { default as AuthInitializer } from './components/AuthInitializer'
 export { default as AuthLoading } from './components/AuthLoading'
 export { default as ProtectedRoute } from './components/ProtectedRoute'
 export { RequirePermission } from './components/RequirePermission'
-export { default as UserMenu } from './components/UserMenu'
+export { default as EditRoleModal } from './components/EditRoleModal'
+
+// Roles hooks
+export { useAllProfiles, useUserCountByRole, useUpdateUserRole, useSearchProfiles } from './hooks/useRoles'
+
+// Roles service
+export { rolesService } from './services/roles-service'
+export type { ProfileWithEmail, RoleCount } from './services/roles-service'
