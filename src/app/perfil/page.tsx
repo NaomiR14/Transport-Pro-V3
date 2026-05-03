@@ -1,14 +1,23 @@
 'use client'
 
 import { useAuth, usePermissions } from '@/features/auth'
+import { useEmpresa } from '@/features/auth/hooks/useRoles'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { User, Mail, Phone, Shield } from 'lucide-react'
+import { User, Mail, Phone, Shield, Building2 } from 'lucide-react'
+
+const PLAN_LABELS: Record<string, { label: string; className: string }> = {
+    basico: { label: 'Básico', className: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+    profesional: { label: 'Profesional', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+    enterprise: { label: 'Enterprise', className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
+}
 
 export default function ProfilePage() {
     const { user, profile, isLoading, refreshProfile } = useAuth()
     const { getRoleName } = usePermissions()
+    const { data: empresa, isLoading: isLoadingEmpresa } = useEmpresa(profile?.empresa_id)
 
     if (isLoading) {
         return (
@@ -37,6 +46,8 @@ export default function ProfilePage() {
         : user.user_metadata?.full_name ||
           user.email?.split('@')[0] ||
           'Usuario'
+
+    const planInfo = empresa?.plan ? PLAN_LABELS[empresa.plan] ?? PLAN_LABELS.basico : null
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -112,6 +123,33 @@ export default function ProfilePage() {
                                 </div>
                             )}
                         </div>
+                    </div>
+
+                    {/* Empresa */}
+                    <div className="border-t pt-4">
+                        <h3 className="font-semibold mb-3">Empresa</h3>
+                        {isLoadingEmpresa ? (
+                            <Skeleton className="h-5 w-48" />
+                        ) : empresa ? (
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center shrink-0">
+                                    <Building2 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                                </div>
+                                <div>
+                                    <p className="font-medium text-sm">{empresa.nombre}</p>
+                                    {planInfo && (
+                                        <Badge
+                                            variant="outline"
+                                            className={`mt-1 text-xs border-0 ${planInfo.className}`}
+                                        >
+                                            {planInfo.label}
+                                        </Badge>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Sin empresa asignada</p>
+                        )}
                     </div>
 
                     {/* Información de cuenta */}

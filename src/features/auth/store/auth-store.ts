@@ -17,6 +17,7 @@ function normalizeProfile(profile: any): UserProfile | null {
         phone: profile.phone,
         department: profile.department,
         position: profile.position,
+        empresa_id: profile.empresa_id,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
     }

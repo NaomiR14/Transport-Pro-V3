@@ -3,13 +3,22 @@
 import { useState, useMemo } from 'react'
 import { RequirePermission, useAuth } from '@/features/auth'
 import type { UserRole, UserProfile } from '@/features/auth'
-import { useAllProfiles, useUserCountByRole } from '@/features/auth/hooks/useRoles'
+import { useAllProfiles, useUserCountByRole, useDeleteEmployee } from '@/features/auth/hooks/useRoles'
 import EditRoleModal from '@/features/auth/components/EditRoleModal'
+import CreateEmployeeModal from '@/features/auth/components/CreateEmployeeModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@/components/ui/dialog'
 import {
     Table,
     TableBody,
@@ -18,7 +27,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { Shield, Users, Search, Pencil, Loader2 } from 'lucide-react'
+import { Shield, Users, Search, Pencil, Loader2, UserPlus, Trash2, AlertTriangle } from 'lucide-react'
 import { getRoleName } from '@/utils/role-names'
 
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -37,17 +46,25 @@ const ROLE_COLORS: Record<UserRole, string> = {
 
 export default function RolesAdminPage() {
     const { profile: currentUser } = useAuth()
+    const canDelete = currentUser?.role === 'admin'
+
     const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all')
     const [searchTerm, setSearchTerm] = useState('')
+
     const [editUser, setEditUser] = useState<UserProfile | null>(null)
-    const [modalOpen, setModalOpen] = useState(false)
+    const [editModalOpen, setEditModalOpen] = useState(false)
+
+    const [createModalOpen, setCreateModalOpen] = useState(false)
+
+    const [deleteUser, setDeleteUser] = useState<UserProfile | null>(null)
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
     const { data: profiles, isLoading } = useAllProfiles(
         roleFilter === 'all' ? undefined : roleFilter
     )
     const { data: roleCounts } = useUserCountByRole()
+    const { mutate: deleteEmployee, isPending: isDeleting } = useDeleteEmployee()
 
-    // Filtrar por búsqueda localmente
     const filteredProfiles = useMemo(() => {
         if (!profiles) return []
         if (!searchTerm) return profiles
@@ -63,20 +80,44 @@ export default function RolesAdminPage() {
 
     const handleEditRole = (user: UserProfile) => {
         setEditUser(user)
-        setModalOpen(true)
+        setEditModalOpen(true)
+    }
+
+    const handleDeleteClick = (user: UserProfile) => {
+        setDeleteUser(user)
+        setDeleteModalOpen(true)
+    }
+
+    const handleConfirmDelete = () => {
+        if (!deleteUser) return
+        deleteEmployee(deleteUser.id, {
+            onSuccess: () => {
+                setDeleteModalOpen(false)
+                setDeleteUser(null)
+            },
+        })
     }
 
     return (
         <RequirePermission module="dashboard" action="edit">
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-3xl font-bold tracking-tight mb-2">
-                        Administración de Roles
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Gestiona roles de usuarios y permisos del sistema
-                    </p>
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight mb-2">
+                            Gestión de Roles
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Administra los usuarios y roles de tu empresa
+                        </p>
+                    </div>
+                    <Button
+                        onClick={() => setCreateModalOpen(true)}
+                        className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                    >
+                        <UserPlus className="h-5 w-5 mr-2" />
+                        Agregar Empleado
+                    </Button>
                 </div>
 
                 {/* Stats cards */}
@@ -180,6 +221,9 @@ export default function RolesAdminPage() {
                                                     <div>
                                                         <p className="font-medium text-slate-900 dark:text-white">
                                                             {fullName}
+                                                            {isSelf && (
+                                                                <span className="ml-2 text-xs text-blue-500">(Tú)</span>
+                                                            )}
                                                         </p>
                                                     </div>
                                                 </TableCell>
@@ -203,15 +247,33 @@ export default function RolesAdminPage() {
                                                         : '—'}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleEditRole(profile)}
-                                                        title={isSelf ? 'No puedes cambiar tu propio rol' : 'Cambiar rol'}
-                                                    >
-                                                        <Pencil className="h-4 w-4 mr-1" />
-                                                        Cambiar Rol
-                                                    </Button>
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleEditRole(profile)}
+                                                            title={isSelf ? 'No puedes cambiar tu propio rol' : 'Cambiar rol'}
+                                                        >
+                                                            <Pencil className="h-4 w-4 mr-1" />
+                                                            Cambiar Rol
+                                                        </Button>
+                                                        {canDelete && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleDeleteClick(profile)}
+                                                                className={isSelf
+                                                                    ? 'invisible'
+                                                                    : 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                                                }
+                                                                title="Eliminar empleado"
+                                                                tabIndex={isSelf ? -1 : undefined}
+                                                            >
+                                                                <Trash2 className="h-4 w-4 mr-1" />
+                                                                Eliminar
+                                                            </Button>
+                                                        )}
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         )
@@ -222,12 +284,60 @@ export default function RolesAdminPage() {
                     </CardContent>
                 </Card>
 
-                {/* Modal de edición */}
+                {/* Modal editar rol */}
                 <EditRoleModal
-                    open={modalOpen}
-                    onOpenChange={setModalOpen}
+                    open={editModalOpen}
+                    onOpenChange={setEditModalOpen}
                     user={editUser}
                 />
+
+                {/* Modal crear empleado */}
+                <CreateEmployeeModal
+                    open={createModalOpen}
+                    onOpenChange={setCreateModalOpen}
+                />
+
+                {/* Diálogo confirmar eliminación */}
+                <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <AlertTriangle className="h-5 w-5 text-red-500" />
+                                Eliminar empleado
+                            </DialogTitle>
+                            <DialogDescription>
+                                Esta acción es permanente y no se puede deshacer. Se eliminará la cuenta
+                                de acceso del empleado y todos sus datos de sesión.
+                            </DialogDescription>
+                        </DialogHeader>
+                        {deleteUser && (
+                            <div className="rounded-lg border p-3 bg-slate-50 dark:bg-slate-800">
+                                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                    {[deleteUser.nombre, deleteUser.apellido].filter(Boolean).join(' ') || 'Sin nombre'}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Rol: {getRoleName(deleteUser.role || 'conductor')}
+                                </p>
+                            </div>
+                        )}
+                        <DialogFooter>
+                            <Button
+                                variant="outline"
+                                onClick={() => setDeleteModalOpen(false)}
+                                disabled={isDeleting}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={handleConfirmDelete}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? 'Eliminando...' : 'Eliminar empleado'}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </RequirePermission>
     )

@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import { RutaViaje, CreateRutaViajeRequest, UpdateRutaViajeRequest, RutaViajeFilters } from '../types/rutas.types';
 
 
@@ -127,6 +128,7 @@ export class RutaViajeService {
     static async createRuta(rutaData: CreateRutaViajeRequest): Promise<RutaViaje> {
         try {
             const dbData = this.mapToDB(rutaData);
+            (dbData as any).empresa_id = await getEmpresaId();
             const created = await this.baseRepository.create(dbData);
             // Leer desde la vista para obtener estado calculado del vehículo
             return await this.getRutaById(created.id);

@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import type { Conductor, CreateConductorRequest, UpdateConductorRequest, ConductorFilters } from '../types/conductor.types';
 
 
@@ -80,6 +81,7 @@ export class ConductorService {
     static async createConductor(conductorData: CreateConductorRequest): Promise<Conductor> {
         try {
             const dbData = this.mapToDB(conductorData);
+            dbData.empresa_id = await getEmpresaId();
             const dbConductor = await this.repository.create(dbData);
             return this.mapFromDB(dbConductor);
         } catch (error) {

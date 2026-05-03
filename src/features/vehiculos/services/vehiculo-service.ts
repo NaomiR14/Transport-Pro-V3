@@ -1,6 +1,7 @@
 // src/features/vehiculos/services/vehiculo-service.ts
 import { SupabaseRepository } from '@/lib/supabase/repository';
 import { createClient } from '@/lib/supabase/client';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import { 
     Vehicle, 
     CreateVehicleRequest,
@@ -148,6 +149,7 @@ export class VehicleService {
     try {
       console.log('[VehicleService] createVehicle - INPUT:', data);
       const dbData = this.mapCreateToDB(data);
+      dbData.empresa_id = await getEmpresaId();
       console.log('[VehicleService] createVehicle - DB DATA:', dbData);
       const dbVehicle = await this.repository.create(dbData);
       console.log('[VehicleService] createVehicle - DB RESPONSE:', dbVehicle);

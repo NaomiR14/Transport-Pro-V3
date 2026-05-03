@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id'
 import {
   FlujoCajaMensual,
   FlujoCajaRow,
@@ -73,6 +74,8 @@ export class FlujoCajaService {
   static async upsertEgresoVario(request: UpsertEgresoVarioRequest): Promise<EgresoVario> {
     const client = createClient()
 
+    const empresa_id = await getEmpresaId()
+
     const { data, error } = await client
       .from('egresos_varios')
       .upsert(
@@ -81,8 +84,9 @@ export class FlujoCajaService {
           mes: request.mes,
           gastos_personal: request.gastos_personal,
           otros_egresos: request.otros_egresos,
+          empresa_id,
         },
-        { onConflict: 'anio,mes' }
+        { onConflict: 'empresa_id,anio,mes' }
       )
       .select()
       .single()

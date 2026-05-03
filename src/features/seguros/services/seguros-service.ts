@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import { SeguroVehiculo, CreateSeguroRequest, UpdateSeguroRequest, SeguroFilters } from '../types/seguros.types';
 
 export class SeguroService {
@@ -78,6 +79,7 @@ export class SeguroService {
     static async createSeguro(seguroData: CreateSeguroRequest): Promise<SeguroVehiculo> {
         try {
             const dbData = this.mapToDB(seguroData);
+            dbData.empresa_id = await getEmpresaId();
             const dbSeguro = await this.baseRepository.create(dbData);
             // Leer desde la vista para obtener campos calculados
             const createdSeguro = await this.repository.getById(dbSeguro.id);

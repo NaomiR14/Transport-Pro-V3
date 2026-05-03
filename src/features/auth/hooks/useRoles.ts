@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { rolesService } from '../services/roles-service'
+import { createClient } from '@/lib/supabase/client'
 import type { UserRole } from '../types/auth.types'
 
 const QUERY_KEYS = {
@@ -40,6 +41,79 @@ export function useSearchProfiles(searchTerm: string) {
         queryFn: () => rolesService.searchProfiles(searchTerm),
         enabled: searchTerm.length >= 2,
         staleTime: 30 * 1000,
+    })
+}
+
+/** Hook para crear un empleado vía API route (solo admin) */
+export function useCreateEmployee() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data: {
+            nombre: string
+            apellido: string
+            email: string
+            password: string
+            role: UserRole
+        }) => {
+            const res = await fetch('/api/employees', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+            const json = await res.json()
+            if (!res.ok) throw new Error(json.error || 'Error al crear empleado')
+            return json
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profiles })
+            toast.success('Empleado creado exitosamente')
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || 'Error al crear el empleado')
+        },
+    })
+}
+
+/** Hook para eliminar un empleado (solo admin) */
+export function useDeleteEmployee() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (userId: string) => {
+            const res = await fetch(`/api/employees?user_id=${userId}`, {
+                method: 'DELETE',
+            })
+            const json = await res.json()
+            if (!res.ok) throw new Error(json.error || 'Error al eliminar empleado')
+            return json
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profiles })
+            toast.success('Empleado eliminado exitosamente')
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || 'Error al eliminar el empleado')
+        },
+    })
+}
+
+/** Hook para obtener datos de la empresa por su id */
+export function useEmpresa(empresaId?: string) {
+    return useQuery({
+        queryKey: ['empresa', empresaId],
+        queryFn: async () => {
+            const supabase = createClient()
+            const { data, error } = await supabase
+                .from('empresas')
+                .select('nombre, plan')
+                .eq('id', empresaId!)
+                .single()
+            if (error) throw error
+            return data as { nombre: string; plan: string }
+        },
+        enabled: !!empresaId,
+        staleTime: 5 * 60 * 1000,
     })
 }
 

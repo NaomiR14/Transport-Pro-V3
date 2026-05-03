@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import { Orden, CreateOrdenRequest, UpdateOrdenRequest, OrdenFilters } from '../types/ordenes.types';
 
 export class OrdenService {
@@ -104,6 +105,7 @@ export class OrdenService {
     static async createOrden(ordenData: CreateOrdenRequest): Promise<Orden> {
         try {
             const dbData = this.mapToDB(ordenData);
+            dbData.empresa_id = await getEmpresaId();
             const created = await this.baseRepository.create(dbData as Partial<Orden>);
             // Leer desde la vista para obtener datos completos
             return await this.getOrdenById(created.id);

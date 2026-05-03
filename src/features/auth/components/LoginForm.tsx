@@ -182,9 +182,9 @@ export default function LoginForm() {
                     {/* Register Link */}
                     <div className="text-center pt-4 border-t border-gray-200">
                         <p className="text-sm text-gray-600">
-                            ¿No tienes una cuenta?{' '}
+                            ¿Quieres registrar tu empresa?{' '}
                             <Link
-                                href="/registro"
+                                href="/registro-empresa"
                                 className="font-medium text-blue-600 hover:text-blue-800 hover:underline focus:outline-none"
                             >
                                 Regístrate aquí

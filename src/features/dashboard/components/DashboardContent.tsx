@@ -39,16 +39,16 @@ export default function DashboardContent() {
                     
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
-                            href="/login"
+                            href="/registro-empresa"
                             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
                         >
-                            Iniciar Sesión
+                            Registra tu empresa
                         </Link>
                         <Link
-                            href="/registro"
+                            href="/login"
                             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                         >
-                            Registrarse
+                            ¿Ya estás registrado? Ingresa aquí
                         </Link>
                     </div>
 

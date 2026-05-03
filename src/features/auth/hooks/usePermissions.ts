@@ -29,7 +29,7 @@ export function usePermissions() {
         admin: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
             'flujo_caja', 'reporte_general',
-            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor'
+            'talleres', 'mantenimiento_vehiculos', 'seguros', 'impuestos_vehiculares', 'clientes', 'indicadores_conductor',
         ],
         director: [
             'dashboard', 'ordenes', 'vehiculos', 'conductores', 'rutas', 'multas',
