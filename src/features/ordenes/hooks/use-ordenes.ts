@@ -24,7 +24,6 @@ export function useOrdenes(filters?: OrdenFilters) {
     return useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => OrdenService.getOrdenes(filters),
-        staleTime: 30 * 1000,
     })
 }
 
@@ -33,7 +32,6 @@ export function useOrden(id: string | null) {
         queryKey: QUERY_KEYS.detail(id!),
         queryFn: () => OrdenService.getOrdenById(id!),
         enabled: !!id,
-        staleTime: 30 * 1000,
     })
 }
 

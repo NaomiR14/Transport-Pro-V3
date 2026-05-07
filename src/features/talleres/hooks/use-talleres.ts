@@ -26,7 +26,6 @@ export function useTalleres(filters?: TallerFilters) {
   const query = useQuery({
     queryKey: QUERY_KEYS.list(filters),
     queryFn: () => talleresService.getTalleres(filters),
-    staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
   })
 
   // Auto-sync con store
@@ -50,7 +49,6 @@ export function useTaller(id: string | null) {
     queryKey: QUERY_KEYS.detail(id!),
     queryFn: () => talleresService.getTaller(id!),
     enabled: !!id,
-    staleTime: 30 * 1000,
   })
 }
 
@@ -127,7 +125,6 @@ export function useSearchTalleres(searchTerm: string) {
     queryKey: QUERY_KEYS.search(searchTerm),
     queryFn: () => talleresService.search(searchTerm),
     enabled: searchTerm.length >= 2,
-    staleTime: 30 * 1000,
   })
 }
 

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import logger from '@/lib/logger'
 
 // Usar service_role_key para crear usuarios (server-side only)
 const supabaseAdmin = createClient(
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
                     { status: 409 }
                 )
             }
-            console.error('Error creando empresa:', empresaError)
+            logger.error({ err: empresaError }, 'Error creando empresa')
             return NextResponse.json(
                 { error: 'Error al registrar la empresa' },
                 { status: 500 }
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
                     { status: 409 }
                 )
             }
-            console.error('Error creando usuario:', authError)
+            logger.error({ err: authError }, 'Error creando usuario admin')
             return NextResponse.json(
                 { error: 'Error al crear el usuario administrador' },
                 { status: 500 }
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
             // Rollback: eliminar usuario y empresa
             await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
             await supabaseAdmin.from('empresas').delete().eq('id', empresa.id)
-            console.error('Error actualizando profile:', profileError)
+            logger.error({ err: profileError }, 'Error actualizando profile admin')
             return NextResponse.json(
                 { error: 'Error al configurar el perfil del administrador' },
                 { status: 500 }
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
             message: 'Empresa y administrador registrados exitosamente',
         })
     } catch (error: any) {
-        console.error('Error en registro de empresa:', error)
+        logger.error({ err: error }, 'Error en registro de empresa')
         return NextResponse.json(
             { error: 'Error interno del servidor' },
             { status: 500 }

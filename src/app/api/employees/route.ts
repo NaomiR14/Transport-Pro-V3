@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import logger from '@/lib/logger'
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
             if (authError.message.includes('already been registered')) {
                 return NextResponse.json({ error: 'Ya existe un usuario con ese email' }, { status: 409 })
             }
-            console.error('Error creando empleado:', authError)
+            logger.error({ err: authError }, 'Error creando empleado')
             return NextResponse.json({ error: 'Error al crear el empleado' }, { status: 500 })
         }
 
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
 
         if (profileError) {
             await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
-            console.error('Error actualizando profile del empleado:', profileError)
+            logger.error({ err: profileError }, 'Error actualizando profile del empleado')
             return NextResponse.json({ error: 'Error al configurar el perfil del empleado' }, { status: 500 })
         }
 
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
             },
         })
     } catch (error: any) {
-        console.error('Error en crear empleado:', error)
+        logger.error({ err: error }, 'Error en crear empleado')
         return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
     }
 }
@@ -134,13 +135,13 @@ export async function DELETE(request: NextRequest) {
         const { error } = await supabaseAdmin.auth.admin.deleteUser(user_id)
 
         if (error) {
-            console.error('Error eliminando empleado:', error)
+            logger.error({ err: error }, 'Error eliminando empleado')
             return NextResponse.json({ error: 'Error al eliminar el empleado' }, { status: 500 })
         }
 
         return NextResponse.json({ success: true })
     } catch (error: any) {
-        console.error('Error en eliminar empleado:', error)
+        logger.error({ err: error }, 'Error en eliminar empleado')
         return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
     }
 }
@@ -184,13 +185,13 @@ export async function PATCH(request: NextRequest) {
             .single()
 
         if (error) {
-            console.error('Error actualizando rol:', error)
+            logger.error({ err: error }, 'Error actualizando rol')
             return NextResponse.json({ error: 'Error al actualizar rol' }, { status: 500 })
         }
 
         return NextResponse.json({ success: true, employee: updated })
     } catch (error: any) {
-        console.error('Error en actualizar empleado:', error)
+        logger.error({ err: error }, 'Error en actualizar empleado')
         return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
     }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { stripe } from '@/lib/stripe/stripe'
 import type Stripe from 'stripe'
+import logger from '@/lib/logger'
 
 export const runtime = 'nodejs'
 
@@ -32,7 +33,7 @@ async function updateEmpresaSuscripcion(
         p_fecha_inicio:    fechaInicio?.toISOString() ?? null,
         p_fecha_fin:       fechaFin?.toISOString() ?? null,
     })
-    if (error) console.error('Error actualizando suscripción:', error)
+    if (error) logger.error({ err: error, customerId, subscriptionId, plan }, 'Error actualizando suscripción')
 }
 
 function getSubPeriod(sub: Stripe.Subscription): { inicio: Date | null; fin: Date | null } {
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
     try {
         event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
     } catch (err: any) {
-        console.error('Webhook signature error:', err.message)
+        logger.error({ err }, 'Webhook signature error')
         return NextResponse.json({ error: `Webhook error: ${err.message}` }, { status: 400 })
     }
 

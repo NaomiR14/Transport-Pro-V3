@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { stripe } from '@/lib/stripe/stripe'
+import logger from '@/lib/logger'
 
 const supabaseAdmin = createAdmin(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,7 +58,7 @@ export async function GET() {
 
         return NextResponse.json({ facturas })
     } catch (error: any) {
-        console.error('Error obteniendo facturas:', error)
+        logger.error({ err: error }, 'Error obteniendo facturas')
         return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
     }
 }

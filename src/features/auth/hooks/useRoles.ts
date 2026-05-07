@@ -21,7 +21,6 @@ export function useAllProfiles(roleFilter?: UserRole) {
             roleFilter
                 ? RolesService.getProfilesByRole(roleFilter)
                 : RolesService.getAllProfiles(),
-        staleTime: 30 * 1000,
     })
 }
 
@@ -40,7 +39,6 @@ export function useSearchProfiles(searchTerm: string) {
         queryKey: QUERY_KEYS.search(searchTerm),
         queryFn: () => RolesService.searchProfiles(searchTerm),
         enabled: searchTerm.length >= 2,
-        staleTime: 30 * 1000,
     })
 }
 

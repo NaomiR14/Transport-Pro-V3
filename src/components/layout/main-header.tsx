@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Menu, Moon, Settings, Shield, Sun, User, Truck } from "lucide-react"
+import { LogOut, Menu, Moon, Settings, Shield, Sun, User, Truck, ClipboardList } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -371,23 +371,43 @@ export function MainHeader() {
                       </DropdownMenuItem>
 
                       {(profile?.role === 'admin' || profile?.role === 'director') && (
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setIsOpen(false)
-                            router.push('/admin/roles')
-                          }}
-                          className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center shrink-0 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors">
-                            <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Gestión de Roles</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-500">Permisos y accesos del equipo</p>
-                          </div>
-                        </DropdownMenuItem>
+                        <>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              setIsOpen(false)
+                              router.push('/admin/roles')
+                            }}
+                            className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center shrink-0 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors">
+                              <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Gestión de Roles</p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500">Permisos y accesos del equipo</p>
+                            </div>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              setIsOpen(false)
+                              router.push('/admin/audit')
+                            }}
+                            className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center shrink-0 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/50 transition-colors">
+                              <ClipboardList className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Registro de Actividad</p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500">Historial de cambios por módulo</p>
+                            </div>
+                          </DropdownMenuItem>
+                        </>
                       )}
                     </DropdownMenuGroup>
 

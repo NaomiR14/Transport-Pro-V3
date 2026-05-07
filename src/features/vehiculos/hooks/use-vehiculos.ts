@@ -27,7 +27,6 @@ export function useVehicles(filters?: VehicleFilters) {
     const query = useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => vehicleService.getVehicles(filters),
-        staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
     })
 
     // Auto-sync con store
@@ -173,7 +172,6 @@ export function useVehiculosCount() {
     return useQuery({
         queryKey: [...QUERY_KEYS.vehicles, 'count'] as const,
         queryFn: () => vehicleService.getCount(),
-        staleTime: 30 * 1000,
     })
 }
 

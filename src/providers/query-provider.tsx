@@ -1,25 +1,25 @@
-// src/providers/query-provider.tsx
 "use client"
 
 import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-// Configuración del QueryClient
 const createQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
-      // Configuración por defecto para todas las queries
-      staleTime: 5 * 60 * 1000, // 5 minutos
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 5 * 60 * 1000,
+      // No reintentar errores 4xx (auth, permisos) — solo errores de red
+      retry: (failureCount, error: any) => {
+        const status = error?.status ?? error?.code
+        if (status >= 400 && status < 500) return false
+        return failureCount < 2
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 15000),
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
     },
     mutations: {
-      // Configuración por defecto para todas las mutaciones
-      retry: 1,
-      retryDelay: 1000,
+      retry: 0,
     },
   },
 })
@@ -28,15 +28,10 @@ let queryClient: QueryClient | undefined = undefined
 
 function getQueryClient() {
   if (typeof window === 'undefined') {
-    // Server: siempre crear un nuevo query client
     return createQueryClient()
-  } else {
-    // Browser: crear el query client si no existe
-    if (!queryClient) {
-      queryClient = createQueryClient()
-    }
-    return queryClient
   }
+  if (!queryClient) queryClient = createQueryClient()
+  return queryClient
 }
 
 interface QueryProviderProps {
