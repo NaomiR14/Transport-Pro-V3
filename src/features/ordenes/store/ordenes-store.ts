@@ -3,37 +3,28 @@ import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { Orden, OrdenFilters, OrdenStats, OrdenStore } from '../types/ordenes.types'
 
-// Filtros iniciales
 const initialFilters: OrdenFilters = {
     searchTerm: '',
     estado: '',
     placa_vehiculo: '',
 }
 
-// Función helper para ordenar órdenes por fecha de creación (más recientes primero)
-const sortOrdenes = (ordenes: Orden[]): Orden[] => {
-    const copy = [...ordenes]
-    return copy.sort((a, b) => {
-        const fechaA = new Date(a.created_at).getTime()
-        const fechaB = new Date(b.created_at).getTime()
-        return fechaB - fechaA
-    })
-}
+const sortOrdenes = (ordenes: Orden[]): Orden[] =>
+    [...ordenes].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-// Función para calcular estadísticas
 const calculateOrdenStats = (ordenes: Orden[]): OrdenStats => {
-    return {
-        total: ordenes.length,
-        pendientes: ordenes.filter(o => o.estado === 'pendiente').length,
-        en_transito: ordenes.filter(o => o.estado === 'transito').length,
-        entregadas: ordenes.filter(o => o.estado === 'entregado').length,
+    const stats = { total: ordenes.length, pendientes: 0, en_transito: 0, entregadas: 0 }
+    for (const o of ordenes) {
+        if (o.estado === 'pendiente') stats.pendientes++
+        else if (o.estado === 'transito') stats.en_transito++
+        else if (o.estado === 'entregado') stats.entregadas++
     }
+    return stats
 }
 
 export const useOrdenStore = create<OrdenStore>()(
     devtools(
         immer((set, get) => ({
-            // Estado inicial
             ordenes: [],
             selectedOrden: null,
             filters: initialFilters,
@@ -41,7 +32,6 @@ export const useOrdenStore = create<OrdenStore>()(
             isLoading: false,
             error: null,
 
-            // Acciones básicas
             setOrdenes: (ordenes: Orden[]) =>
                 set((state) => {
                     state.ordenes = sortOrdenes(ordenes)
@@ -73,7 +63,6 @@ export const useOrdenStore = create<OrdenStore>()(
                     state.error = error
                 }),
 
-            // Acciones de negocio
             addOrden: (orden: Orden) =>
                 set((state) => {
                     state.ordenes.push(orden)
@@ -108,39 +97,19 @@ export const useOrdenStore = create<OrdenStore>()(
                     state.filters = initialFilters
                 }),
 
-            // Computed properties
             getFilteredOrdenes: (): Orden[] => {
                 const { ordenes, filters } = get()
-
                 return ordenes.filter((orden) => {
-                    // Filtro de búsqueda por texto
-                    if (filters.searchTerm && filters.searchTerm.trim()) {
+                    if (filters.searchTerm?.trim()) {
                         const term = filters.searchTerm.toLowerCase().trim()
-                        const searchableFields = [
-                            orden.numero_orden || '',
-                            orden.placa_vehiculo || '',
-                            orden.nombre_conductor || '',
-                            orden.origen || '',
-                            orden.destino || '',
-                            orden.carta_porte || '',
-                        ].filter(Boolean)
-
-                        const searchableText = searchableFields.join(' ').toLowerCase()
-                        if (!searchableText.includes(term)) {
-                            return false
-                        }
+                        const text = [
+                            orden.numero_orden, orden.placa_vehiculo, orden.nombre_conductor,
+                            orden.origen, orden.destino, orden.carta_porte,
+                        ].filter(Boolean).join(' ').toLowerCase()
+                        if (!text.includes(term)) return false
                     }
-
-                    // Filtro por estado
-                    if (filters.estado && orden.estado !== filters.estado) {
-                        return false
-                    }
-
-                    // Filtro por vehículo
-                    if (filters.placa_vehiculo && orden.placa_vehiculo !== filters.placa_vehiculo) {
-                        return false
-                    }
-
+                    if (filters.estado && orden.estado !== filters.estado) return false
+                    if (filters.placa_vehiculo && orden.placa_vehiculo !== filters.placa_vehiculo) return false
                     return true
                 })
             },

@@ -2,11 +2,16 @@ import { createClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
-// Admin client para crear usuarios
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+const VALID_ROLES = [
+    'admin', 'director', 'gerente', 'coordinador', 'supervisor',
+    'recursos_humanos', 'administrativo', 'contador', 'comercial',
+    'atencion_cliente', 'conductor',
+] as const
 
 /**
  * Verifica que el usuario autenticado sea admin y retorna su empresa_id
@@ -49,6 +54,10 @@ export async function POST(request: NextRequest) {
 
         if (password.length < 6) {
             return NextResponse.json({ error: 'La contraseña debe tener al menos 6 caracteres' }, { status: 400 })
+        }
+
+        if (!VALID_ROLES.includes(role)) {
+            return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
         }
 
         // Crear usuario en Supabase Auth
@@ -151,11 +160,6 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: 'Faltan user_id o role' }, { status: 400 })
         }
 
-        const VALID_ROLES = [
-            'admin', 'director', 'gerente', 'coordinador', 'supervisor',
-            'recursos_humanos', 'administrativo', 'contador', 'comercial',
-            'atencion_cliente', 'conductor',
-        ]
         if (!VALID_ROLES.includes(role)) {
             return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
         }

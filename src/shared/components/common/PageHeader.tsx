@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 interface PageHeaderProps {
     title: string
     subtitle?: string
+    badge?: string
     icon?: LucideIcon
     iconColor?: string
     iconBg?: string
@@ -14,6 +15,7 @@ interface PageHeaderProps {
 export function PageHeader({
     title,
     subtitle,
+    badge,
     icon: Icon,
     iconColor = 'text-blue-600',
     iconBg = 'bg-blue-100 dark:bg-blue-900/30',
@@ -34,9 +36,16 @@ export function PageHeader({
                     </div>
                 )}
                 <div className="min-w-0">
-                    <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white truncate">
-                        {title}
-                    </h1>
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white truncate">
+                            {title}
+                        </h1>
+                        {badge && (
+                            <span className="shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                {badge}
+                            </span>
+                        )}
+                    </div>
                     {subtitle && (
                         <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
                             {subtitle}
