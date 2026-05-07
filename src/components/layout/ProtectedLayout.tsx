@@ -18,7 +18,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     const router = useRouter()
 
     // Rutas públicas que NO deben mostrar layout completo
-    const publicPaths = ['/login', '/registro', '/auth/callback', '/reset-password']
+    const publicPaths = ['/login', '/registro-empresa', '/auth/callback', '/reset-password', '/terminos', '/privacidad', '/cookies']
     const isPublicPath = publicPaths.some(path => pathname?.startsWith(path))
 
     // Redirigir si hay usuario y está en ruta pública

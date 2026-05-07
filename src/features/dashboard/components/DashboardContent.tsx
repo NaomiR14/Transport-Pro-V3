@@ -11,7 +11,6 @@ import {
     Receipt,
     AlertTriangle,
     TrendingUp,
-    BarChart3,
 } from "lucide-react"
 import Link from "next/link"
 import { useAuth, usePermissions } from "@/features/auth"
@@ -19,72 +18,6 @@ import { useAuth, usePermissions } from "@/features/auth"
 export default function DashboardContent() {
     const { user, profile } = useAuth()
     const { canAccessModule, getRoleName } = usePermissions()
-
-    // Si no hay usuario, mostrar landing pública
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
-                <div className="max-w-4xl mx-auto text-center">
-                    <div className="mb-8">
-                        <div className="inline-flex items-center justify-center p-4 bg-blue-100 dark:bg-blue-900/20 rounded-full mb-4">
-                            <Truck className="h-16 w-16 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                            Transport-Pro
-                        </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-                            Sistema integral para la gestión de operaciones de transporte profesional
-                        </p>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link
-                            href="/registro-empresa"
-                            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-                        >
-                            Registra tu empresa
-                        </Link>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                        >
-                            ¿Ya estás registrado? Ingresa aquí
-                        </Link>
-                    </div>
-
-                    <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                        <Card>
-                            <CardHeader>
-                                <Package className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
-                                <CardTitle className="text-lg">Gestión Completa</CardTitle>
-                                <CardDescription>
-                                    Administra vehículos, conductores, rutas y más desde un solo lugar
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                        <Card>
-                            <CardHeader>
-                                <BarChart3 className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
-                                <CardTitle className="text-lg">Reportes en Tiempo Real</CardTitle>
-                                <CardDescription>
-                                    Indicadores y métricas actualizadas para tomar mejores decisiones
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                        <Card>
-                            <CardHeader>
-                                <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
-                                <CardTitle className="text-lg">Seguro y Confiable</CardTitle>
-                                <CardDescription>
-                                    Control de acceso por roles y respaldo automático de datos
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                    </div>
-                </div>
-            </div>
-        )
-    }
 
     // Dashboard para usuarios autenticados
     const allModules = [
@@ -185,8 +118,8 @@ export default function DashboardContent() {
     const displayName = profile?.nombre && profile?.apellido
                        ? `${profile.nombre} ${profile.apellido}`
                        : (profile as any)?.full_name || 
-                         user.user_metadata?.full_name || 
-                         user.email?.split('@')[0] || 
+                         user?.user_metadata?.full_name ||
+                         user?.email?.split('@')[0] ||
                          'Usuario'
 
     return (

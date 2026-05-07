@@ -19,7 +19,7 @@ export default function ProtectedRoute({
     const pathname = usePathname()
 
     // Rutas públicas que no requieren autenticación
-    const publicPaths = ['/login', '/registro', '/auth/callback', '/reset-password']
+    const publicPaths = ['/login', '/registro-empresa', '/auth/callback', '/reset-password']
     const isPublicPath = publicPaths.some(path => pathname?.startsWith(path))
 
     useEffect(() => {

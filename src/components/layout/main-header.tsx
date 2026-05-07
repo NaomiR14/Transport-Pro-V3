@@ -1,11 +1,10 @@
 "use client"
 
-import { Bell, LogOut, Menu, Moon, Settings, Shield, Sun, User, Truck } from "lucide-react"
+import { LogOut, Menu, Moon, Settings, Shield, Sun, User, Truck } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useEffect, useState, useRef } from "react" // ← Agregar useRef
-import { Badge } from "@/components/ui/badge"
+import { useEffect, useState, useRef } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +19,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth, useAuthStore } from "@/features/auth"
 import { getRoleName } from '@/utils/role-names'
+import { NotificacionesPanel, useNotificacionesRealtime } from '@/features/notificaciones'
 
 export function MainHeader() {
   const { theme, setTheme } = useTheme()
@@ -29,7 +29,10 @@ export function MainHeader() {
   const [isOpen, setIsOpen] = useState(false) // ← Estado para el dropdown
   const menuRef = useRef<HTMLDivElement>(null) // ← Ref para el dropdown
   const router = useRouter()
-  const { user, profile, signOut } = useAuth()
+  const { user, profile } = useAuth()
+
+  // Suscripción Realtime: escucha notificaciones nuevas del usuario autenticado
+  useNotificacionesRealtime(user?.id)
 
   // Update current date and time
   useEffect(() => {
@@ -80,7 +83,7 @@ export function MainHeader() {
     e.preventDefault()
     e.stopPropagation()
     setIsOpen(false)
-    router.push("/configuracion")
+    router.push("/configuracion/suscripcion")
   }
 
   const handleLogoutClick = async (e: React.MouseEvent) => {
@@ -300,12 +303,7 @@ export function MainHeader() {
               </Button>
             )}
 
-            <Button variant="ghost" size="icon" className="rounded-full relative" aria-label="Notificaciones">
-              <Bell className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center bg-red-500 text-white text-[10px]">
-                1
-              </Badge>
-            </Button>
+            <NotificacionesPanel />
 
             {user ? (
               <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -381,7 +379,7 @@ export function MainHeader() {
                   <Link href="/login">Iniciar Sesión</Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href="/registro">Registrarse</Link>
+                  <Link href="/registro-empresa">Registrarse</Link>
                 </Button>
               </div>
             )}
