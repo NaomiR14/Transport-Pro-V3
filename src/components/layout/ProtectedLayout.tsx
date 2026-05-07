@@ -20,6 +20,7 @@ const SUSCRIPCION_LIBRE = [
     '/login',
     '/registro-empresa',
     '/auth',
+    '/reset-password',
 ]
 
 interface ProtectedLayoutProps {

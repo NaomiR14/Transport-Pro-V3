@@ -72,13 +72,12 @@ export default function RegistroEmpresaPage() {
             const data = await res.json()
             if (!res.ok) { setError(data.error || 'Error al registrar'); return }
 
-            // Iniciar sesión automáticamente y redirigir a /planes
             const supabase = createClient()
             await supabase.auth.signInWithPassword({
                 email: adminEmail.trim(),
                 password: adminPassword,
             })
-            router.push('/planes')
+            router.push('/configuracion/suscripcion')
         } catch {
             setError('Error de conexión. Intenta de nuevo.')
         } finally {

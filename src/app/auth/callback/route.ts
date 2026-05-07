@@ -16,8 +16,8 @@ export async function GET(request: Request) {
                 return NextResponse.redirect(new URL('/login?error=auth_failed', request.url))
             }
 
-            // Redirigir al dashboard principal
-            return NextResponse.redirect(new URL('/', request.url))
+            const next = requestUrl.searchParams.get('next') ?? '/'
+            return NextResponse.redirect(new URL(next, request.url))
 
         } catch (error) {
             console.error('Error inesperado en callback:', error)
