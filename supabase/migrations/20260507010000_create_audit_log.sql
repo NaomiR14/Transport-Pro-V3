@@ -73,8 +73,8 @@ CREATE TRIGGER audit_conductores
     AFTER INSERT OR UPDATE OR DELETE ON conductores
     FOR EACH ROW EXECUTE FUNCTION fn_audit_log();
 
-CREATE TRIGGER audit_vehiculos
-    AFTER INSERT OR UPDATE OR DELETE ON vehiculos
+CREATE TRIGGER audit_vehicles
+    AFTER INSERT OR UPDATE OR DELETE ON vehicles
     FOR EACH ROW EXECUTE FUNCTION fn_audit_log();
 
 CREATE TRIGGER audit_rutas_viajes
