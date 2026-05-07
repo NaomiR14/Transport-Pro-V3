@@ -66,16 +66,15 @@ export async function POST(request: NextRequest) {
         }
 
         // 2. Crear el usuario admin en Supabase Auth
-        // El trigger handle_new_user creará el profile automáticamente
+        // El trigger handle_new_user crea el profile con role='conductor' y empresa_id=NULL.
+        // Actualizamos el profile manualmente después con service_role (paso 3).
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: admin_email,
             password: admin_password,
-            email_confirm: true, // Confirmar email automáticamente
+            email_confirm: false,
             user_metadata: {
                 nombre: admin_nombre,
                 apellido: admin_apellido,
-                role: 'admin',
-                empresa_id: empresa.id,
             },
         })
 
@@ -92,6 +91,24 @@ export async function POST(request: NextRequest) {
             console.error('Error creando usuario:', authError)
             return NextResponse.json(
                 { error: 'Error al crear el usuario administrador' },
+                { status: 500 }
+            )
+        }
+
+        // 3. Asignar role='admin' y empresa_id directamente en el profile
+        // usando service_role (bypasea RLS) — nunca desde metadata del cliente
+        const { error: profileError } = await supabaseAdmin
+            .from('profiles')
+            .update({ role: 'admin', empresa_id: empresa.id })
+            .eq('id', authData.user.id)
+
+        if (profileError) {
+            // Rollback: eliminar usuario y empresa
+            await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+            await supabaseAdmin.from('empresas').delete().eq('id', empresa.id)
+            console.error('Error actualizando profile:', profileError)
+            return NextResponse.json(
+                { error: 'Error al configurar el perfil del administrador' },
                 { status: 500 }
             )
         }

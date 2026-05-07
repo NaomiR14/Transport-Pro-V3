@@ -52,17 +52,13 @@ export async function POST(request: NextRequest) {
         }
 
         // Crear usuario en Supabase Auth
-        // El trigger handle_new_user creará el profile con empresa_id
+        // El trigger handle_new_user crea el profile con role='conductor' y empresa_id=NULL.
+        // Actualizamos el profile manualmente después con service_role (paso siguiente).
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email,
             password,
-            email_confirm: true,
-            user_metadata: {
-                nombre,
-                apellido,
-                role,
-                empresa_id: auth.empresa_id,
-            },
+            email_confirm: false,
+            user_metadata: { nombre, apellido },
         })
 
         if (authError) {
@@ -73,12 +69,20 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Error al crear el empleado' }, { status: 500 })
         }
 
-        // Obtener el profile creado por el trigger
-        const { data: profile } = await supabaseAdmin
+        // Asignar role y empresa_id directamente en el profile
+        // usando service_role (bypasea RLS) — nunca desde metadata del cliente
+        const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
-            .select('*')
+            .update({ role, empresa_id: auth.empresa_id })
             .eq('id', authData.user.id)
+            .select()
             .single()
+
+        if (profileError) {
+            await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+            console.error('Error actualizando profile del empleado:', profileError)
+            return NextResponse.json({ error: 'Error al configurar el perfil del empleado' }, { status: 500 })
+        }
 
         return NextResponse.json({
             success: true,
