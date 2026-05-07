@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { createClient } from '@/lib/supabase/client';
 import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import type { Conductor, CreateConductorRequest, UpdateConductorRequest, ConductorFilters } from '../types/conductor.types';
 
@@ -76,6 +77,16 @@ export class ConductorService {
         } catch (error) {
             throw error;
         }
+    }
+
+    static async getCount(): Promise<number> {
+        const supabase = createClient()
+        const empresaId = await getEmpresaId()
+        const { count } = await supabase
+            .from('conductores')
+            .select('*', { count: 'exact', head: true })
+            .eq('empresa_id', empresaId)
+        return count ?? 0
     }
 
     static async createConductor(conductorData: CreateConductorRequest): Promise<Conductor> {

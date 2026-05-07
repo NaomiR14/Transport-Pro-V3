@@ -64,28 +64,28 @@ export function TallerTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
       <Table>
-        <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
+        <TableHeader className="bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-800/50">
           <TableRow className="hover:bg-transparent border-b border-slate-200 dark:border-slate-700">
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">ID</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Nombre</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Dirección</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Teléfono</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Correo</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Contacto</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Calificación</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Acciones</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">ID</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Nombre</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Dirección</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Teléfono</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Correo</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Contacto</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Calificación</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {talleres.map((taller) => (
-            <TableRow 
-              key={taller.id} 
-              className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
+          {talleres.map((taller, index) => (
+            <TableRow
+              key={taller.id}
+              className="hover:bg-blue-50/40 dark:hover:bg-blue-950/20 even:bg-slate-50/40 dark:even:bg-slate-800/20 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
               <TableCell className="font-medium text-slate-900 dark:text-white">
-                {taller.id}
+                {index + 1}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">

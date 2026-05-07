@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import {
     Truck, Building2, User, AlertCircle, Mail, Lock,
-    Eye, EyeOff, Phone, MapPin, FileText, CheckCircle2,
+    Eye, EyeOff, Phone, MapPin, FileText,
 } from 'lucide-react'
 
 const INPUT_CLASS =
@@ -17,7 +18,6 @@ export default function RegistroEmpresaPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [success, setSuccess] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -72,8 +72,13 @@ export default function RegistroEmpresaPage() {
             const data = await res.json()
             if (!res.ok) { setError(data.error || 'Error al registrar'); return }
 
-            setSuccess(true)
-            setTimeout(() => router.push('/login'), 5000)
+            // Iniciar sesión automáticamente y redirigir a /planes
+            const supabase = createClient()
+            await supabase.auth.signInWithPassword({
+                email: adminEmail.trim(),
+                password: adminPassword,
+            })
+            router.push('/planes')
         } catch {
             setError('Error de conexión. Intenta de nuevo.')
         } finally {
@@ -81,30 +86,7 @@ export default function RegistroEmpresaPage() {
         }
     }
 
-    // ── Pantalla de éxito ──────────────────────────────────────────────────────
-    if (success) {
-        return (
-            <PageShell showRegisterLink={false}>
-                <div className="w-full max-w-md mx-auto">
-                    <div className="bg-white rounded-3xl shadow-2xl p-10 text-center">
-                        <div className="inline-flex items-center justify-center p-4 bg-green-100 rounded-full mb-5">
-                            <CheckCircle2 className="h-12 w-12 text-green-600" />
-                        </div>
-                        <h2 className="text-2xl font-extrabold text-gray-900 mb-2">¡Registro exitoso!</h2>
-                        <p className="text-gray-500 mb-6">
-                            Tu empresa y cuenta de administrador han sido creadas. Serás redirigido al login en unos segundos.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center w-full py-3.5 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all"
-                        >
-                            Ir al login ahora
-                        </Link>
-                    </div>
-                </div>
-            </PageShell>
-        )
-    }
+
 
     // ── Formulario ─────────────────────────────────────────────────────────────
     return (

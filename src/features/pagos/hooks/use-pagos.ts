@@ -3,6 +3,8 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { PagosService } from '../services/pagos-service'
+import { PLAN_LIMITES } from '../types/pagos.types'
+import type { PlanLimites } from '../types/pagos.types'
 
 export function useEstadoSuscripcion(options?: { enabled?: boolean }) {
     return useQuery({
@@ -11,6 +13,12 @@ export function useEstadoSuscripcion(options?: { enabled?: boolean }) {
         staleTime: 60 * 1000,
         enabled: options?.enabled ?? true,
     })
+}
+
+export function usePlanLimites(): PlanLimites {
+    const { data: suscripcion } = useEstadoSuscripcion()
+    const plan = suscripcion?.plan ?? 'basico'
+    return PLAN_LIMITES[plan] ?? PLAN_LIMITES.basico
 }
 
 export function useFacturas() {

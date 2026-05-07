@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, User, Loader2 } from "lucide-react"
+import { Plus, User, Loader2, Users, Lock } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
 
 // Importar desde features
 import {
@@ -13,6 +14,7 @@ import {
   useDeleteConductor,
   useFilteredConductores,
   useConductoresStats,
+  useLimiteConductores,
   type Conductor
 } from "@/features/conductores"
 import { ConductoresStats } from "@/features/conductores/components/ConductorStats"
@@ -21,12 +23,13 @@ export default function ConductoresPage() {
     const [editingConductor, setEditingConductor] = useState<Conductor | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
-    // Usar los hooks del feature
     const { conductores, isLoading, error, filters } = useFilteredConductores()
     const { data: stats } = useConductoresStats()
     const deleteConductorMutation = useDeleteConductor()
+    const limite = useLimiteConductores()
 
     const handleCreateConductor = () => {
+        if (limite.alcanzado) return
         setEditingConductor(null)
         setIsEditModalOpen(true)
     }
@@ -72,24 +75,36 @@ export default function ConductoresPage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        Gestión de Conductores
-                    </h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-2">
-                        Administra la información de los conductores de la flota
-                    </p>
-                </div>
-                <Button 
-                    onClick={handleCreateConductor} 
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nuevo Conductor
-                </Button>
-            </div>
+            <PageHeader
+                title="Gestión de Conductores"
+                subtitle="Administra la información de los conductores de la flota"
+                badge="Conductores"
+                icon={Users}
+                iconColor="text-purple-600"
+                iconBg="bg-purple-100 dark:bg-purple-900/30"
+                action={
+                    <div className="flex items-center gap-3">
+                        {!limite.ilimitado && (
+                            <span className={`text-sm font-medium px-3 py-1 rounded-full border ${
+                                limite.alcanzado
+                                    ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+                                    : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                            }`}>
+                                {limite.actual}/{limite.maximo} conductores
+                            </span>
+                        )}
+                        <Button
+                            onClick={handleCreateConductor}
+                            disabled={limite.alcanzado}
+                            title={limite.alcanzado ? `Límite del plan alcanzado (${limite.actual}/${limite.maximo})` : undefined}
+                            className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                        >
+                            {limite.alcanzado ? <Lock className="h-5 w-5 mr-2" /> : <Plus className="h-5 w-5 mr-2" />}
+                            Nuevo Conductor
+                        </Button>
+                    </div>
+                }
+            />
 
             {/* Estadísticas */}
             <div className="mb-8">

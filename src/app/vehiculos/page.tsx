@@ -10,10 +10,12 @@ import {
     useDeleteVehicle,
     useFilteredVehicles,
     useVehiclesStats,
+    useLimiteVehiculos,
     type Vehicle
 } from "@/features/vehiculos"
 import { VehiculoStats } from "@/features/vehiculos/components/VehiculoStats"
-import { Plus, Car, Loader2 } from "lucide-react"
+import { Plus, Car, Loader2, Truck, Lock } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
 
 
 
@@ -22,12 +24,13 @@ export default function VehiculosPage() {
     const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
-    // Usar los hooks del feature
     const { vehicles, isLoading, error, filters } = useFilteredVehicles()
     const { data: stats } = useVehiclesStats()
     const deleteVehicleMutation = useDeleteVehicle()
+    const limite = useLimiteVehiculos()
 
     const handleCreateVehicle = () => {
+        if (limite.alcanzado) return
         setEditingVehicle(null)
         setIsEditModalOpen(true)
     }
@@ -72,24 +75,36 @@ export default function VehiculosPage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        Gestión de Vehículos
-                    </h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-2">
-                        Administra la flota de vehículos y su estado de mantenimiento
-                    </p>
-                </div>
-                <Button 
-                    onClick={handleCreateVehicle} 
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nuevo Vehículo
-                </Button>
-            </div>
+            <PageHeader
+                title="Gestión de Vehículos"
+                subtitle="Administra la flota de vehículos y su estado de mantenimiento"
+                badge="Flota"
+                icon={Truck}
+                iconColor="text-green-600"
+                iconBg="bg-green-100 dark:bg-green-900/30"
+                action={
+                    <div className="flex items-center gap-3">
+                        {!limite.ilimitado && (
+                            <span className={`text-sm font-medium px-3 py-1 rounded-full border ${
+                                limite.alcanzado
+                                    ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+                                    : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                            }`}>
+                                {limite.actual}/{limite.maximo} vehículos
+                            </span>
+                        )}
+                        <Button
+                            onClick={handleCreateVehicle}
+                            disabled={limite.alcanzado}
+                            title={limite.alcanzado ? `Límite del plan alcanzado (${limite.actual}/${limite.maximo})` : undefined}
+                            className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                        >
+                            {limite.alcanzado ? <Lock className="h-5 w-5 mr-2" /> : <Plus className="h-5 w-5 mr-2" />}
+                            Nuevo Vehículo
+                        </Button>
+                    </div>
+                }
+            />
            
 
             {/* Estadísticas */}

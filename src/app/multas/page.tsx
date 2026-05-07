@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, AlertTriangle } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
 import { MultaFormModal } from "@/features/multas"
 import {
     useFilteredMultasConductores,
@@ -82,24 +83,20 @@ export default function MultasConductoresPage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        Gestión de Multas de Conductores
-                    </h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-2">
-                        Administra las multas e infracciones de tránsito de los conductores, realiza pagos y lleva un control detallado de cada caso.
-                    </p>
-                </div>
-                <Button 
-                    onClick={handleCreateMulta} 
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nueva Multa
-                </Button>
-            </div>
+            <PageHeader
+                title="Multas de Conductores"
+                subtitle="Administra multas e infracciones de tránsito, realiza pagos y lleva un control detallado"
+                badge="Infracciones"
+                icon={AlertTriangle}
+                iconColor="text-amber-600"
+                iconBg="bg-amber-100 dark:bg-amber-900/30"
+                action={
+                    <Button onClick={handleCreateMulta} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                        <Plus className="h-5 w-5 mr-2" />
+                        Nueva Multa
+                    </Button>
+                }
+            />
 
             {/* Estadísticas */}
             <div className="mb-8">

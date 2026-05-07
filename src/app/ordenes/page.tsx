@@ -12,6 +12,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Plus, Search, Package, X } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
 import {
     OrdenFormModal,
     OrdenesTable,
@@ -83,27 +84,20 @@ export default function OrdenesPage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <div className="flex items-center mb-2">
-                        <Package className="h-8 w-8 text-primary-blue mr-3" />
-                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                            Gestión de Órdenes
-                        </h1>
-                    </div>
-                    <p className="text-slate-600 dark:text-slate-400">
-                        Administra las órdenes de transporte, asigna rutas y realiza seguimiento de entregas
-                    </p>
-                </div>
-                <Button
-                    onClick={handleCreateOrden}
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nueva Orden
-                </Button>
-            </div>
+            <PageHeader
+                title="Gestión de Órdenes"
+                subtitle="Administra las órdenes de transporte, asigna rutas y realiza seguimiento de entregas"
+                badge="Órdenes"
+                icon={Package}
+                iconColor="text-orange-600"
+                iconBg="bg-orange-100 dark:bg-orange-900/30"
+                action={
+                    <Button onClick={handleCreateOrden} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                        <Plus className="h-5 w-5 mr-2" />
+                        Nueva Orden
+                    </Button>
+                }
+            />
 
             {/* Estadísticas */}
             <div className="mb-8">

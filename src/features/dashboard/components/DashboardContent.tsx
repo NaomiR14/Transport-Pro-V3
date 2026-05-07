@@ -2,15 +2,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-    Truck,
-    Users,
-    FileText,
-    Wrench,
-    Package,
-    Shield,
-    Receipt,
-    AlertTriangle,
-    TrendingUp,
+    Truck, Users, FileText, Wrench, Package, Shield,
+    Receipt, AlertTriangle, TrendingUp, ArrowRight,
 } from "lucide-react"
 import Link from "next/link"
 import { useAuth, usePermissions } from "@/features/auth"
@@ -19,118 +12,35 @@ export default function DashboardContent() {
     const { user, profile } = useAuth()
     const { canAccessModule, getRoleName } = usePermissions()
 
-    // Dashboard para usuarios autenticados
     const allModules = [
-        {
-            title: "Órdenes de Transporte",
-            description: "Gestionar órdenes de transporte y seguimiento",
-            icon: Package,
-            href: "/ordenes",
-            color: "bg-blue-500 dark:bg-blue-600",
-            module: "ordenes" as const,
-        },
-        {
-            title: "Flota de Vehículos",
-            description: "Administrar vehículos y mantenimiento",
-            icon: Truck,
-            href: "/vehiculos",
-            color: "bg-green-500 dark:bg-green-600",
-            module: "vehiculos" as const,
-        },
-        {
-            title: "Conductores",
-            description: "Gestión de conductores y documentos",
-            icon: Users,
-            href: "/conductores",
-            color: "bg-purple-500 dark:bg-purple-600",
-            module: "conductores" as const,
-        },
-        {
-            title: "Rutas de Viaje",
-            description: "Gestionar rutas y registros de viaje",
-            icon: FileText,
-            href: "/rutas",
-            color: "bg-red-500 dark:bg-red-600",
-            module: "rutas" as const,
-        },
-        {
-            title: "Multas de Conductores",
-            description: "Gestionar multas e infracciones de tránsito",
-            icon: AlertTriangle,
-            href: "/multas",
-            color: "bg-amber-500 dark:bg-amber-600",
-            module: "multas" as const,
-        },
-        {
-            title: "Flujo de Caja",
-            description: "Gestionar flujo de caja mensual y análisis financiero",
-            icon: TrendingUp,
-            href: "/flujo-caja",
-            color: "bg-emerald-500 dark:bg-emerald-600",
-            module: "flujo_caja" as const,
-        },
-        {
-            title: "Reporte Conductores",
-            description: "Indicadores de rendimiento por conductor — viajes, carga, ingresos y multas",
-            icon: Users,
-            href: "/indicadores-conductor",
-            color: "bg-rose-500 dark:bg-rose-600",
-            module: "indicadores_conductor" as const,
-        },
-        {
-            title: "Talleres",
-            description: "Programar y seguir mantenimientos",
-            icon: Wrench,
-            href: "/talleres",
-            color: "bg-indigo-500 dark:bg-indigo-600",
-            module: "talleres" as const,
-        },
-        {
-            title: "Mantenimiento de Vehículos",
-            description: "Registrar y seguir mantenimientos de vehículos",
-            icon: Wrench,
-            href: "/mantenimiento-vehiculos",
-            color: "bg-teal-500 dark:bg-teal-600",
-            module: "mantenimiento_vehiculos" as const,
-        },
-        {
-            title: "Seguros de Vehículos",
-            description: "Gestionar pólizas de seguro de la flota",
-            icon: Shield,
-            href: "/seguros",
-            color: "bg-cyan-500 dark:bg-cyan-600",
-            module: "seguros" as const,
-        },
-        {
-            title: "Impuestos de Vehículos",
-            description: "Gestionar impuestos y contribuciones vehiculares",
-            icon: Receipt,
-            href: "/impuestos-vehiculares",
-            color: "bg-purple-600 dark:bg-purple-700",
-            module: "impuestos_vehiculares" as const,
-        },
+        { title: "Órdenes de Transporte", description: "Gestionar órdenes de transporte y seguimiento", icon: Package, href: "/ordenes", gradient: "from-blue-500 to-blue-600", shadow: "shadow-blue-500/25", module: "ordenes" as const },
+        { title: "Flota de Vehículos", description: "Administrar vehículos y mantenimiento", icon: Truck, href: "/vehiculos", gradient: "from-green-500 to-green-600", shadow: "shadow-green-500/25", module: "vehiculos" as const },
+        { title: "Conductores", description: "Gestión de conductores y documentos", icon: Users, href: "/conductores", gradient: "from-purple-500 to-purple-600", shadow: "shadow-purple-500/25", module: "conductores" as const },
+        { title: "Rutas de Viaje", description: "Gestionar rutas y registros de viaje", icon: FileText, href: "/rutas", gradient: "from-red-500 to-red-600", shadow: "shadow-red-500/25", module: "rutas" as const },
+        { title: "Multas de Conductores", description: "Gestionar multas e infracciones de tránsito", icon: AlertTriangle, href: "/multas", gradient: "from-amber-500 to-amber-600", shadow: "shadow-amber-500/25", module: "multas" as const },
+        { title: "Flujo de Caja", description: "Gestionar flujo de caja mensual y análisis financiero", icon: TrendingUp, href: "/flujo-caja", gradient: "from-emerald-500 to-emerald-600", shadow: "shadow-emerald-500/25", module: "flujo_caja" as const },
+        { title: "Reporte Conductores", description: "Indicadores de rendimiento por conductor", icon: Users, href: "/indicadores-conductor", gradient: "from-rose-500 to-rose-600", shadow: "shadow-rose-500/25", module: "indicadores_conductor" as const },
+        { title: "Talleres", description: "Programar y seguir mantenimientos", icon: Wrench, href: "/talleres", gradient: "from-indigo-500 to-indigo-600", shadow: "shadow-indigo-500/25", module: "talleres" as const },
+        { title: "Mantenimiento de Vehículos", description: "Registrar y seguir mantenimientos de vehículos", icon: Wrench, href: "/mantenimiento-vehiculos", gradient: "from-teal-500 to-teal-600", shadow: "shadow-teal-500/25", module: "mantenimiento_vehiculos" as const },
+        { title: "Seguros de Vehículos", description: "Gestionar pólizas de seguro de la flota", icon: Shield, href: "/seguros", gradient: "from-cyan-500 to-cyan-600", shadow: "shadow-cyan-500/25", module: "seguros" as const },
+        { title: "Impuestos de Vehículos", description: "Gestionar impuestos y contribuciones vehiculares", icon: Receipt, href: "/impuestos-vehiculares", gradient: "from-purple-600 to-purple-700", shadow: "shadow-purple-600/25", module: "impuestos_vehiculares" as const },
     ]
 
-    // Filtrar módulos según permisos del usuario
-    const modules = allModules.filter(module => canAccessModule(module.module))
+    const modules = allModules.filter(m => canAccessModule(m.module))
 
-    // Determinar qué nombre mostrar
     const displayName = profile?.nombre && profile?.apellido
-                       ? `${profile.nombre} ${profile.apellido}`
-                       : (profile as any)?.full_name || 
-                         user?.user_metadata?.full_name ||
-                         user?.email?.split('@')[0] ||
-                         'Usuario'
+        ? `${profile.nombre} ${profile.apellido}`
+        : (profile as any)?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario'
 
     return (
         <div className="p-6">
             {/* Page Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="mb-8 bg-gradient-to-r from-slate-50 to-blue-50/40 dark:from-slate-900 dark:to-blue-950/20 rounded-2xl px-6 py-5 border border-slate-200/60 dark:border-slate-800/60">
+                <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
                     ¡Bienvenido, {displayName}!
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                    Accede rápidamente a todos los módulos del sistema{profile?.role ? ` | Rol: ${getRoleName()}` : ''}
+                <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
+                    Accede rápidamente a todos los módulos del sistema{profile?.role ? ` · ${getRoleName()}` : ''}
                 </p>
             </div>
 
@@ -139,13 +49,16 @@ export default function DashboardContent() {
                     const IconComponent = module.icon
                     return (
                         <Link key={module.href} href={module.href}>
-                            <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer h-full border-gray-200 dark:border-gray-700">
+                            <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer h-full border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
                                 <CardHeader className="pb-3">
-                                    <div className={`w-12 h-12 rounded-lg ${module.color} flex items-center justify-center mb-3 shadow-sm`}>
-                                        <IconComponent className="h-6 w-6 text-white" />
+                                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${module.gradient} flex items-center justify-center mb-3 shadow-lg ${module.shadow}`}>
+                                        <IconComponent className="h-7 w-7 text-white" />
                                     </div>
-                                    <CardTitle className="text-lg text-gray-900 dark:text-white">{module.title}</CardTitle>
-                                    <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                                    <CardTitle className="text-base font-bold text-gray-900 dark:text-white flex items-center justify-between">
+                                        {module.title}
+                                        <ArrowRight className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200" />
+                                    </CardTitle>
+                                    <CardDescription className="text-sm text-gray-500 dark:text-gray-400">
                                         {module.description}
                                     </CardDescription>
                                 </CardHeader>
@@ -155,51 +68,50 @@ export default function DashboardContent() {
                 })}
             </div>
 
-            {/* Quick Stats Footer */}
+            {/* Quick Stats */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+                <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                            <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-xl shadow-sm">
                                 <Truck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Acceso rápido</p>
-                                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {modules.length} módulos disponibles
+                                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Acceso rápido</p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                    {modules.length} módulos
                                 </p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
+                <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-2xl">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-green-100 dark:bg-green-800 rounded-lg">
+                            <div className="p-3 bg-green-100 dark:bg-green-800 rounded-xl shadow-sm">
                                 <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Seguridad</p>
-                                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                                <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide">Seguridad</p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     Sesión activa
+                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                 </p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20">
+                <Card className="border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-100 dark:bg-purple-800 rounded-lg">
+                            <div className="p-3 bg-purple-100 dark:bg-purple-800 rounded-xl shadow-sm">
                                 <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Tu rol</p>
-                                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {getRoleName()}
-                                </p>
+                                <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide">Tu rol</p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white">{getRoleName()}</p>
                             </div>
                         </div>
                     </CardContent>

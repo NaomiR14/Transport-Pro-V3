@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Wrench } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
 import { MantenimientoFormModal } from "@/features/mantenimiento"
 import {
     useFilteredMantenimientos,
@@ -43,24 +44,20 @@ export default function MantenimientoVehiculosPage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        Mantenimiento de Vehículos
-                    </h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-2">
-                        Administra el mantenimiento preventivo y correctivo de la flota
-                    </p>
-                </div>
-                <Button 
-                    onClick={handleCreateMantenimiento} 
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nuevo Mantenimiento
-                </Button>
-            </div>
+            <PageHeader
+                title="Mantenimiento de Vehículos"
+                subtitle="Administra el mantenimiento preventivo y correctivo de la flota"
+                badge="Mantenimiento"
+                icon={Wrench}
+                iconColor="text-teal-600"
+                iconBg="bg-teal-100 dark:bg-teal-900/30"
+                action={
+                    <Button onClick={handleCreateMantenimiento} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                        <Plus className="h-5 w-5 mr-2" />
+                        Nuevo Mantenimiento
+                    </Button>
+                }
+            />
 
             {/* Estadísticas */}
             <div className="mb-8">

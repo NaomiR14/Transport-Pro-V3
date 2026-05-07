@@ -5,5 +5,6 @@ export { Header } from './layout/Header'
 
 // Common components
 export { StatsCard } from './common/StatsCard'
+export { PageHeader } from './common/PageHeader'
 export { Badge, SuccessBadge, DangerBadge, WarningBadge, InfoBadge } from './common/Badge'
 export { ChartCard } from './common/ChartCard'

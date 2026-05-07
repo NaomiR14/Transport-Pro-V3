@@ -27,7 +27,9 @@ export {
   useSearchConductores,
   useFilteredConductores,
   useConductoresSimple,
-  useConductorFilterOptions
+  useConductorFilterOptions,
+  useConductoresCount,
+  useLimiteConductores
 } from './hooks/use-conductores'
 
 // Components

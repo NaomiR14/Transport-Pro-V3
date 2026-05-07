@@ -74,18 +74,18 @@ export function ReporteConductoresTable({ data, loading }: ReporteConductoresTab
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="border-b-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/60">
-            <th className="text-left py-3 px-3 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 bg-slate-50 dark:bg-slate-800/60 min-w-[200px] z-10">
+          <tr className="border-b-2 border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-800/50">
+            <th className="text-left py-3 px-3 font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400 sticky left-0 bg-slate-50 dark:bg-slate-800 min-w-[200px] z-10">
               Conductor
             </th>
             {COLUMNS.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'text-right py-3 px-2 font-semibold text-slate-700 dark:text-slate-300 min-w-[95px] whitespace-nowrap',
+                  'text-right py-3 px-2 font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400 min-w-[95px] whitespace-nowrap',
                   col.headerClass,
                 )}
               >
@@ -98,7 +98,7 @@ export function ReporteConductoresTable({ data, loading }: ReporteConductoresTab
           {data.map((row) => (
             <tr
               key={row.documento_identidad}
-              className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
+              className="border-b border-slate-100 dark:border-slate-800 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 transition-colors"
             >
               <td className="py-2.5 px-3 font-medium text-slate-800 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900 z-10">
                 {row.nombre_conductor}

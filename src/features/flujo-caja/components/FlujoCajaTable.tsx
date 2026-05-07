@@ -59,19 +59,19 @@ export function FlujoCajaTable({ data, loading }: FlujoCajaTableProps) {
   if (!data) return null
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="border-b-2 border-slate-300 dark:border-slate-600">
-            <th className="text-left py-3 px-3 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 bg-white dark:bg-slate-900 min-w-[160px] z-10">
+          <tr className="border-b-2 border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-800/50">
+            <th className="text-left py-3 px-3 font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400 sticky left-0 bg-slate-50 dark:bg-slate-800 min-w-[160px] z-10">
               Concepto
             </th>
             {MESES_NOMBRES.map((mes) => (
-              <th key={mes} className="text-right py-3 px-2 font-semibold text-slate-700 dark:text-slate-300 min-w-[100px]">
+              <th key={mes} className="text-right py-3 px-2 font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400 min-w-[100px]">
                 {mes}
               </th>
             ))}
-            <th className="text-right py-3 px-3 font-bold text-slate-900 dark:text-white min-w-[110px] bg-slate-50 dark:bg-slate-800">
+            <th className="text-right py-3 px-3 font-bold uppercase text-xs tracking-wider text-slate-700 dark:text-slate-300 min-w-[110px] bg-slate-100 dark:bg-slate-700/60">
               Total
             </th>
           </tr>
@@ -81,7 +81,7 @@ export function FlujoCajaTable({ data, loading }: FlujoCajaTableProps) {
             <tr
               key={config.key}
               className={cn(
-                'border-b border-slate-200 dark:border-slate-700 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50',
+                'border-b border-slate-200 dark:border-slate-700 transition-colors hover:bg-blue-50/40 dark:hover:bg-blue-950/20',
                 rowIndex === 1 && 'border-b-2', // Separador después de Egresos
                 rowIndex === 10 && 'border-b-2', // Separador antes de Utilidad
               )}

@@ -17,6 +17,7 @@ import {
   EgresosVariosTable,
 } from "@/features/flujo-caja"
 import { StatsCard } from "@/shared/components/common/StatsCard"
+import { PageHeader } from "@/shared/components/common/PageHeader"
 
 const currentYear = new Date().getFullYear()
 const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i)
@@ -50,40 +51,29 @@ export default function FlujoCajaPage() {
 
   return (
     <div className="p-6 container-padding">
-      {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center mb-2">
-            <TrendingUp className="h-8 w-8 text-emerald-600 mr-3" />
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Flujo de Caja Mensual
-            </h1>
+      <PageHeader
+        title="Flujo de Caja Mensual"
+        subtitle="Resumen de ingresos, egresos, utilidad y margen de la flota por mes"
+        badge="Flujo de Caja"
+        icon={TrendingUp}
+        iconColor="text-emerald-600"
+        iconBg="bg-emerald-100 dark:bg-emerald-900/30"
+        action={
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Año:</span>
+            <Select value={String(anio)} onValueChange={(value) => setAnio(Number(value))}>
+              <SelectTrigger className="w-28 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {YEARS.map((y) => (
+                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <p className="text-slate-600 dark:text-slate-400">
-            Resumen de ingresos, egresos, utilidad y margen de la flota por mes
-          </p>
-        </div>
-
-        {/* Filtro de Año */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Año:</span>
-          <Select
-            value={String(anio)}
-            onValueChange={(value) => setAnio(Number(value))}
-          >
-            <SelectTrigger className="w-28 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {YEARS.map((y) => (
-                <SelectItem key={y} value={String(y)}>
-                  {y}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

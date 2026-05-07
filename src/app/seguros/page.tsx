@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Shield } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
 import { SeguroFormModal } from "@/features/seguros"
 import {
     useDeleteSeguro,
@@ -75,24 +76,20 @@ export default function SegurosPage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        Gestión de Seguros
-                    </h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-2">
-                        Administra las pólizas de seguro de la flota vehicular
-                    </p>
-                </div>
-                <Button 
-                    onClick={handleCreateSeguro} 
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nuevo Seguro
-                </Button>
-            </div>
+            <PageHeader
+                title="Gestión de Seguros"
+                subtitle="Administra las pólizas de seguro de la flota vehicular"
+                badge="Seguros"
+                icon={Shield}
+                iconColor="text-cyan-600"
+                iconBg="bg-cyan-100 dark:bg-cyan-900/30"
+                action={
+                    <Button onClick={handleCreateSeguro} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                        <Plus className="h-5 w-5 mr-2" />
+                        Nuevo Seguro
+                    </Button>
+                }
+            />
 
             {/* Estadísticas */}
             <div className="mb-8">

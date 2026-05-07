@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Receipt } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
 import { ImpuestoFormModal } from "@/features/impuestos"
 import {
     useDeleteImpuesto,
@@ -75,24 +76,20 @@ export default function ImpuestosVehicularesPage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        Gestión de Impuestos Vehiculares
-                    </h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-2">
-                        Administra los impuestos y contribuciones de la flota vehicular
-                    </p>
-                </div>
-                <Button 
-                    onClick={handleCreateImpuesto} 
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nuevo Impuesto
-                </Button>
-            </div>
+            <PageHeader
+                title="Impuestos Vehiculares"
+                subtitle="Administra los impuestos y contribuciones de la flota vehicular"
+                badge="Impuestos"
+                icon={Receipt}
+                iconColor="text-purple-600"
+                iconBg="bg-purple-100 dark:bg-purple-900/30"
+                action={
+                    <Button onClick={handleCreateImpuesto} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                        <Plus className="h-5 w-5 mr-2" />
+                        Nuevo Impuesto
+                    </Button>
+                }
+            />
 
             {/* Estadísticas */}
             <div className="mb-8">

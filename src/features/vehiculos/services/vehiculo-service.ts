@@ -145,6 +145,16 @@ export class VehicleService {
   }
 
   // Crear un nuevo vehículo
+  async getCount(): Promise<number> {
+    const supabase = createClient()
+    const empresaId = await getEmpresaId()
+    const { count } = await supabase
+      .from('vehicles')
+      .select('*', { count: 'exact', head: true })
+      .eq('empresa_id', empresaId)
+    return count ?? 0
+  }
+
   async createVehicle(data: CreateVehicleRequest): Promise<Vehicle> {
     try {
       console.log('[VehicleService] createVehicle - INPUT:', data);

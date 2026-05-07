@@ -30,6 +30,17 @@ export interface EstadoSuscripcion {
     stripe_subscription_id: string | null
 }
 
+export interface PlanLimites {
+    maxVehiculos: number | null  // null = ilimitado
+    maxConductores: number | null
+}
+
+export const PLAN_LIMITES: Record<PlanTipo, PlanLimites> = {
+    basico:      { maxVehiculos: 10,   maxConductores: 10 },
+    profesional: { maxVehiculos: 50,   maxConductores: 50 },
+    enterprise:  { maxVehiculos: null, maxConductores: null },
+}
+
 export const PLANES: PlanConfig[] = [
     {
         id: 'basico',

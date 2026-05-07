@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select"
 import { Users, Route, FileBarChart2, TrendingUp } from "lucide-react"
 import { StatsCard } from "@/shared/components/common/StatsCard"
+import { PageHeader } from "@/shared/components/common/PageHeader"
 import {
   useReporteConductores,
   ReporteConductoresTable,
@@ -71,66 +72,45 @@ export default function ReporteConductoresPage() {
 
   return (
     <div className="p-6 container-padding">
-      {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center mb-2">
-            <Users className="h-8 w-8 text-pink-600 mr-3" />
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Reporte de Conductores
-            </h1>
+      <PageHeader
+        title="Reporte de Conductores"
+        subtitle="Indicadores de rendimiento por conductor — viajes, carga, ingresos y multas"
+        badge="Indicadores"
+        icon={Users}
+        iconColor="text-pink-600"
+        iconBg="bg-pink-100 dark:bg-pink-900/30"
+        action={
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">Año:</span>
+              <Select value={String(anio)} onValueChange={(v) => setAnio(Number(v))}>
+                <SelectTrigger className="w-28 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {YEARS.map((y) => (
+                    <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">Mes:</span>
+              <Select value={mes ? String(mes) : TODO_EL_ANIO} onValueChange={(v) => setMes(v === TODO_EL_ANIO ? undefined : Number(v))}>
+                <SelectTrigger className="w-36 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                  <SelectValue placeholder="Todo el año" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TODO_EL_ANIO}>Todo el año</SelectItem>
+                  {MESES_NOMBRES.map((nombre, idx) => (
+                    <SelectItem key={idx + 1} value={String(idx + 1)}>{nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <p className="text-slate-600 dark:text-slate-400">
-            Indicadores de rendimiento por conductor — viajes, carga, ingresos y multas
-          </p>
-        </div>
-
-        {/* Filtros */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-              Año:
-            </span>
-            <Select
-              value={String(anio)}
-              onValueChange={(v) => setAnio(Number(v))}
-            >
-              <SelectTrigger className="w-28 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {YEARS.map((y) => (
-                  <SelectItem key={y} value={String(y)}>
-                    {y}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-              Mes:
-            </span>
-            <Select
-              value={mes ? String(mes) : TODO_EL_ANIO}
-              onValueChange={(v) => setMes(v === TODO_EL_ANIO ? undefined : Number(v))}
-            >
-              <SelectTrigger className="w-36 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                <SelectValue placeholder="Todo el año" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={TODO_EL_ANIO}>Todo el año</SelectItem>
-                {MESES_NOMBRES.map((nombre, idx) => (
-                  <SelectItem key={idx + 1} value={String(idx + 1)}>
-                    {nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

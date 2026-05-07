@@ -21,6 +21,7 @@ import {
   TrendingDown,
 } from "lucide-react"
 import { StatsCard } from "@/shared/components/common/StatsCard"
+import { PageHeader } from "@/shared/components/common/PageHeader"
 import {
   useReporteGeneral,
   usePlacasVehiculos,
@@ -77,69 +78,45 @@ export default function ReporteGeneralPage() {
 
   return (
     <div className="p-6 container-padding">
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center mb-2">
-            <FileBarChart2 className="h-8 w-8 text-indigo-600 mr-3" />
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Reporte General de Indicadores
-            </h1>
+      <PageHeader
+        title="Reporte General de Indicadores"
+        subtitle="Análisis anual por vehículo — operacional y financiero"
+        badge="Reporte General"
+        icon={FileBarChart2}
+        iconColor="text-indigo-600"
+        iconBg="bg-indigo-100 dark:bg-indigo-900/30"
+        action={
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">Año:</span>
+              <Select value={String(anio)} onValueChange={(v) => setAnio(Number(v))}>
+                <SelectTrigger className="w-28 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {YEARS.map((y) => (
+                    <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">Vehículo:</span>
+              <Select value={placa ?? TODA_FLOTA} onValueChange={(v) => setPlaca(v === TODA_FLOTA ? undefined : v)} disabled={loadingPlacas}>
+                <SelectTrigger className="w-36 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                  <SelectValue placeholder="Toda la flota" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TODA_FLOTA}>Toda la flota</SelectItem>
+                  {placas.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <p className="text-slate-600 dark:text-slate-400">
-            Análisis anual por vehículo — operacional y financiero
-          </p>
-        </div>
-
-        {/* ── Filtros ─────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Selector de Año */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-              Año:
-            </span>
-            <Select
-              value={String(anio)}
-              onValueChange={(v) => setAnio(Number(v))}
-            >
-              <SelectTrigger className="w-28 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {YEARS.map((y) => (
-                  <SelectItem key={y} value={String(y)}>
-                    {y}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Selector de Placa */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-              Vehículo:
-            </span>
-            <Select
-              value={placa ?? TODA_FLOTA}
-              onValueChange={(v) => setPlaca(v === TODA_FLOTA ? undefined : v)}
-              disabled={loadingPlacas}
-            >
-              <SelectTrigger className="w-36 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                <SelectValue placeholder="Toda la flota" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={TODA_FLOTA}>Toda la flota</SelectItem>
-                {placas.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* ── KPI Cards ──────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

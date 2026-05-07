@@ -24,7 +24,9 @@ export {
   useDeleteVehicle,
   useVehiclesStats,
   useFilteredVehicles,
-  useVehicleFilterOptions
+  useVehicleFilterOptions,
+  useVehiculosCount,
+  useLimiteVehiculos
 } from './hooks/use-vehiculos'
 
 // Components
