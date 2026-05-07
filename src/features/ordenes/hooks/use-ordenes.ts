@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { toast } from 'sonner'
-import { useEffect } from 'react'
 import { OrdenService } from '../services/ordenes-service'
 import { useOrdenStore } from '../store/ordenes-store'
 import {
@@ -18,69 +18,31 @@ const QUERY_KEYS = {
     ordenes: ['ordenes'] as const,
     list: (filters?: OrdenFilters) => [...QUERY_KEYS.ordenes, 'list', filters] as const,
     detail: (id: string) => [...QUERY_KEYS.ordenes, 'detail', id] as const,
-    stats: () => [...QUERY_KEYS.ordenes, 'stats'] as const,
-    search: (term: string) => [...QUERY_KEYS.ordenes, 'search', term] as const,
 }
 
-// Hook para listar órdenes con sincronización automática del store
 export function useOrdenes(filters?: OrdenFilters) {
-    const { setOrdenes, setLoading, setError } = useOrdenStore()
-
-    const query = useQuery({
+    return useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => OrdenService.getOrdenes(filters),
         staleTime: 30 * 1000,
     })
-
-    // Auto-sync con store
-    useEffect(() => {
-        if (query.data) {
-            setOrdenes(query.data)
-            setError(null)
-        }
-        if (query.error) {
-            setError(query.error.message)
-        }
-        setLoading(query.isLoading)
-    }, [query.data, query.error, query.isLoading, setOrdenes, setError, setLoading])
-
-    return query
 }
 
-// Hook para una orden específica
 export function useOrden(id: string | null) {
-    const { setSelectedOrden, setLoading, setError } = useOrdenStore()
-
-    const query = useQuery({
+    return useQuery({
         queryKey: QUERY_KEYS.detail(id!),
         queryFn: () => OrdenService.getOrdenById(id!),
         enabled: !!id,
         staleTime: 30 * 1000,
     })
-
-    useEffect(() => {
-        if (query.data) {
-            setSelectedOrden(query.data)
-            setError(null)
-        }
-        if (query.error) {
-            setError(query.error.message)
-        }
-        setLoading(query.isLoading)
-    }, [query.data, query.error, query.isLoading, setSelectedOrden, setError, setLoading])
-
-    return query
 }
 
-// Hook para crear orden
 export function useCreateOrden() {
     const queryClient = useQueryClient()
-    const { addOrden } = useOrdenStore()
 
     return useMutation({
         mutationFn: (data: CreateOrdenRequest) => OrdenService.createOrden(data),
-        onSuccess: (newOrden) => {
-            addOrden(newOrden)
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ordenes })
             toast.success('Orden creada exitosamente')
         },
@@ -90,16 +52,13 @@ export function useCreateOrden() {
     })
 }
 
-// Hook para actualizar orden
 export function useUpdateOrden() {
     const queryClient = useQueryClient()
-    const { updateOrden } = useOrdenStore()
 
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: UpdateOrdenRequest }) =>
             OrdenService.updateOrden(id, data),
         onSuccess: (updatedOrden) => {
-            updateOrden(updatedOrden)
             queryClient.setQueryData(QUERY_KEYS.detail(updatedOrden.id), updatedOrden)
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ordenes })
             toast.success('Orden actualizada exitosamente')
@@ -110,15 +69,12 @@ export function useUpdateOrden() {
     })
 }
 
-// Hook para eliminar orden
 export function useDeleteOrden() {
     const queryClient = useQueryClient()
-    const { removeOrden } = useOrdenStore()
 
     return useMutation({
         mutationFn: (id: string) => OrdenService.deleteOrden(id),
         onSuccess: (_, ordenId) => {
-            removeOrden(ordenId)
             queryClient.removeQueries({ queryKey: QUERY_KEYS.detail(ordenId) })
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ordenes })
             toast.success('Orden eliminada exitosamente')
@@ -129,38 +85,62 @@ export function useDeleteOrden() {
     })
 }
 
-// Hook para estadísticas
+// Deriva las stats directamente de los datos de React Query
 export function useOrdenesStats() {
-    const { stats } = useOrdenStore()
-    return {
-        data: stats || { total: 0, pendientes: 0, en_transito: 0, entregadas: 0 }
-    }
+    const { data } = useOrdenes()
+    const stats = useMemo(() => {
+        const ordenes = data || []
+        return {
+            total: ordenes.length,
+            pendientes: ordenes.filter((o: Orden) => o.estado === 'pendiente').length,
+            en_transito: ordenes.filter((o: Orden) => o.estado === 'transito').length,
+            entregadas: ordenes.filter((o: Orden) => o.estado === 'entregado').length,
+        }
+    }, [data])
+    return { data: stats }
 }
 
-// Hook para órdenes filtradas
+// Aplica los filtros del store sobre los datos de React Query (sin sync store←query)
 export function useFilteredOrdenes() {
-    const { filters, getFilteredOrdenes, isLoading, error } = useOrdenStore()
-    const { data: allOrdenes } = useOrdenes(filters)
+    const { filters } = useOrdenStore()
+    const { data, isLoading, error } = useOrdenes()
+
+    const ordenes = useMemo(() => {
+        const all = data || []
+        return all.filter((orden: Orden) => {
+            if (filters.searchTerm?.trim()) {
+                const term = filters.searchTerm.toLowerCase().trim()
+                const text = [
+                    orden.numero_orden,
+                    orden.placa_vehiculo,
+                    orden.nombre_conductor,
+                    orden.origen,
+                    orden.destino,
+                    orden.carta_porte,
+                ].filter(Boolean).join(' ').toLowerCase()
+                if (!text.includes(term)) return false
+            }
+            if (filters.estado && orden.estado !== filters.estado) return false
+            if (filters.placa_vehiculo && orden.placa_vehiculo !== filters.placa_vehiculo) return false
+            return true
+        })
+    }, [data, filters])
 
     return {
-        ordenes: getFilteredOrdenes(),
-        allOrdenes: allOrdenes || [],
+        ordenes,
         isLoading,
-        error,
+        error: error?.message ?? null,
         filters,
     }
 }
 
-// Hook para opciones de filtro
+// Deriva las placas disponibles del mismo cache de useOrdenes()
+// React Query deduplica la request con useFilteredOrdenes cuando se usan juntos
 export function useOrdenFilterOptions() {
-    const { ordenes } = useOrdenStore()
-    const { data: allOrdenes } = useOrdenes()
-
-    const ordenesToUse = allOrdenes || ordenes
-
-    const placas = [...new Set(ordenesToUse.map(o => o.placa_vehiculo))].filter(Boolean)
-
-    return {
-        placas,
-    }
+    const { data } = useOrdenes()
+    const placas = useMemo(
+        () => [...new Set((data || []).map((o: Orden) => o.placa_vehiculo))].filter(Boolean),
+        [data]
+    )
+    return { placas }
 }

@@ -37,5 +37,5 @@ export { default as CreateEmployeeModal } from './components/CreateEmployeeModal
 export { useAllProfiles, useUserCountByRole, useUpdateUserRole, useSearchProfiles, useCreateEmployee, useDeleteEmployee, useEmpresa } from './hooks/useRoles'
 
 // Roles service
-export { rolesService } from './services/roles-service'
+export { RolesService } from './services/roles-service'
 export type { ProfileWithEmail, RoleCount } from './services/roles-service'

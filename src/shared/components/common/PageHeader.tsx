@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils'
 interface PageHeaderProps {
     title: string
     subtitle?: string
-    badge?: string
     icon?: LucideIcon
     iconColor?: string
     iconBg?: string
@@ -15,7 +14,6 @@ interface PageHeaderProps {
 export function PageHeader({
     title,
     subtitle,
-    badge,
     icon: Icon,
     iconColor = 'text-blue-600',
     iconBg = 'bg-blue-100 dark:bg-blue-900/30',

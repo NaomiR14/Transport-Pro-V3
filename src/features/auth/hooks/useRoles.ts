@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { rolesService } from '../services/roles-service'
+import { RolesService } from '../services/roles-service'
 import { createClient } from '@/lib/supabase/client'
 import type { UserRole } from '../types/auth.types'
 
@@ -19,8 +19,8 @@ export function useAllProfiles(roleFilter?: UserRole) {
         queryKey: QUERY_KEYS.list(roleFilter),
         queryFn: () =>
             roleFilter
-                ? rolesService.getProfilesByRole(roleFilter)
-                : rolesService.getAllProfiles(),
+                ? RolesService.getProfilesByRole(roleFilter)
+                : RolesService.getAllProfiles(),
         staleTime: 30 * 1000,
     })
 }
@@ -29,7 +29,7 @@ export function useAllProfiles(roleFilter?: UserRole) {
 export function useUserCountByRole() {
     return useQuery({
         queryKey: QUERY_KEYS.counts(),
-        queryFn: () => rolesService.countUsersByRole(),
+        queryFn: () => RolesService.countUsersByRole(),
         staleTime: 60 * 1000,
     })
 }
@@ -38,7 +38,7 @@ export function useUserCountByRole() {
 export function useSearchProfiles(searchTerm: string) {
     return useQuery({
         queryKey: QUERY_KEYS.search(searchTerm),
-        queryFn: () => rolesService.searchProfiles(searchTerm),
+        queryFn: () => RolesService.searchProfiles(searchTerm),
         enabled: searchTerm.length >= 2,
         staleTime: 30 * 1000,
     })
@@ -123,7 +123,7 @@ export function useUpdateUserRole() {
 
     return useMutation({
         mutationFn: ({ userId, newRole }: { userId: string; newRole: UserRole }) =>
-            rolesService.updateUserRole(userId, newRole),
+            RolesService.updateUserRole(userId, newRole),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profiles })
             toast.success('Rol actualizado exitosamente')

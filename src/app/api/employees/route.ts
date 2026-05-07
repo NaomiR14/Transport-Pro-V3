@@ -151,6 +151,15 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: 'Faltan user_id o role' }, { status: 400 })
         }
 
+        const VALID_ROLES = [
+            'admin', 'director', 'gerente', 'coordinador', 'supervisor',
+            'recursos_humanos', 'administrativo', 'contador', 'comercial',
+            'atencion_cliente', 'conductor',
+        ]
+        if (!VALID_ROLES.includes(role)) {
+            return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
+        }
+
         // Verificar que el empleado pertenece a la misma empresa
         const { data: targetProfile } = await supabaseAdmin
             .from('profiles')

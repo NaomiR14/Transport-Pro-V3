@@ -11,76 +11,50 @@ export interface RoleCount {
 }
 
 export class RolesService {
-    private supabase = createClient()
-
-    /**
-     * Obtener todos los perfiles de usuarios
-     */
-    async getAllProfiles(): Promise<ProfileWithEmail[]> {
-        const { data, error } = await this.supabase
+    static async getAllProfiles(): Promise<ProfileWithEmail[]> {
+        const supabase = createClient()
+        const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .order('created_at', { ascending: false })
 
-        if (error) {
-            throw new Error(`Error al obtener perfiles: ${error.message}`)
-        }
-
+        if (error) throw new Error(`Error al obtener perfiles: ${error.message}`)
         return (data as ProfileWithEmail[]) || []
     }
 
-    /**
-     * Obtener perfiles filtrados por rol
-     */
-    async getProfilesByRole(role: UserRole): Promise<ProfileWithEmail[]> {
-        const { data, error } = await this.supabase
+    static async getProfilesByRole(role: UserRole): Promise<ProfileWithEmail[]> {
+        const supabase = createClient()
+        const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('role', role)
             .order('nombre', { ascending: true })
 
-        if (error) {
-            throw new Error(`Error al obtener perfiles por rol: ${error.message}`)
-        }
-
+        if (error) throw new Error(`Error al obtener perfiles por rol: ${error.message}`)
         return (data as ProfileWithEmail[]) || []
     }
 
-    /**
-     * Actualizar el rol de un usuario
-     */
-    async updateUserRole(userId: string, newRole: UserRole): Promise<ProfileWithEmail> {
-        const { data, error } = await this.supabase
-            .from('profiles')
-            .update({ role: newRole, updated_at: new Date().toISOString() })
-            .eq('id', userId)
-            .select()
-            .single()
-
-        if (error) {
-            throw new Error(`Error al actualizar rol: ${error.message}`)
-        }
-
-        if (!data) {
-            throw new Error('No se pudo actualizar el perfil')
-        }
-
-        return data as ProfileWithEmail
+    // Delega en PATCH /api/employees para centralizar la autorización en el servidor
+    static async updateUserRole(userId: string, newRole: UserRole): Promise<ProfileWithEmail> {
+        const res = await fetch('/api/employees', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId, role: newRole }),
+        })
+        const json = await res.json()
+        if (!res.ok) throw new Error(json.error || 'Error al actualizar rol')
+        return json.employee as ProfileWithEmail
     }
 
-    /**
-     * Contar usuarios por cada rol
-     */
-    async countUsersByRole(): Promise<RoleCount[]> {
-        const { data, error } = await this.supabase
+    static async countUsersByRole(): Promise<RoleCount[]> {
+        const supabase = createClient()
+        const { data, error } = await supabase
             .from('profiles')
             .select('role')
 
-        if (error) {
-            throw new Error(`Error al contar usuarios por rol: ${error.message}`)
-        }
+        if (error) throw new Error(`Error al contar usuarios por rol: ${error.message}`)
 
-        // Agrupar manualmente ya que Supabase client no soporta GROUP BY directo
+        // Supabase client no soporta GROUP BY; agrupamos en memoria sobre la columna mínima
         const counts: Record<string, number> = {}
         for (const profile of data || []) {
             const role = profile.role || 'conductor'
@@ -93,22 +67,15 @@ export class RolesService {
         }))
     }
 
-    /**
-     * Buscar perfiles por nombre
-     */
-    async searchProfiles(searchTerm: string): Promise<ProfileWithEmail[]> {
-        const { data, error } = await this.supabase
+    static async searchProfiles(searchTerm: string): Promise<ProfileWithEmail[]> {
+        const supabase = createClient()
+        const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .or(`nombre.ilike.%${searchTerm}%,apellido.ilike.%${searchTerm}%`)
             .order('nombre', { ascending: true })
 
-        if (error) {
-            throw new Error(`Error al buscar perfiles: ${error.message}`)
-        }
-
+        if (error) throw new Error(`Error al buscar perfiles: ${error.message}`)
         return (data as ProfileWithEmail[]) || []
     }
 }
-
-export const rolesService = new RolesService()
