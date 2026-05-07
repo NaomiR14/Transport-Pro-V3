@@ -96,10 +96,7 @@ export const useAuthStore = create<AuthStore>()(
                     set({ error: error.message })
                     console.error('Error en signOut:', error)
                 } finally {
-                    // Asegurar que loading sea false
-                    setTimeout(() => {
-                        set({ isLoading: false })
-                    }, 500)
+                    set({ isLoading: false })
                 }
             },
 

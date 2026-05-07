@@ -16,23 +16,11 @@ const QUERY_KEYS = {
     unread: () => [...QUERY_KEYS.notificaciones, 'unread'] as const,
 }
 
-/** Carga las notificaciones del usuario y sincroniza el store */
 export function useNotificaciones() {
-    const { setNotificaciones } = useNotificacionesStore()
-
-    const query = useQuery({
+    return useQuery({
         queryKey: QUERY_KEYS.list(),
         queryFn: () => NotificacionesService.getNotificaciones(),
-        staleTime: 30 * 1000,
     })
-
-    useEffect(() => {
-        if (query.data) {
-            setNotificaciones(query.data)
-        }
-    }, [query.data, setNotificaciones])
-
-    return query
 }
 
 /** Suscripción Realtime: escucha INSERTs en la tabla del usuario autenticado */
@@ -58,7 +46,11 @@ export function useNotificacionesRealtime(userId: string | undefined) {
                 (payload) => {
                     const nueva = payload.new as Notificacion
                     addNotificacion(nueva)
-                    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.notificaciones })
+                    queryClient.setQueryData(
+                        QUERY_KEYS.list(),
+                        (old: Notificacion[] = []) =>
+                            old.some(n => n.id === nueva.id) ? old : [nueva, ...old]
+                    )
                     toast(nueva.titulo, {
                         description: nueva.mensaje,
                         duration: 5000,
@@ -81,11 +73,9 @@ export function useMarkAsRead() {
     return useMutation({
         mutationFn: (id: string) => NotificacionesService.markAsRead(id),
         onMutate: (id) => {
-            // Actualización optimista: marcar en store antes de que responda el servidor
             markAsRead(id)
         },
         onError: () => {
-            // En caso de error, revalidar desde el servidor
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.notificaciones })
         },
     })
