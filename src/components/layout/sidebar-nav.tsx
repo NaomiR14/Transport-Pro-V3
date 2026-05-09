@@ -222,7 +222,7 @@ export function SidebarNav({ className }: SidebarNavProps) {
           </div>
 
           {/* Navigation items */}
-          <nav className="flex-1 overflow-y-auto py-4 px-3">
+          <nav id="sidebar-nav" className="flex-1 overflow-y-auto py-4 px-3">
             <ul className="space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon
