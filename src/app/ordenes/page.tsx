@@ -11,13 +11,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus, Search, Package, X } from "lucide-react"
+import { Plus, Search, Package, X, HelpCircle } from "lucide-react"
 import { PageHeader } from '@/shared/components/common/PageHeader'
 import {
     OrdenFormModal,
     OrdenesTable,
     OrdenesStats,
     useDeleteOrden,
+    useOrdenesTutorial,
     useFilteredOrdenes,
     useOrdenesStats,
     useOrdenFilterOptions,
@@ -28,6 +29,8 @@ import {
 export default function OrdenesPage() {
     const [editingOrden, setEditingOrden] = useState<Orden | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+    const { startTutorial } = useOrdenesTutorial()
 
     // Hooks de React Query y Zustand
     const { ordenes, isLoading, error, filters } = useFilteredOrdenes()
@@ -92,15 +95,26 @@ export default function OrdenesPage() {
                 iconColor="text-orange-600"
                 iconBg="bg-orange-100 dark:bg-orange-900/30"
                 action={
-                    <Button onClick={handleCreateOrden} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
-                        <Plus className="h-5 w-5 mr-2" />
-                        Nueva Orden
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={startTutorial}
+                            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                        >
+                            <HelpCircle className="h-4 w-4" />
+                            Ver tutorial
+                        </Button>
+                        <Button id="ordenes-new-btn" onClick={handleCreateOrden} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                            <Plus className="h-5 w-5 mr-2" />
+                            Nueva Orden
+                        </Button>
+                    </div>
                 }
             />
 
             {/* Estadísticas */}
-            <div className="mb-8">
+            <div id="ordenes-stats" className="mb-8">
                 <OrdenesStats stats={stats} loading={isLoading} />
             </div>
 
@@ -108,7 +122,7 @@ export default function OrdenesPage() {
             <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800 bg-card dark:bg-card-dark">
                 <CardContent className="pt-6">
                     {/* Filters */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div id="ordenes-filters" className="flex flex-wrap items-center justify-between gap-4 mb-6">
                         <div className="flex flex-wrap items-center gap-3">
                             {/* Search */}
                             <div className="relative">
@@ -173,6 +187,7 @@ export default function OrdenesPage() {
                     </div>
 
                     {/* Tabla de Órdenes */}
+                    <div id="ordenes-table">
                     <OrdenesTable
                         ordenes={ordenes}
                         loading={isLoading}
@@ -180,6 +195,7 @@ export default function OrdenesPage() {
                         onDelete={(ordenId) => deleteOrdenMutation.mutate(ordenId)}
                         isDeleting={deleteOrdenMutation.isPending}
                     />
+                    </div>
                 </CardContent>
             </Card>
 

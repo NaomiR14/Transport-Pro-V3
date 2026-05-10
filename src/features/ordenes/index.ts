@@ -28,6 +28,7 @@ export {
   useFilteredOrdenes,
   useOrdenFilterOptions,
 } from './hooks/use-ordenes'
+export { useOrdenesTutorial } from './hooks/useOrdenesTutorial'
 
 // Components
 export { default as OrdenFormModal } from './components/OrdenFormModal'
