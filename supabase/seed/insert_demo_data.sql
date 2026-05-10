@@ -55,14 +55,14 @@ INSERT INTO mantenimientos_vehiculos (placa_vehiculo, taller, fecha_entrada, fec
     ('DMO-003','AutoFuerza Industrial Medellín',    '2026-01-20','2026-01-21','Preventivo',  20000,'Preventivo 20K',   'Mantenimiento de rutina Hilux',                   950000,'2026-01-22','Cambio aceite 5W30, alineación. Condiciones óptimas.',        '00000000-0000-0000-0000-000000000001'),
     ('DMO-006','Taller Diesel del Valle',           '2026-02-01','2026-02-05','Correctivo',  19000,'Correctivo Frenos','Ruido metálico en frenos delanteros',             1800000,NULL,        'Reemplazo discos y pastillas. 30 días para pago.',            '00000000-0000-0000-0000-000000000001');
 
--- Multas
+-- Multas (conductor = documento_identidad, no el nombre)
 INSERT INTO multas_conductores (fecha, numero_viaje, placa_vehiculo, conductor, infraccion, importe_multa, importe_pagado, observaciones, empresa_id) VALUES
-    ('2026-01-10',4001,'DMO-001','Carlos Andrés Restrepo Ríos', 'Exceso de velocidad',              820000,820000,'Radar Autopista Medellín. Exceso 18 km/h. Pagada.',        '00000000-0000-0000-0000-000000000001'),
-    ('2026-01-15',4002,'DMO-002','María José Herrera Salcedo',  'No respetar señal de pare',        615000,300000,'Cámara Cali. Convenio de pago en 2 cuotas.',               '00000000-0000-0000-0000-000000000001'),
-    ('2026-01-22',4003,'DMO-004','Lina Marcela Torres Acosta',  'Sobrepeso en báscula',            2050000,     0,'Báscula Gamarra. Exceso 12%. En trámite de impugnación.', '00000000-0000-0000-0000-000000000001'),
-    ('2026-02-05',4004,'DMO-003','Sandra Patricia Ríos Moreno', 'Uso de celular conduciendo',       410000,410000,'Agente Bogotá. Cancelada al día siguiente.',               '00000000-0000-0000-0000-000000000001'),
-    ('2025-12-10',4005,'DMO-006','Diego Fernando Cardona Ospina','Documentos del vehículo vencidos',820000,     0,'SOAT vencido. Conductor retirado. Empresa asume multa.',   '00000000-0000-0000-0000-000000000001'),
-    ('2026-02-20',4006,'DMO-005','Sandra Patricia Ríos Moreno', 'No respetar preferencia peatonal', 410000,205000,'Cartagena Centro. Primer pago realizado.',                 '00000000-0000-0000-0000-000000000001');
+    ('2026-01-10',4001,'DMO-001','10001001','Exceso de velocidad',              820000,820000,'Radar Autopista Medellín. Exceso 18 km/h. Pagada.',        '00000000-0000-0000-0000-000000000001'),
+    ('2026-01-15',4002,'DMO-002','10001002','No respetar señal de pare',        615000,300000,'Cámara Cali. Convenio de pago en 2 cuotas.',               '00000000-0000-0000-0000-000000000001'),
+    ('2026-01-22',4003,'DMO-004','10001004','Sobrepeso en báscula',            2050000,     0,'Báscula Gamarra. Exceso 12%. En trámite de impugnación.', '00000000-0000-0000-0000-000000000001'),
+    ('2026-02-05',4004,'DMO-003','10001006','Uso de celular conduciendo',       410000,410000,'Agente Bogotá. Cancelada al día siguiente.',               '00000000-0000-0000-0000-000000000001'),
+    ('2025-12-10',4005,'DMO-006','10001003','Documentos del vehículo vencidos', 820000,     0,'SOAT vencido. Conductor retirado. Empresa asume multa.',   '00000000-0000-0000-0000-000000000001'),
+    ('2026-02-20',4006,'DMO-005','10001006','No respetar preferencia peatonal', 410000,205000,'Cartagena Centro. Primer pago realizado.',                 '00000000-0000-0000-0000-000000000001');
 
 -- Seguros
 INSERT INTO seguros_vehiculos (placa_vehiculo, aseguradora, poliza_seguro, fecha_inicio, fecha_vencimiento, importe_pagado, fecha_pago, empresa_id) VALUES
