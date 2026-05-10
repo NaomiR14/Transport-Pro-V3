@@ -62,8 +62,7 @@ export class OrdenService {
                 query = query.eq('placa_vehiculo', filters.placa_vehiculo);
             }
 
-            // Ordenar por más recientes primero
-            query = query.order('created_at', { ascending: false });
+            query = query.order('numero_orden', { ascending: true });
 
             const { data, error } = await query;
 
