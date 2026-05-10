@@ -80,7 +80,6 @@ export default function SegurosPage() {
             <PageHeader
                 title="Gestión de Seguros"
                 subtitle="Administra las pólizas de seguro de la flota vehicular"
-                badge="Seguros"
                 icon={Shield}
                 iconColor="text-cyan-600"
                 iconBg="bg-cyan-100 dark:bg-cyan-900/30"

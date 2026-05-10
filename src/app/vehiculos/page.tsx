@@ -80,7 +80,6 @@ export default function VehiculosPage() {
             <PageHeader
                 title="Gestión de Vehículos"
                 subtitle="Administra la flota de vehículos y su estado de mantenimiento"
-                badge="Flota"
                 icon={Truck}
                 iconColor="text-green-600"
                 iconBg="bg-green-100 dark:bg-green-900/30"

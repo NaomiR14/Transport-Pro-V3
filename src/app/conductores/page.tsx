@@ -80,7 +80,6 @@ export default function ConductoresPage() {
             <PageHeader
                 title="Gestión de Conductores"
                 subtitle="Administra la información de los conductores de la flota"
-                badge="Conductores"
                 icon={Users}
                 iconColor="text-purple-600"
                 iconBg="bg-purple-100 dark:bg-purple-900/30"

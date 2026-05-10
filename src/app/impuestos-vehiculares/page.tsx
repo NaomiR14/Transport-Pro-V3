@@ -80,7 +80,6 @@ export default function ImpuestosVehicularesPage() {
             <PageHeader
                 title="Impuestos Vehiculares"
                 subtitle="Administra los impuestos y contribuciones de la flota vehicular"
-                badge="Impuestos"
                 icon={Receipt}
                 iconColor="text-purple-600"
                 iconBg="bg-purple-100 dark:bg-purple-900/30"

@@ -48,7 +48,6 @@ export default function MantenimientoVehiculosPage() {
             <PageHeader
                 title="Mantenimiento de Vehículos"
                 subtitle="Administra el mantenimiento preventivo y correctivo de la flota"
-                badge="Mantenimiento"
                 icon={Wrench}
                 iconColor="text-teal-600"
                 iconBg="bg-teal-100 dark:bg-teal-900/30"

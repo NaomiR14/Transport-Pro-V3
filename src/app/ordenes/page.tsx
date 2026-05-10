@@ -90,7 +90,6 @@ export default function OrdenesPage() {
             <PageHeader
                 title="Gestión de Órdenes"
                 subtitle="Administra las órdenes de transporte, asigna rutas y realiza seguimiento de entregas"
-                badge="Órdenes"
                 icon={Package}
                 iconColor="text-orange-600"
                 iconBg="bg-orange-100 dark:bg-orange-900/30"

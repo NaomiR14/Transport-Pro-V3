@@ -57,7 +57,6 @@ export default function FlujoCajaPage() {
       <PageHeader
         title="Flujo de Caja Mensual"
         subtitle="Resumen de ingresos, egresos, utilidad y margen de la flota por mes"
-        badge="Flujo de Caja"
         icon={TrendingUp}
         iconColor="text-emerald-600"
         iconBg="bg-emerald-100 dark:bg-emerald-900/30"

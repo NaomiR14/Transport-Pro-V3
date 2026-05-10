@@ -78,7 +78,6 @@ export default function ReporteConductoresPage() {
       <PageHeader
         title="Reporte de Conductores"
         subtitle="Indicadores de rendimiento por conductor — viajes, carga, ingresos y multas"
-        badge="Indicadores"
         icon={Users}
         iconColor="text-pink-600"
         iconBg="bg-pink-100 dark:bg-pink-900/30"

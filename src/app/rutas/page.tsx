@@ -90,7 +90,6 @@ export default function RutasViajePage() {
             <PageHeader
                 title="Gestión de Rutas de Viaje"
                 subtitle="Administra la información de las rutas de viaje, ingresos, gastos y rendimiento de tu flota"
-                badge="Rutas"
                 icon={Map}
                 iconColor="text-blue-600"
                 iconBg="bg-blue-100 dark:bg-blue-900/30"

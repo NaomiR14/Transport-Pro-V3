@@ -85,7 +85,6 @@ export default function ReporteGeneralPage() {
       <PageHeader
         title="Reporte General de Indicadores"
         subtitle="Análisis anual por vehículo — operacional y financiero"
-        badge="Reporte General"
         icon={FileBarChart2}
         iconColor="text-indigo-600"
         iconBg="bg-indigo-100 dark:bg-indigo-900/30"

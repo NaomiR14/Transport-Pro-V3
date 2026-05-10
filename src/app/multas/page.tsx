@@ -87,7 +87,6 @@ export default function MultasConductoresPage() {
             <PageHeader
                 title="Multas de Conductores"
                 subtitle="Administra multas e infracciones de tránsito, realiza pagos y lleva un control detallado"
-                badge="Infracciones"
                 icon={AlertTriangle}
                 iconColor="text-amber-600"
                 iconBg="bg-amber-100 dark:bg-amber-900/30"

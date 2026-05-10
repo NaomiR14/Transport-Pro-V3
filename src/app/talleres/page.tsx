@@ -81,7 +81,6 @@ export default function TalleresPage() {
             <PageHeader
                 title="Gestión de Talleres"
                 subtitle="Administra los talleres de mantenimiento y servicios automotrices"
-                badge="Talleres"
                 icon={Wrench}
                 iconColor="text-indigo-600"
                 iconBg="bg-indigo-100 dark:bg-indigo-900/30"
