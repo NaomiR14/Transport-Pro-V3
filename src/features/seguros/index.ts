@@ -9,3 +9,6 @@ export { default as SeguroFormModal } from './components/SeguroFormModal'
 export { SeguroStats } from './components/SeguroStats'
 export { SeguroFilters } from './components/SeguroFilters'
 export { SeguroTable } from './components/SeguroTable'
+
+// Tutorial
+export { useSegurosTutorial } from './hooks/useSegurosTutorial'

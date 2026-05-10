@@ -14,8 +14,9 @@ import {
     type Vehicle
 } from "@/features/vehiculos"
 import { VehiculoStats } from "@/features/vehiculos/components/VehiculoStats"
-import { Plus, Car, Loader2, Truck, Lock } from "lucide-react"
+import { Plus, Car, Loader2, Truck, Lock, HelpCircle } from "lucide-react"
 import { PageHeader } from '@/shared/components/common/PageHeader'
+import { useVehiculosTutorial } from "@/features/vehiculos"
 
 
 
@@ -23,6 +24,7 @@ import { PageHeader } from '@/shared/components/common/PageHeader'
 export default function VehiculosPage() {
     const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const { startTutorial } = useVehiculosTutorial()
 
     const { vehicles, isLoading, error, filters } = useFilteredVehicles()
     const { data: stats } = useVehiclesStats()
@@ -94,6 +96,16 @@ export default function VehiculosPage() {
                             </span>
                         )}
                         <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={startTutorial}
+                            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                        >
+                            <HelpCircle className="h-4 w-4" />
+                            Ver tutorial
+                        </Button>
+                        <Button
+                            id="vehiculos-new-btn"
                             onClick={handleCreateVehicle}
                             disabled={limite.alcanzado}
                             title={limite.alcanzado ? `Límite del plan alcanzado (${limite.actual}/${limite.maximo})` : undefined}
@@ -108,7 +120,7 @@ export default function VehiculosPage() {
            
 
             {/* Estadísticas */}
-            <div className="mb-8">
+            <div id="vehiculos-stats" className="mb-8">
                 <VehiculoStats stats={stats} loading={isLoading} />
             </div>
 
@@ -116,7 +128,9 @@ export default function VehiculosPage() {
             <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800 bg-card dark:bg-card-dark">
                 <CardContent className="pt-6">
                     {/* Filters */}
-                    <VehiculoFilters  />
+                    <div id="vehiculos-filters">
+                        <VehiculoFilters  />
+                    </div>
 
                     {/* Table */}
                     {isLoading ? (
@@ -151,12 +165,14 @@ export default function VehiculosPage() {
                             )}
                         </div>
                     ) : (
-                        <VehiculosTable
-                            vehicles={vehicles}
-                            onEdit={handleEditVehicle}
-                            onDelete={(vehicleId) => deleteVehicleMutation.mutate(vehicleId)}
-                            isDeleting={deleteVehicleMutation.isPending}
-                        />
+                        <div id="vehiculos-table">
+                            <VehiculosTable
+                                vehicles={vehicles}
+                                onEdit={handleEditVehicle}
+                                onDelete={(vehicleId) => deleteVehicleMutation.mutate(vehicleId)}
+                                isDeleting={deleteVehicleMutation.isPending}
+                            />
+                        </div>
                     )}
                 </CardContent>
             </Card>

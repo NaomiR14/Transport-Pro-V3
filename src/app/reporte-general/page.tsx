@@ -19,7 +19,9 @@ import {
   Route,
   TrendingUp,
   TrendingDown,
+  HelpCircle,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { StatsCard } from "@/shared/components/common/StatsCard"
 import { PageHeader } from "@/shared/components/common/PageHeader"
 import {
@@ -27,6 +29,7 @@ import {
   usePlacasVehiculos,
   ReporteGeneralTable,
   ReporteGeneralChart,
+  useReporteGeneralTutorial,
 } from "@/features/reporte-general"
 
 const currentYear = new Date().getFullYear()
@@ -51,6 +54,7 @@ export default function ReporteGeneralPage() {
 
   const { data, isLoading, error } = useReporteGeneral(anio, placa)
   const { data: placas = [], isLoading: loadingPlacas } = usePlacasVehiculos()
+  const { startTutorial } = useReporteGeneralTutorial()
 
   // ── Error state ──────────────────────────────────────────────────────────────
   if (error) {
@@ -114,12 +118,21 @@ export default function ReporteGeneralPage() {
                 </SelectContent>
               </Select>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startTutorial}
+              className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+            >
+              <HelpCircle className="h-4 w-4" />
+              Ver tutorial
+            </Button>
           </div>
         }
       />
 
       {/* ── KPI Cards ──────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div id="reporte-general-kpis" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Total Viajes"
           value={totales ? fmt(totales.nro_viajes) : "—"}
@@ -155,7 +168,7 @@ export default function ReporteGeneralPage() {
       </div>
 
       {/* ── Tabla de Indicadores ───────────────────────────────────────────── */}
-      <Card className="mb-8 hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800">
+      <Card id="reporte-general-tabla" className="mb-8 hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg text-slate-900 dark:text-white">
             Indicadores por Mes — {anio}
@@ -175,7 +188,7 @@ export default function ReporteGeneralPage() {
       </Card>
 
       {/* ── Gráfico ────────────────────────────────────────────────────────── */}
-      <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800">
+      <Card id="reporte-general-chart" className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg text-slate-900 dark:text-white">
             Ingresos vs Gastos y Margen Bruto — {anio}

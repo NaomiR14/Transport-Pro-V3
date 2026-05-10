@@ -9,13 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Users, Route, FileBarChart2, TrendingUp } from "lucide-react"
+import { Users, Route, FileBarChart2, TrendingUp, HelpCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { StatsCard } from "@/shared/components/common/StatsCard"
 import { PageHeader } from "@/shared/components/common/PageHeader"
 import {
   useReporteConductores,
   ReporteConductoresTable,
   MESES_NOMBRES,
+  useReporteConductoresTutorial,
 } from "@/features/reporte-conductores"
 
 const currentYear = new Date().getFullYear()
@@ -28,6 +30,7 @@ export default function ReporteConductoresPage() {
   const [mes, setMes] = useState<number | undefined>(undefined)
 
   const { data, isLoading, error } = useReporteConductores(anio, mes)
+  const { startTutorial } = useReporteConductoresTutorial()
 
   if (error) {
     return (
@@ -108,12 +111,21 @@ export default function ReporteConductoresPage() {
                 </SelectContent>
               </Select>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startTutorial}
+              className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+            >
+              <HelpCircle className="h-4 w-4" />
+              Ver tutorial
+            </Button>
           </div>
         }
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div id="reporte-conductores-kpis" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Conductores Activos"
           value={totals ? fmt(totals.conductores) : "—"}
@@ -149,7 +161,7 @@ export default function ReporteConductoresPage() {
       </div>
 
       {/* Tabla */}
-      <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800">
+      <Card id="reporte-conductores-tabla" className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg text-slate-900 dark:text-white">
             Indicadores por Conductor — {anio}

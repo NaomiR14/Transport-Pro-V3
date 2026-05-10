@@ -9,3 +9,6 @@ export { default as TallerFormModal } from './components/TallerFormModal'
 export { TallerStats } from './components/TallerStats'
 export { TallerFilters } from './components/TallerFilters'
 export { TallerTable } from './components/TallerTable'
+
+// Tutorial
+export { useTalleresTutorial } from './hooks/useTalleresTutorial'

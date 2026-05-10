@@ -6,3 +6,6 @@ export * from './utils/formulas'
 
 // Components
 export { ReporteConductoresTable } from './components/ReporteConductoresTable'
+
+// Tutorial
+export { useReporteConductoresTutorial } from './hooks/useReporteConductoresTutorial'

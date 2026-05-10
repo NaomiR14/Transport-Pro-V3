@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, AlertTriangle } from "lucide-react"
+import { Plus, AlertTriangle, HelpCircle } from "lucide-react"
 import { PageHeader } from '@/shared/components/common/PageHeader'
-import { MultaFormModal } from "@/features/multas"
+import { MultaFormModal, useMultasTutorial } from "@/features/multas"
 import {
     useFilteredMultasConductores,
     useCreateMultaConductor,
@@ -26,6 +26,7 @@ export default function MultasConductoresPage() {
     // Usar los hooks del feature
     const { multas, isLoading, error } = useFilteredMultasConductores()
     const { clearFilters } = useMultasStore()
+    const { startTutorial } = useMultasTutorial()
     const { data: stats } = useMultasStats()
     const createMultaMutation = useCreateMultaConductor()
     const updateMultaMutation = useUpdateMultaConductor()
@@ -91,15 +92,26 @@ export default function MultasConductoresPage() {
                 iconColor="text-amber-600"
                 iconBg="bg-amber-100 dark:bg-amber-900/30"
                 action={
-                    <Button onClick={handleCreateMulta} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
-                        <Plus className="h-5 w-5 mr-2" />
-                        Nueva Multa
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={startTutorial}
+                            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                        >
+                            <HelpCircle className="h-4 w-4" />
+                            Ver tutorial
+                        </Button>
+                        <Button id="multas-new-btn" onClick={handleCreateMulta} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                            <Plus className="h-5 w-5 mr-2" />
+                            Nueva Multa
+                        </Button>
+                    </div>
                 }
             />
 
             {/* Estadísticas */}
-            <div className="mb-8">
+            <div id="multas-stats" className="mb-8">
                 <MultasStats stats={stats} loading={isLoading} />
             </div>
 
@@ -107,16 +119,20 @@ export default function MultasConductoresPage() {
             <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800 bg-card dark:bg-card-dark">
                 <CardContent className="pt-6">
                     {/* Filters */}
-                    <MultasFilters />
+                    <div id="multas-filters">
+                        <MultasFilters />
+                    </div>
 
                     {/* Table */}
-                    <MultasTable 
-                        multas={multas}
-                        loading={isLoading}
-                        onEdit={handleEditMulta}
-                        onDelete={handleDeleteMulta}
-                        isDeleting={deleteMultaMutation.isPending}
-                    />
+                    <div id="multas-table">
+                        <MultasTable
+                            multas={multas}
+                            loading={isLoading}
+                            onEdit={handleEditMulta}
+                            onDelete={handleDeleteMulta}
+                            isDeleting={deleteMultaMutation.isPending}
+                        />
+                    </div>
                 </CardContent>
             </Card>
 

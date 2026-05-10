@@ -9,3 +9,6 @@ export { default as MantenimientoFormModal } from './components/MantenimientoFor
 export { MantenimientoStats } from './components/MantenimientoStats'
 export { MantenimientoFilters } from './components/MantenimientoFilters'
 export { MantenimientoTable } from './components/MantenimientoTable'
+
+// Tutorial
+export { useMantenimientoTutorial } from './hooks/useMantenimientoTutorial'

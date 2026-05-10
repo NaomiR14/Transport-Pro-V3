@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, User, Loader2, Users, Lock } from "lucide-react"
+import { Plus, User, Loader2, Users, Lock, HelpCircle } from "lucide-react"
 import { PageHeader } from '@/shared/components/common/PageHeader'
 
 // Importar desde features
@@ -18,6 +18,7 @@ import {
   type Conductor
 } from "@/features/conductores"
 import { ConductoresStats } from "@/features/conductores/components/ConductorStats"
+import { useConductoresTutorial } from "@/features/conductores"
 
 export default function ConductoresPage() {
     const [editingConductor, setEditingConductor] = useState<Conductor | null>(null)
@@ -27,6 +28,7 @@ export default function ConductoresPage() {
     const { data: stats } = useConductoresStats()
     const deleteConductorMutation = useDeleteConductor()
     const limite = useLimiteConductores()
+    const { startTutorial } = useConductoresTutorial()
 
     const handleCreateConductor = () => {
         if (limite.alcanzado) return
@@ -94,6 +96,16 @@ export default function ConductoresPage() {
                             </span>
                         )}
                         <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={startTutorial}
+                            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                        >
+                            <HelpCircle className="h-4 w-4" />
+                            Ver tutorial
+                        </Button>
+                        <Button
+                            id="conductores-new-btn"
                             onClick={handleCreateConductor}
                             disabled={limite.alcanzado}
                             title={limite.alcanzado ? `Límite del plan alcanzado (${limite.actual}/${limite.maximo})` : undefined}
@@ -107,7 +119,7 @@ export default function ConductoresPage() {
             />
 
             {/* Estadísticas */}
-            <div className="mb-8">
+            <div id="conductores-stats" className="mb-8">
                 <ConductoresStats stats={stats} loading={isLoading} />
             </div>
 
@@ -115,7 +127,9 @@ export default function ConductoresPage() {
             <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800 bg-card dark:bg-card-dark">
                 <CardContent className="pt-6">
                     {/* Filters */}
-                    <ConductorFiltersComponent />
+                    <div id="conductores-filters">
+                        <ConductorFiltersComponent />
+                    </div>
 
                     {/* Table */}
                     {isLoading ? (
@@ -150,12 +164,14 @@ export default function ConductoresPage() {
                             )}
                         </div>
                     ) : (
-                        <ConductorTable
-                            conductores={conductores}
-                            onEdit={handleEditConductor}
-                            onDelete={(conductorId) => deleteConductorMutation.mutate(conductorId)}
-                            isDeleting={deleteConductorMutation.isPending}
-                        />
+                        <div id="conductores-table">
+                            <ConductorTable
+                                conductores={conductores}
+                                onEdit={handleEditConductor}
+                                onDelete={(conductorId) => deleteConductorMutation.mutate(conductorId)}
+                                isDeleting={deleteConductorMutation.isPending}
+                            />
+                        </div>
                     )}
                 </CardContent>
             </Card>

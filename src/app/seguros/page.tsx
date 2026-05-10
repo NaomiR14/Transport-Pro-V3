@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Shield } from "lucide-react"
+import { Plus, Shield, HelpCircle } from "lucide-react"
 import { PageHeader } from '@/shared/components/common/PageHeader'
-import { SeguroFormModal } from "@/features/seguros"
+import { SeguroFormModal, useSegurosTutorial } from "@/features/seguros"
 import {
     useDeleteSeguro,
     useFilteredSeguros,
@@ -24,6 +24,7 @@ export default function SegurosPage() {
     const { seguros, isLoading, error } = useFilteredSeguros()
     const { data: stats } = useSegurosStats()
     const deleteSeguroMutation = useDeleteSeguro()
+    const { startTutorial } = useSegurosTutorial()
 
     const handleCreateSeguro = () => {
         setEditingSeguro(null)
@@ -84,15 +85,26 @@ export default function SegurosPage() {
                 iconColor="text-cyan-600"
                 iconBg="bg-cyan-100 dark:bg-cyan-900/30"
                 action={
-                    <Button onClick={handleCreateSeguro} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
-                        <Plus className="h-5 w-5 mr-2" />
-                        Nuevo Seguro
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={startTutorial}
+                            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                        >
+                            <HelpCircle className="h-4 w-4" />
+                            Ver tutorial
+                        </Button>
+                        <Button id="seguros-new-btn" onClick={handleCreateSeguro} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                            <Plus className="h-5 w-5 mr-2" />
+                            Nuevo Seguro
+                        </Button>
+                    </div>
                 }
             />
 
             {/* Estadísticas */}
-            <div className="mb-8">
+            <div id="seguros-stats" className="mb-8">
                 <SeguroStats stats={stats} loading={isLoading} />
             </div>
 
@@ -100,16 +112,20 @@ export default function SegurosPage() {
             <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800 bg-card dark:bg-card-dark">
                 <CardContent className="pt-6">
                     {/* Filters */}
-                    <SeguroFilters />
+                    <div id="seguros-filters">
+                        <SeguroFilters />
+                    </div>
 
                     {/* Table */}
-                    <SeguroTable 
-                        seguros={seguros}
-                        loading={isLoading}
-                        onEdit={handleEditSeguro}
-                        onDelete={handleDeleteSeguro}
-                        isDeleting={deleteSeguroMutation.isPending}
-                    />
+                    <div id="seguros-table">
+                        <SeguroTable
+                            seguros={seguros}
+                            loading={isLoading}
+                            onEdit={handleEditSeguro}
+                            onDelete={handleDeleteSeguro}
+                            isDeleting={deleteSeguroMutation.isPending}
+                        />
+                    </div>
                 </CardContent>
             </Card>
 
