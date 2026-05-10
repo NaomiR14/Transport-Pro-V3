@@ -7,3 +7,6 @@ export * from './utils/formulas'
 // Components
 export { ReporteGeneralTable } from './components/ReporteGeneralTable'
 export { ReporteGeneralChart } from './components/ReporteGeneralChart'
+
+// Tutorial
+export { useReporteGeneralTutorial } from './hooks/useReporteGeneralTutorial'

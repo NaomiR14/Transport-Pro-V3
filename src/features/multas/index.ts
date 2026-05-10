@@ -9,3 +9,6 @@ export { default as MultaFormModal } from './components/MultaFormModal'
 export { MultasStats } from './components/MultasStats'
 export { MultasFilters } from './components/MultasFilters'
 export { MultasTable } from './components/MultasTable'
+
+// Tutorial
+export { useMultasTutorial } from './hooks/useMultasTutorial'

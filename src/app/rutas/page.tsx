@@ -11,8 +11,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus, Search, Map, X } from "lucide-react"
-import { RutaViajeFormModal as EditRutaViajeModal, RutasTable } from "@/features/rutas"
+import { Plus, Search, Map, X, HelpCircle } from "lucide-react"
+import { PageHeader } from '@/shared/components/common/PageHeader'
+import { RutaViajeFormModal as EditRutaViajeModal, RutasTable, useRutasTutorial } from "@/features/rutas"
 
 // Importar los hooks y store
 import { 
@@ -35,7 +36,8 @@ export default function RutasViajePage() {
     const { data: stats } = useRutasStats()
     const filterOptions = useRutaFilterOptions()
     const deleteRutaMutation = useDeleteRuta()
-    
+    const { startTutorial } = useRutasTutorial()
+
     // Verificar si hay filtros activos
     const hasActiveFilters = !!(filters.searchTerm || filters.placa_vehiculo || filters.conductor || filters.fecha_desde || filters.fecha_hasta)
 
@@ -85,30 +87,33 @@ export default function RutasViajePage() {
 
     return (
         <div className="p-6 container-padding">
-            {/* Page Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <div className="flex items-center mb-2">
-                        <Map className="h-8 w-8 text-primary-blue mr-3" />
-                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                            Gestión de Rutas de Viaje
-                        </h1>
+            <PageHeader
+                title="Gestión de Rutas de Viaje"
+                subtitle="Administra la información de las rutas de viaje, ingresos, gastos y rendimiento de tu flota"
+                icon={Map}
+                iconColor="text-blue-600"
+                iconBg="bg-blue-100 dark:bg-blue-900/30"
+                action={
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={startTutorial}
+                            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                        >
+                            <HelpCircle className="h-4 w-4" />
+                            Ver tutorial
+                        </Button>
+                        <Button id="rutas-new-btn" onClick={handleCreateRuta} className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+                            <Plus className="h-5 w-5 mr-2" />
+                            Nueva Ruta
+                        </Button>
                     </div>
-                    <p className="text-slate-600 dark:text-slate-400">
-                        Administra la información de las rutas de viaje, ingresos, gastos y rendimiento de tu flota
-                    </p>
-                </div>
-                <Button 
-                    onClick={handleCreateRuta} 
-                    className="bg-gradient-to-r from-blue-400 via-primary-blue to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Nueva Ruta
-                </Button>
-            </div>
+                }
+            />
             
             {/* Estadísticas */}
-            <div className="mb-8">
+            <div id="rutas-stats" className="mb-8">
                 <RutaViajesStats stats={stats} loading={isLoading} />
             </div>
 
@@ -116,7 +121,7 @@ export default function RutasViajePage() {
             <Card className="hover:shadow-lg transition-shadow duration-200 border border-slate-200 dark:border-slate-800 bg-card dark:bg-card-dark">
                 <CardContent className="pt-6">
                     {/* Filters and Actions */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div id="rutas-filters" className="flex flex-wrap items-center justify-between gap-4 mb-6">
                         <div className="flex flex-wrap items-center gap-3">
                             {/* Search */}
                             <div className="relative">
@@ -181,13 +186,15 @@ export default function RutasViajePage() {
                     </div>
                         
                     {/* Tabla de Rutas */}
-                    <RutasTable
-                        rutas={rutas}
-                        loading={isLoading}
-                        onEdit={handleEditRuta}
-                        onDelete={(rutaId) => deleteRutaMutation.mutate(rutaId)}
-                        isDeleting={deleteRutaMutation.isPending}
-                    />
+                    <div id="rutas-table">
+                        <RutasTable
+                            rutas={rutas}
+                            loading={isLoading}
+                            onEdit={handleEditRuta}
+                            onDelete={(rutaId) => deleteRutaMutation.mutate(rutaId)}
+                            isDeleting={deleteRutaMutation.isPending}
+                        />
+                    </div>
                 </CardContent>
             </Card>
 

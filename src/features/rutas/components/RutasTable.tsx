@@ -98,29 +98,29 @@ export function RutasTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
       <Table>
-        <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
+        <TableHeader className="bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-800/50">
           <TableRow className="hover:bg-transparent border-b border-slate-200 dark:border-slate-700">
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 w-20">ID</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Fechas</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Vehículo</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Conductor</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Ruta</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Kilometraje</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Carga</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Ingresos</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Combustible</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Gastos</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Rendimiento</TableHead>
-            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Acciones</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400 w-20">ID</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Fechas</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Vehículo</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Conductor</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Ruta</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Kilometraje</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Carga</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Ingresos</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Combustible</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Gastos</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Rendimiento</TableHead>
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {rutas.map((ruta, index) => (
-            <TableRow 
+            <TableRow
               key={ruta.id}
-              className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
+              className="hover:bg-blue-50/40 dark:hover:bg-blue-950/20 even:bg-slate-50/40 dark:even:bg-slate-800/20 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
             >
               <TableCell className="font-medium text-slate-900 dark:text-white">{index + 1}</TableCell>
 

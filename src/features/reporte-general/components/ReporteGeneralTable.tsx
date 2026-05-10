@@ -129,26 +129,26 @@ export function ReporteGeneralTable({ data, loading }: ReporteGeneralTableProps)
   if (!data) return null
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
       <table className="w-full text-xs border-collapse">
         {/* Cabecera */}
         <thead>
-          <tr className="border-b-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/60">
-            <th className="text-left py-3 px-3 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 bg-slate-50 dark:bg-slate-800/60 min-w-[200px] z-10">
+          <tr className="border-b-2 border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-800/50">
+            <th className="text-left py-3 px-3 font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 sticky left-0 bg-slate-50 dark:bg-slate-800 min-w-[200px] z-10">
               Indicador
             </th>
-            <th className="text-center py-3 px-2 font-semibold text-slate-500 dark:text-slate-400 min-w-[52px] whitespace-nowrap">
+            <th className="text-center py-3 px-2 font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 min-w-[52px] whitespace-nowrap">
               Unid.
             </th>
             {MESES_CORTOS.map((mes) => (
               <th
                 key={mes}
-                className="text-right py-3 px-2 font-semibold text-slate-700 dark:text-slate-300 min-w-[75px] whitespace-nowrap"
+                className="text-right py-3 px-2 font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 min-w-[75px] whitespace-nowrap"
               >
                 {mes}
               </th>
             ))}
-            <th className="text-right py-3 px-3 font-bold text-slate-900 dark:text-white min-w-[90px] bg-slate-100 dark:bg-slate-700/60 whitespace-nowrap">
+            <th className="text-right py-3 px-3 font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 min-w-[90px] bg-slate-100 dark:bg-slate-700/60 whitespace-nowrap">
               Total
             </th>
           </tr>
@@ -181,7 +181,7 @@ export function ReporteGeneralTable({ data, loading }: ReporteGeneralTableProps)
             return (
               <tr
                 key={key}
-                className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
+                className="border-b border-slate-100 dark:border-slate-800 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 transition-colors"
               >
                 {/* Label (sticky) */}
                 <td

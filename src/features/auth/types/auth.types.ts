@@ -26,6 +26,20 @@ export interface UserProfile {
     phone?: string
     department?: string
     position?: string
+    empresa_id?: string
+    created_at?: string
+    updated_at?: string
+}
+
+export interface Empresa {
+    id: string
+    nombre: string
+    nit?: string
+    email_contacto: string
+    telefono?: string
+    direccion?: string
+    plan?: 'basico' | 'profesional' | 'enterprise'
+    activo?: boolean
     created_at?: string
     updated_at?: string
 }
@@ -46,6 +60,20 @@ export interface RegisterCredentials extends LoginCredentials {
     nombre: string
     apellido: string
     phone?: string
+}
+
+export interface RegisterEmpresaCredentials {
+    // Datos de la empresa
+    empresa_nombre: string
+    empresa_nit?: string
+    empresa_email: string
+    empresa_telefono?: string
+    empresa_direccion?: string
+    // Datos del admin
+    admin_nombre: string
+    admin_apellido: string
+    admin_email: string
+    admin_password: string
 }
 
 export interface AuthStore {

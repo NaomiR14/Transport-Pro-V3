@@ -27,10 +27,15 @@ export {
   useSearchConductores,
   useFilteredConductores,
   useConductoresSimple,
-  useConductorFilterOptions
+  useConductorFilterOptions,
+  useConductoresCount,
+  useLimiteConductores
 } from './hooks/use-conductores'
 
 // Components
 export { default as ConductorFormModal } from './components/ConductorFormModal'
 export { ConductorTable } from './components/ConductorTable'
 export { ConductorFilters as ConductorFiltersComponent } from './components/ConductorFilters'
+
+// Tutorial
+export { useConductoresTutorial } from './hooks/useConductoresTutorial'

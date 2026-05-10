@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { usePlanLimites } from '@/features/pagos'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { ConductorService } from '../services/conductor-service'
@@ -29,7 +30,6 @@ export function useConductores(filters?: ConductorFilters) {
     const query = useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => ConductorService.getConductores(filters),
-        staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
     })
 
     // Auto-sync con store
@@ -55,7 +55,6 @@ export function useConductor(id: string | null) {
         queryKey: QUERY_KEYS.detail(id!),
         queryFn: () => ConductorService.getConductorById(id!),
         enabled: !!id,
-        staleTime: 30 * 1000,
     })
 
     // Auto-sync con store
@@ -146,7 +145,6 @@ export function useSearchConductores(searchTerm: string) {
         queryKey: QUERY_KEYS.search(searchTerm),
         queryFn: () => ConductorService.getConductores({ searchTerm }),
         enabled: searchTerm.length >= 2,
-        staleTime: 30 * 1000,
     })
 }
 
@@ -256,4 +254,22 @@ export function useConductorFilterOptions() {
         estadosLicencia,
         estadosActivo,
     };
+}
+export function useConductoresCount() {
+    return useQuery({
+        queryKey: ['conductores', 'count'] as const,
+        queryFn: () => ConductorService.getCount(),
+    })
+}
+
+export function useLimiteConductores() {
+    const { data: count = 0 } = useConductoresCount()
+    const { maxConductores } = usePlanLimites()
+
+    return {
+        actual: count,
+        maximo: maxConductores,
+        alcanzado: maxConductores !== null && count >= maxConductores,
+        ilimitado: maxConductores === null,
+    }
 }

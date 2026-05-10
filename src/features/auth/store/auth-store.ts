@@ -17,6 +17,7 @@ function normalizeProfile(profile: any): UserProfile | null {
         phone: profile.phone,
         department: profile.department,
         position: profile.position,
+        empresa_id: profile.empresa_id,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
     }
@@ -95,10 +96,7 @@ export const useAuthStore = create<AuthStore>()(
                     set({ error: error.message })
                     console.error('Error en signOut:', error)
                 } finally {
-                    // Asegurar que loading sea false
-                    setTimeout(() => {
-                        set({ isLoading: false })
-                    }, 500)
+                    set({ isLoading: false })
                 }
             },
 

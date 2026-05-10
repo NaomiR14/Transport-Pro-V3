@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import { 
   Taller, 
   CreateTallerRequest,
@@ -86,6 +87,7 @@ export class TalleresService {
   async createTaller(data: CreateTallerRequest): Promise<Taller> {
     try {
       const dbData = this.mapToDB(data);
+      dbData.empresa_id = await getEmpresaId();
       const dbTaller = await this.repository.create(dbData);
       return this.mapFromDB(dbTaller);
     } catch (error) {

@@ -27,7 +27,6 @@ export function useSeguros(filters?: SeguroFilters) {
     const query = useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => SeguroService.getSeguros(filters),
-        staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
     })
 
     // Auto-sync con store
@@ -53,7 +52,6 @@ export function useSeguro(id: string | null) {
         queryKey: QUERY_KEYS.detail(id!),
         queryFn: () => SeguroService.getSeguroById(id!),
         enabled: !!id,
-        staleTime: 30 * 1000,
     })
 
     // Auto-sync con store
@@ -144,7 +142,6 @@ export function useSearchSeguros(searchTerm: string) {
         queryKey: QUERY_KEYS.search(searchTerm),
         queryFn: () => SeguroService.getSeguros({ searchTerm }),
         enabled: searchTerm.length >= 2,
-        staleTime: 30 * 1000,
     })
 }
 

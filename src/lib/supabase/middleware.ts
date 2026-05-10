@@ -34,8 +34,8 @@ export async function middleware(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Proteger todas las rutas excepto login y callback
-    if (!user && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/auth')) {
+    // Proteger todas las rutas excepto login, callback y registro-empresa
+    if (!user && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/auth') && !request.nextUrl.pathname.startsWith('/registro-empresa')) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
@@ -56,6 +56,6 @@ export const config = {
          * - favicon.ico (favicon file)
          * - public folder
          */
-        '/((?!_next/static|_next/image|favicon.ico|login|auth/callback|registro|landing|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|login|auth/callback|registro-empresa|api/register-empresa|landing|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 }

@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import { ImpuestoVehicular, CreateImpuestoRequest, UpdateImpuestoRequest, ImpuestoFilters } from '../types/impuestos.types';
 
 
@@ -69,6 +70,7 @@ export class ImpuestoVehicularService {
     static async createImpuesto(impuestoData: CreateImpuestoRequest): Promise<ImpuestoVehicular> {
         try {
             const dbData = this.mapToDB(impuestoData);
+            dbData.empresa_id = await getEmpresaId();
             const dbImpuesto = await this.repository.create(dbData);
             return this.mapFromDB(dbImpuesto);
         } catch (error) {

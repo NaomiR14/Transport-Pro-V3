@@ -76,28 +76,33 @@ export function VehiculosTable({ vehicles, onEdit, onDelete, isDeleting }: Vehic
     }
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
             <Table>
-                <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
+                <TableHeader className="bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-800/50">
                     <TableRow className="hover:bg-transparent border-b border-slate-200 dark:border-slate-700">
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Placa</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Tipo</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Marca/Modelo</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Año</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Estado</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Km Odómetro</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Km Restantes</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Alerta Mnto</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Seguro</TableHead>
-                        <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Acciones</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400 w-10">#</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Placa</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Tipo</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Marca/Modelo</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Año</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Estado</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Km Odómetro</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Km Restantes</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Alerta Mnto</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Seguro</TableHead>
+                        <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-600 dark:text-slate-400">Acciones</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {vehicles.map((vehicle) => (
-                        <TableRow 
-                            key={vehicle.id} 
-                            className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
+                    {vehicles.map((vehicle, index) => (
+                        <TableRow
+                            key={vehicle.id}
+                            className="hover:bg-blue-50/40 dark:hover:bg-blue-950/20 even:bg-slate-50/40 dark:even:bg-slate-800/20 transition-colors duration-150 border-b border-slate-100 dark:border-slate-800 last:border-0"
                         >
+                            {/* Número */}
+                            <TableCell className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                                {index + 1}
+                            </TableCell>
                             {/* Placa */}
                             <TableCell className="font-mono font-bold text-slate-900 dark:text-white">
                                 {vehicle.licensePlate}

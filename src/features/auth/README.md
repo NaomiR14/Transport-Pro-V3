@@ -143,7 +143,7 @@ function VehiclesPage() {
 
 ### Módulos
 - `dashboard`, `ordenes`, `vehiculos`, `conductores`, `rutas`
-- `multas`, `flujo_caja`, `indicadores_vehiculo`, `indicadores_conductor`
+- `multas`, `flujo_caja`, `indicadores_conductor`
 - `liquidaciones`, `talleres`, `mantenimiento_vehiculos`
 - `seguros`, `impuestos_vehiculares`, `clientes`
 

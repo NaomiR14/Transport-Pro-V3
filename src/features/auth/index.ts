@@ -7,6 +7,8 @@ export type {
     AuthUser, 
     LoginCredentials, 
     RegisterCredentials,
+    RegisterEmpresaCredentials,
+    Empresa,
     AuthStore as AuthStoreType
 } from './types/auth.types'
 export { getFullName } from './types/auth.types'
@@ -28,4 +30,12 @@ export { default as AuthInitializer } from './components/AuthInitializer'
 export { default as AuthLoading } from './components/AuthLoading'
 export { default as ProtectedRoute } from './components/ProtectedRoute'
 export { RequirePermission } from './components/RequirePermission'
-export { default as UserMenu } from './components/UserMenu'
+export { default as EditRoleModal } from './components/EditRoleModal'
+export { default as CreateEmployeeModal } from './components/CreateEmployeeModal'
+
+// Roles hooks
+export { useAllProfiles, useUserCountByRole, useUpdateUserRole, useSearchProfiles, useCreateEmployee, useDeleteEmployee, useEmpresa } from './hooks/useRoles'
+
+// Roles service
+export { RolesService } from './services/roles-service'
+export type { ProfileWithEmail, RoleCount } from './services/roles-service'

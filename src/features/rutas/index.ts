@@ -7,3 +7,6 @@ export * from './store/rutas-store'
 // Components
 export { default as RutaViajeFormModal } from './components/RutaViajeFormModal'
 export { RutasTable } from './components/RutasTable'
+
+// Tutorial
+export { useRutasTutorial } from './hooks/useRutasTutorial'

@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import {
     MultaConductor,
     CreateMultaConductorRequest,
@@ -73,6 +74,7 @@ export class MultasConductoresService {
     async createMulta(data: CreateMultaConductorRequest): Promise<MultaConductor> {
         try {
             const dbData = MultasConductoresService.mapToDB(data);
+            (dbData as any).empresa_id = await getEmpresaId();
             const created = await MultasConductoresService.baseRepository.create(dbData);
             // Leer desde la vista para obtener nombre del conductor
             return await MultasConductoresService.repository.getById(created.id);

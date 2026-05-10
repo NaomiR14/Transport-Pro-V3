@@ -1,5 +1,6 @@
 // src/features/vehiculos/hooks/use-vehiculos.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePlanLimites } from "@/features/pagos";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { vehicleService } from "../services/vehiculo-service";
@@ -26,7 +27,6 @@ export function useVehicles(filters?: VehicleFilters) {
     const query = useQuery({
         queryKey: QUERY_KEYS.list(filters),
         queryFn: () => vehicleService.getVehicles(filters),
-        staleTime: 30 * 1000, // 30 segundos - reduce cache para evitar problemas entre páginas
     })
 
     // Auto-sync con store
@@ -165,4 +165,25 @@ export function useVehicleFilterOptions() {
         states,
         years,
     };
+}
+
+// Hook para contar vehículos actuales
+export function useVehiculosCount() {
+    return useQuery({
+        queryKey: [...QUERY_KEYS.vehicles, 'count'] as const,
+        queryFn: () => vehicleService.getCount(),
+    })
+}
+
+// Hook que indica si se alcanzó el límite del plan
+export function useLimiteVehiculos() {
+    const { data: count = 0 } = useVehiculosCount()
+    const { maxVehiculos } = usePlanLimites()
+
+    return {
+        actual: count,
+        maximo: maxVehiculos,
+        alcanzado: maxVehiculos !== null && count >= maxVehiculos,
+        ilimitado: maxVehiculos === null,
+    }
 }

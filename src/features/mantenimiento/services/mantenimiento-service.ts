@@ -1,4 +1,5 @@
 import { SupabaseRepository } from '@/lib/supabase/repository';
+import { getEmpresaId } from '@/lib/supabase/get-empresa-id';
 import {
     MantenimientoVehiculo,
     CreateMantenimientoVehiculoRequest,
@@ -90,6 +91,7 @@ export class MantenimientoVehiculoService {
     async createMantenimiento(data: CreateMantenimientoVehiculoRequest): Promise<MantenimientoVehiculo> {
         try {
             const dbData = MantenimientoVehiculoService.mapToDB(data);
+            dbData.empresa_id = await getEmpresaId();
             const dbMant = await MantenimientoVehiculoService.repository.create(dbData);
             return MantenimientoVehiculoService.mapFromDB(dbMant);
         } catch (error) {

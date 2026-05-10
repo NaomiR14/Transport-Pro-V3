@@ -8,6 +8,7 @@ INSERT INTO conductores (documento_identidad, nombre_conductor, numero_licencia,
     
     ('11223344', 'Carlos Rodríguez Martínez', 'LIC-2022-078', 'Boulevard Norte 789, Monterrey', '+52 81 5555-1234', 3.9, 'carlos.rodriguez@empresa.com', false, CURRENT_DATE - INTERVAL '60 days'),
     
-    ('55667788', 'Ana García Silva', 'LIC-2024-012', 'Plaza Central 321, Puebla', '+52 222 3456-7890', 4.2, 'ana.garcia@empresa.com', true, '2026-01-10');
+    ('55667788', 'Ana García Silva', 'LIC-2024-012', 'Plaza Central 321, Puebla', '+52 222 3456-7890', 4.2, 'ana.garcia@empresa.com', true, '2026-01-10')
+ON CONFLICT (documento_identidad) DO NOTHING;
 
 -- Nota: Los estados de licencia (vigente, por_vencer, vencida) se calcularán automáticamente con el trigger

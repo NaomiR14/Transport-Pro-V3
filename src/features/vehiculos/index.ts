@@ -24,7 +24,9 @@ export {
   useDeleteVehicle,
   useVehiclesStats,
   useFilteredVehicles,
-  useVehicleFilterOptions
+  useVehicleFilterOptions,
+  useVehiculosCount,
+  useLimiteVehiculos
 } from './hooks/use-vehiculos'
 
 // Components
@@ -33,3 +35,6 @@ export { VehiculoFilters } from './components/VehiculoFilters'
 export { default as VehiculoFormModal } from './components/VehiculoFormModal'
 export { VehiculosTable } from './components/VehiculosTable'
 // export { VehiculoForm } from './components/VehiculoForm'
+
+// Tutorial
+export { useVehiculosTutorial } from './hooks/useVehiculosTutorial'
