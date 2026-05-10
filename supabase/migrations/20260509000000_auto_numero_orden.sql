@@ -19,7 +19,7 @@ WHERE o.id = r.id;
 
 -- 4. Actualizar numero_orden de los registros existentes al nuevo formato
 UPDATE ordenes
-SET numero_orden = 'ORD-' || LPAD(numero_secuencia::text, 4, '0');
+SET numero_orden = numero_secuencia::text;
 
 -- 5. Hacer la columna NOT NULL
 ALTER TABLE ordenes ALTER COLUMN numero_secuencia SET NOT NULL;
@@ -40,7 +40,7 @@ BEGIN
     WHERE empresa_id = NEW.empresa_id;
 
     NEW.numero_secuencia := next_seq;
-    NEW.numero_orden     := 'ORD-' || LPAD(next_seq::text, 4, '0');
+    NEW.numero_orden     := next_seq::text;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
