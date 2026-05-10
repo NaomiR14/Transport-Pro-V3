@@ -55,8 +55,6 @@ DELETE FROM auth.users;
 -- Re-habilitar triggers y FK
 SET session_replication_role = DEFAULT;
 
-RAISE NOTICE '🗑️  Base de datos limpiada. Corriendo seed demo...';
-
 -- ============================================================================
 -- 3. SEED DEMO — Empresa + Usuario Admin
 -- ============================================================================
