@@ -40,12 +40,13 @@ export async function POST(request: NextRequest) {
 
         const session = await stripe.billingPortal.sessions.create({
             customer: empresa.stripe_customer_id,
-            return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/planes`,
+            return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/configuracion/suscripcion`,
         })
 
         return NextResponse.json({ url: session.url })
     } catch (error: any) {
         logger.error({ err: error }, 'Error creando sesión de portal')
-        return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+        const msg = error?.message ?? 'Error interno del servidor'
+        return NextResponse.json({ error: msg }, { status: 500 })
     }
 }

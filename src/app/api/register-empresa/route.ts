@@ -67,8 +67,8 @@ export async function POST(request: NextRequest) {
         }
 
         // 2. Crear el usuario admin en Supabase Auth
-        // El trigger handle_new_user crea el profile con role='conductor' y empresa_id=NULL.
-        // Actualizamos el profile manualmente después con service_role (paso 3).
+        // El trigger (SECURITY DEFINER) crea el profile con role='conductor', empresa_id=NULL.
+        // La API route asigna role='admin' y empresa_id en el paso 3 via service_role.
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: admin_email,
             password: admin_password,
@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // 3. Asignar role='admin' y empresa_id directamente en el profile
-        // usando service_role (bypasea RLS) — nunca desde metadata del cliente
+        // 3. Confirmar role='admin' y empresa_id en el profile via service_role (bypasea RLS)
+        // El trigger ya los asignó desde metadata, esto es un safety-net por si el trigger falla
         const { error: profileError } = await supabaseAdmin
             .from('profiles')
             .update({ role: 'admin', empresa_id: empresa.id })

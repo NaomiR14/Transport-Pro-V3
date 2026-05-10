@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import {
     Truck, Building2, User, AlertCircle, Mail, Lock,
@@ -24,7 +25,6 @@ export default function RegistroEmpresaPage() {
     // Datos empresa
     const [empresaNombre, setEmpresaNombre] = useState('')
     const [empresaNit, setEmpresaNit] = useState('')
-    const [empresaEmail, setEmpresaEmail] = useState('')
     const [empresaTelefono, setEmpresaTelefono] = useState('')
     const [empresaDireccion, setEmpresaDireccion] = useState('')
 
@@ -37,7 +37,6 @@ export default function RegistroEmpresaPage() {
 
     const validateForm = () => {
         if (!empresaNombre.trim()) { setError('El nombre de la empresa es requerido'); return false }
-        if (!empresaEmail.trim() || !/\S+@\S+\.\S+/.test(empresaEmail)) { setError('Ingresa un email de contacto válido'); return false }
         if (!adminNombre.trim()) { setError('El nombre del administrador es requerido'); return false }
         if (!adminApellido.trim()) { setError('El apellido del administrador es requerido'); return false }
         if (!adminEmail.trim() || !/\S+@\S+\.\S+/.test(adminEmail)) { setError('Ingresa un email válido para el administrador'); return false }
@@ -59,7 +58,7 @@ export default function RegistroEmpresaPage() {
                 body: JSON.stringify({
                     empresa_nombre: empresaNombre.trim(),
                     empresa_nit: empresaNit.trim() || undefined,
-                    empresa_email: empresaEmail.trim(),
+                    empresa_email: adminEmail.trim(),
                     empresa_telefono: empresaTelefono.trim() || undefined,
                     empresa_direccion: empresaDireccion.trim() || undefined,
                     admin_nombre: adminNombre.trim(),
@@ -72,12 +71,20 @@ export default function RegistroEmpresaPage() {
             const data = await res.json()
             if (!res.ok) { setError(data.error || 'Error al registrar'); return }
 
+            // admin.createUser() no envía el correo automáticamente — hay que dispararlo con resend()
             const supabase = createClient()
-            await supabase.auth.signInWithPassword({
+            await supabase.auth.resend({
+                type: 'signup',
                 email: adminEmail.trim(),
-                password: adminPassword,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback?next=/login`,
+                },
             })
-            router.push('/configuracion/suscripcion')
+
+            toast.success('Empresa registrada. Revisa tu correo y confirma tu cuenta para iniciar sesión.', {
+                duration: 8000,
+            })
+            router.push('/login')
         } catch {
             setError('Error de conexión. Intenta de nuevo.')
         } finally {
@@ -144,28 +151,6 @@ export default function RegistroEmpresaPage() {
                                             onChange={(e) => setEmpresaNit(e.target.value)}
                                             className={INPUT_CLASS}
                                             placeholder="123456789"
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Email contacto */}
-                                <div>
-                                    <label htmlFor="empresa-email" className={LABEL_CLASS}>
-                                        Email de contacto <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Mail className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            id="empresa-email"
-                                            type="email"
-                                            value={empresaEmail}
-                                            onChange={(e) => setEmpresaEmail(e.target.value)}
-                                            className={INPUT_CLASS}
-                                            placeholder="contacto@miempresa.com"
-                                            required
                                             disabled={loading}
                                         />
                                     </div>

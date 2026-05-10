@@ -12,6 +12,14 @@
 -- =====================================================
 
 -- =====================================================
+-- FIX 0: Hacer empresa_id nullable en profiles
+-- El trigger ahora inserta NULL y la API route lo asigna después con service_role.
+-- La columna fue puesta NOT NULL en la migración de multi-tenancy pero
+-- esa restricción impide el flujo de dos pasos trigger → API route.
+-- =====================================================
+ALTER TABLE public.profiles ALTER COLUMN empresa_id DROP NOT NULL;
+
+-- =====================================================
 -- FIX 1: Trigger handle_new_user seguro
 -- El trigger NUNCA lee role ni empresa_id de metadata.
 -- Siempre inserta role='conductor' y empresa_id=NULL.

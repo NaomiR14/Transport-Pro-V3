@@ -32,9 +32,26 @@ export default function LoginForm() {
             if (error) {
                 setError(error.message)
             } else {
+                const { data: { user: authUser } } = await supabase.auth.getUser()
+                let destination = '/'
+                if (authUser) {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('role, empresa_id')
+                        .eq('id', authUser.id)
+                        .single()
+                    if (profile?.role === 'admin' && profile.empresa_id) {
+                        const { data: empresa } = await supabase
+                            .from('empresas')
+                            .select('plan_activo')
+                            .eq('id', profile.empresa_id)
+                            .single()
+                        if (!empresa?.plan_activo) destination = '/configuracion/suscripcion'
+                    }
+                }
                 setSuccess('¡Inicio de sesión exitoso! Redirigiendo...')
                 router.refresh()
-                setTimeout(() => router.push('/'), 1500)
+                setTimeout(() => router.push(destination), 1000)
             }
         } catch (err: any) {
             setError(err.message || 'Error desconocido')

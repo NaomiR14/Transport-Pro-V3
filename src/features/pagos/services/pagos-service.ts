@@ -21,7 +21,7 @@ export class PagosService {
         const supabase = createClient()
         const { data } = await supabase
             .from('empresas')
-            .select('plan, plan_activo, plan_fecha_inicio, plan_fecha_fin, stripe_subscription_id')
+            .select('plan, plan_activo, plan_fecha_inicio, plan_fecha_fin, stripe_subscription_id, stripe_customer_id')
             .eq('id', empresaId)
             .single()
 

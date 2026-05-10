@@ -10,7 +10,8 @@ export function useEstadoSuscripcion(options?: { enabled?: boolean }) {
     return useQuery({
         queryKey: ['pagos', 'suscripcion'],
         queryFn: () => PagosService.getEstadoSuscripcion(),
-        staleTime: 60 * 1000,
+        staleTime: 30 * 1000,
+        refetchOnWindowFocus: 'always',
         enabled: options?.enabled ?? true,
     })
 }

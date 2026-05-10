@@ -1,7 +1,8 @@
 'use client'
 
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/features/auth'
 import { usePermissions } from '@/features/auth'
 import {
@@ -29,8 +30,6 @@ import {
     ExternalLink,
     FileText,
     Loader2,
-    Lock,
-    ShieldCheck,
 } from 'lucide-react'
 
 const PLAN_COLORS: Record<string, string> = {
@@ -61,24 +60,63 @@ function formatAmount(amount: number, currency: string) {
     }).format(amount / 100)
 }
 
-function SearchParamsHandler() {
+function SuccessPoller() {
+    const router = useRouter()
     const searchParams = useSearchParams()
+    const queryClient = useQueryClient()
+    const { data: suscripcion } = useEstadoSuscripcion()
+    const isSuccess = searchParams.get('success') === '1'
+    const plan = searchParams.get('plan')
+    const toastShown = useRef(false)
+    const [timedOut, setTimedOut] = useState(false)
 
     useEffect(() => {
-        const plan = searchParams.get('plan')
-        if (searchParams.get('success') === '1') {
-            toast.success(
-                plan
-                    ? `¡Suscripción al plan ${PLAN_LABELS[plan] ?? plan} activada con éxito!`
-                    : '¡Suscripción activada con éxito!'
-            )
-        }
         if (searchParams.get('canceled') === '1') {
             toast.info('Proceso de suscripción cancelado')
         }
     }, [])
 
-    return null
+    // Polling: refetch cada 2.5s hasta que el webhook actualice plan_activo
+    useEffect(() => {
+        if (!isSuccess) return
+        const interval = setInterval(() => {
+            queryClient.invalidateQueries({ queryKey: ['pagos', 'suscripcion'] })
+        }, 2500)
+        const timeout = setTimeout(() => {
+            clearInterval(interval)
+            setTimedOut(true)
+            toast.info('Tu pago fue procesado. Si la suscripción no aparece, recarga la página.')
+        }, 30_000)
+        return () => { clearInterval(interval); clearTimeout(timeout) }
+    }, [isSuccess])
+
+    // Redirigir en cuanto plan_activo sea true
+    useEffect(() => {
+        if (!isSuccess || !suscripcion?.plan_activo) return
+        if (!toastShown.current) {
+            toastShown.current = true
+            toast.success(
+                plan
+                    ? `¡Plan ${PLAN_LABELS[plan] ?? plan} activado con éxito!`
+                    : '¡Suscripción activada con éxito!'
+            )
+        }
+        router.replace('/dashboard')
+    }, [isSuccess, suscripcion?.plan_activo])
+
+    if (!isSuccess || suscripcion?.plan_activo || timedOut) return null
+
+    return (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4 max-w-sm mx-4 text-center">
+                <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+                <div>
+                    <p className="font-semibold text-slate-900 dark:text-white text-lg">Confirmando tu pago</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Esto toma unos segundos…</p>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 function PlanSkeleton() {
@@ -123,7 +161,7 @@ export default function SuscripcionPage() {
     return (
         <div className="max-w-5xl mx-auto px-4 py-8">
             <Suspense fallback={null}>
-                <SearchParamsHandler />
+                <SuccessPoller />
             </Suspense>
 
             {/* Header */}
@@ -271,44 +309,63 @@ export default function SuscripcionPage() {
 
                 {/* ── Tab: Método de pago ── */}
                 <TabsContent value="pago">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-base">
-                                <ShieldCheck className="h-5 w-5 text-green-500" />
-                                Pago gestionado de forma segura por Stripe
-                            </CardTitle>
-                            <CardDescription>
-                                Tu información de pago está cifrada y protegida. Nunca almacenamos los datos de tu tarjeta en nuestros servidores.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-5">
-                            <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                <Lock className="h-5 w-5 text-slate-400 shrink-0 mt-0.5" />
-                                <p className="text-sm text-slate-600 dark:text-slate-300">
-                                    Desde el portal de Stripe puedes actualizar tu tarjeta, cambiar el método de pago y descargar recibos de pago de forma segura.
-                                </p>
-                            </div>
-                            <div>
-                                <Button
-                                    onClick={() => abrirPortal()}
-                                    disabled={portalPending || !suscripcion?.stripe_subscription_id}
-                                    className="gap-2"
-                                >
-                                    {portalPending ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <ExternalLink className="h-4 w-4" />
-                                    )}
-                                    Gestionar método de pago en Stripe
-                                </Button>
-                                {!suscripcion?.stripe_subscription_id && (
-                                    <p className="text-xs text-slate-400 mt-2">
-                                        Activa una suscripción para gestionar tu método de pago.
-                                    </p>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Card>
+                            <CardContent className="pt-6 pb-6">
+                                <div className="flex items-start gap-4">
+                                    <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 shrink-0">
+                                        <CreditCard className="h-5 w-5 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-slate-900 dark:text-white">Método de pago</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Actualiza tu tarjeta de crédito o débito</p>
+                                        <Button
+                                            size="sm"
+                                            className="mt-4 gap-2"
+                                            onClick={() => abrirPortal()}
+                                            disabled={portalPending || !suscripcion?.stripe_customer_id}
+                                        >
+                                            {portalPending
+                                                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                : <ExternalLink className="h-3.5 w-3.5" />}
+                                            Actualizar tarjeta
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardContent className="pt-6 pb-6">
+                                <div className="flex items-start gap-4">
+                                    <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 shrink-0">
+                                        <AlertCircle className="h-5 w-5 text-red-500" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-slate-900 dark:text-white">Cancelar suscripción</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Cancela cuando quieras sin penalización</p>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="mt-4 gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
+                                            onClick={() => abrirPortal()}
+                                            disabled={portalPending || !suscripcion?.stripe_customer_id}
+                                        >
+                                            {portalPending
+                                                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                : <ExternalLink className="h-3.5 w-3.5" />}
+                                            Cancelar suscripción
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    {!suscripcion?.stripe_customer_id && (
+                        <p className="text-sm text-slate-400 text-center mt-4">
+                            Activa una suscripción para gestionar tu método de pago.
+                        </p>
+                    )}
                 </TabsContent>
 
                 {/* ── Tab: Facturas ── */}

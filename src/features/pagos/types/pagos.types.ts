@@ -28,6 +28,7 @@ export interface EstadoSuscripcion {
     plan_fecha_inicio: string | null
     plan_fecha_fin: string | null
     stripe_subscription_id: string | null
+    stripe_customer_id: string | null
 }
 
 export interface PlanLimites {

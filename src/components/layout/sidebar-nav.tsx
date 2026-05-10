@@ -43,6 +43,7 @@ export function SidebarNav({ className }: SidebarNavProps) {
   const isAdmin = role === 'admin'
   const { data: suscripcion } = useEstadoSuscripcion({ enabled: isAdmin })
   const planActivo = isAdmin && (suscripcion?.plan_activo ?? false)
+  const planPendiente = isAdmin && !planActivo && !!suscripcion?.stripe_customer_id
 
   const allNavItems = [
     {
@@ -334,24 +335,27 @@ export function SidebarNav({ className }: SidebarNavProps) {
                     "flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200",
                     planActivo
                       ? "bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border border-violet-200/60 dark:border-violet-700/40 hover:shadow-sm"
-                      : "bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/40 hover:shadow-sm"
+                      : planPendiente
+                        ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-700/40 hover:shadow-sm"
+                        : "bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/40 hover:shadow-sm"
                   )}
-                  onClick={() => router.push(planActivo ? '/configuracion/suscripcion' : '/planes')}
+                  onClick={() => router.push('/configuracion/suscripcion')}
                 >
-                  <Crown className={cn("h-4 w-4 shrink-0", planActivo ? "text-violet-500" : "text-amber-500")} />
+                  <Crown className={cn("h-4 w-4 shrink-0", planActivo ? "text-violet-500" : planPendiente ? "text-blue-500" : "text-amber-500")} />
                   <div className="min-w-0 flex-1">
-                    <p className={cn("text-xs font-bold truncate", planActivo ? "text-violet-700 dark:text-violet-300" : "text-amber-700 dark:text-amber-300")}>
+                    <p className={cn("text-xs font-bold truncate", planActivo ? "text-violet-700 dark:text-violet-300" : planPendiente ? "text-blue-700 dark:text-blue-300" : "text-amber-700 dark:text-amber-300")}>
                       {planActivo
                         ? `Plan ${suscripcion?.plan === 'basico' ? 'Básico' : suscripcion?.plan === 'profesional' ? 'Profesional' : 'Enterprise'}`
+                        : planPendiente ? 'Procesando pago…'
                         : 'Sin suscripción'}
                     </p>
                     <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
-                      {planActivo ? 'Activo' : 'Ver planes disponibles'}
+                      {planActivo ? 'Activo' : planPendiente ? 'Confirmando con Stripe' : 'Ver planes disponibles'}
                     </p>
                   </div>
                   <span className={cn(
                     "w-2 h-2 rounded-full shrink-0",
-                    planActivo ? "bg-green-500 shadow-sm shadow-green-500/50" : "bg-amber-400"
+                    planActivo ? "bg-green-500 shadow-sm shadow-green-500/50" : planPendiente ? "bg-blue-400 animate-pulse" : "bg-amber-400"
                   )} />
                 </div>
               ) : (
@@ -361,18 +365,21 @@ export function SidebarNav({ className }: SidebarNavProps) {
                       "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 relative group",
                       planActivo
                         ? "bg-violet-100 dark:bg-violet-900/30 hover:bg-violet-200 dark:hover:bg-violet-900/50"
-                        : "bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50"
+                        : planPendiente
+                          ? "bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50"
+                          : "bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50"
                     )}
-                    onClick={() => router.push(planActivo ? '/configuracion/suscripcion' : '/planes')}
+                    onClick={() => router.push('/configuracion/suscripcion')}
                   >
-                    <Crown className={cn("h-4 w-4", planActivo ? "text-violet-500" : "text-amber-500")} />
+                    <Crown className={cn("h-4 w-4", planActivo ? "text-violet-500" : planPendiente ? "text-blue-500" : "text-amber-500")} />
                     <span className={cn(
                       "absolute top-1.5 right-1.5 w-2 h-2 rounded-full border border-white dark:border-slate-900",
-                      planActivo ? "bg-green-500" : "bg-amber-400"
+                      planActivo ? "bg-green-500" : planPendiente ? "bg-blue-400 animate-pulse" : "bg-amber-400"
                     )} />
                     <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg border border-slate-700">
                       {planActivo
                         ? `Plan ${suscripcion?.plan === 'basico' ? 'Básico' : suscripcion?.plan === 'profesional' ? 'Profesional' : 'Enterprise'}`
+                        : planPendiente ? 'Procesando pago…'
                         : 'Sin suscripción'}
                       <div className="absolute right-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-0 border-r-4 border-r-slate-900 border-t-transparent border-b-transparent" />
                     </div>

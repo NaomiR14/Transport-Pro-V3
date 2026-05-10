@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
         }
 
         // Crear usuario en Supabase Auth
-        // El trigger handle_new_user crea el profile con role='conductor' y empresa_id=NULL.
-        // Actualizamos el profile manualmente después con service_role (paso siguiente).
+        // El trigger (SECURITY DEFINER) crea el profile con role='conductor', empresa_id=NULL.
+        // Este route asigna role y empresa_id después via service_role.
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email,
             password,
