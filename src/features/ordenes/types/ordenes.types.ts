@@ -30,7 +30,6 @@ export interface Orden {
 }
 
 export interface CreateOrdenRequest {
-    numero_orden: string
     placa_vehiculo: string
     ruta_viaje_id: string
     estado?: EstadoOrden

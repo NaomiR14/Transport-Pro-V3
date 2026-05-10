@@ -17,8 +17,9 @@ export class OrdenService {
     private static mapToDB(data: CreateOrdenRequest | UpdateOrdenRequest): Record<string, unknown> {
         const mapped: Record<string, unknown> = {};
 
-        if ('numero_orden' in data && data.numero_orden !== undefined) {
-            mapped.numero_orden = data.numero_orden;
+        // numero_orden es generado por trigger en INSERT; solo se mapea en UPDATE si se pasa explícitamente
+        if ('numero_orden' in data && (data as UpdateOrdenRequest).numero_orden !== undefined) {
+            mapped.numero_orden = (data as UpdateOrdenRequest).numero_orden;
         }
         if ('placa_vehiculo' in data && data.placa_vehiculo !== undefined) {
             mapped.placa_vehiculo = data.placa_vehiculo;

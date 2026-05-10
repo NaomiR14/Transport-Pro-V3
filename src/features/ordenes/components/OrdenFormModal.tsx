@@ -71,7 +71,6 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
         isUserRutaChange.current = false
         if (orden) {
             setFormData({
-                numero_orden: orden.numero_orden,
                 placa_vehiculo: orden.placa_vehiculo,
                 ruta_viaje_id: orden.ruta_viaje_id,
                 estado: orden.estado,
@@ -79,7 +78,6 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
             })
         } else {
             setFormData({
-                numero_orden: "",
                 placa_vehiculo: "",
                 ruta_viaje_id: "",
                 estado: "pendiente",
@@ -115,9 +113,6 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
     const validateForm = () => {
         const newErrors: Record<string, string> = {}
 
-        if (!formData.numero_orden?.trim()) {
-            newErrors.numero_orden = "El número de orden es requerido"
-        }
         if (!formData.placa_vehiculo?.trim()) {
             newErrors.placa_vehiculo = "El vehículo es requerido"
         }
@@ -136,7 +131,6 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
 
         try {
             const apiData: CreateOrdenRequest = {
-                numero_orden: formData.numero_orden!,
                 placa_vehiculo: formData.placa_vehiculo!,
                 ruta_viaje_id: formData.ruta_viaje_id!,
                 estado: (formData.estado as EstadoOrden) || "pendiente",
@@ -178,19 +172,17 @@ export default function OrdenFormModal({ orden, onSave, onClose, isOpen }: Orden
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Número de Orden */}
-                    <div className="space-y-2">
-                        <Label htmlFor="numero_orden">Número de Orden *</Label>
-                        <Input
-                            id="numero_orden"
-                            value={formData.numero_orden || ""}
-                            onChange={(e) => handleInputChange("numero_orden", e.target.value)}
-                            className={errors.numero_orden ? "border-red-500" : ""}
-                            placeholder="ORD-001"
-                            disabled={isSaving}
-                        />
-                        {errors.numero_orden && <p className="text-sm text-red-500">{errors.numero_orden}</p>}
-                    </div>
+                    {/* Número de Orden — solo lectura en edición, auto-generado en creación */}
+                    {orden && (
+                        <div className="space-y-2">
+                            <Label>Número de Orden</Label>
+                            <Input
+                                value={orden.numero_orden}
+                                readOnly
+                                className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-default"
+                            />
+                        </div>
+                    )}
 
                     {/* Ruta */}
                     <div className="space-y-2">
