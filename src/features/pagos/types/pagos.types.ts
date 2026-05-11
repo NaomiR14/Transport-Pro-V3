@@ -25,6 +25,7 @@ export interface PlanConfig {
 export interface EstadoSuscripcion {
     plan: PlanTipo
     plan_activo: boolean
+    plan_cancelado: boolean
     plan_fecha_inicio: string | null
     plan_fecha_fin: string | null
     stripe_subscription_id: string | null

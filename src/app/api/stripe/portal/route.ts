@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
         const session = await stripe.billingPortal.sessions.create({
             customer: empresa.stripe_customer_id,
-            return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/configuracion/suscripcion`,
+            return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/configuracion/suscripcion?portal_return=1`,
         })
 
         return NextResponse.json({ url: session.url })

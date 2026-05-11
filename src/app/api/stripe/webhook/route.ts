@@ -22,6 +22,7 @@ async function updateEmpresaSuscripcion(
     subscriptionId: string,
     plan: string,
     activo: boolean,
+    cancelado = false,
     fechaInicio?: Date | null,
     fechaFin?: Date | null,
 ) {
@@ -30,6 +31,7 @@ async function updateEmpresaSuscripcion(
         p_subscription_id: subscriptionId,
         p_plan:            plan,
         p_activo:          activo,
+        p_cancelado:       cancelado,
         p_fecha_inicio:    fechaInicio?.toISOString() ?? null,
         p_fecha_fin:       fechaFin?.toISOString() ?? null,
     })
@@ -86,6 +88,26 @@ export async function POST(request: NextRequest) {
                 sub.id,
                 plan,
                 true,
+                false,
+                inicio,
+                fin,
+            )
+            break
+        }
+
+        case 'customer.subscription.updated': {
+            const sub = event.data.object as Stripe.Subscription
+            const priceId = sub.items.data[0]?.price.id
+            const plan = PLAN_BY_PRICE[priceId] ?? 'basico'
+            const { inicio, fin } = getSubPeriod(sub)
+            const cancelado = sub.cancel_at_period_end
+
+            await updateEmpresaSuscripcion(
+                sub.customer as string,
+                sub.id,
+                plan,
+                sub.status === 'active',
+                cancelado,
                 inicio,
                 fin,
             )
@@ -107,6 +129,7 @@ export async function POST(request: NextRequest) {
                 sub.id,
                 plan,
                 true,
+                false,
                 inicio,
                 fin,
             )
@@ -127,6 +150,7 @@ export async function POST(request: NextRequest) {
                 sub.id,
                 plan,
                 false,
+                false,
             )
             break
         }
@@ -137,6 +161,7 @@ export async function POST(request: NextRequest) {
                 sub.customer as string,
                 sub.id,
                 'basico',
+                false,
                 false,
             )
             break

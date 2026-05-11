@@ -11,20 +11,24 @@ export class PagosService {
     }
 
     static async getEstadoSuscripcion(): Promise<EstadoSuscripcion | null> {
+        console.log('[PagosService.getEstadoSuscripcion] START')
         let empresaId: string
         try {
             empresaId = await getEmpresaId()
-        } catch {
+            console.log('[PagosService.getEstadoSuscripcion] empresaId=%s', empresaId)
+        } catch (e: any) {
+            console.error('[PagosService.getEstadoSuscripcion] getEmpresaId FAILED', e.message)
             return null
         }
 
         const supabase = createClient()
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from('empresas')
-            .select('plan, plan_activo, plan_fecha_inicio, plan_fecha_fin, stripe_subscription_id, stripe_customer_id')
+            .select('plan, plan_activo, plan_cancelado, plan_fecha_inicio, plan_fecha_fin, stripe_subscription_id')
             .eq('id', empresaId)
             .single()
 
+        console.log('[PagosService.getEstadoSuscripcion] DB result', { data, error: error?.message ?? null })
         return data as EstadoSuscripcion | null
     }
 
