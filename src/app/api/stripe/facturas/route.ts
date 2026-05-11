@@ -4,7 +4,7 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { stripe } from '@/lib/stripe/stripe'
 import logger from '@/lib/logger'
 
-const supabaseAdmin = createAdmin(
+const getSupabaseAdmin = () => createAdmin(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -28,7 +28,7 @@ export async function GET() {
             return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
         }
 
-        const { data: empresa } = await supabaseAdmin
+        const { data: empresa } = await getSupabaseAdmin()
             .from('empresas')
             .select('stripe_customer_id')
             .eq('id', profile.empresa_id)

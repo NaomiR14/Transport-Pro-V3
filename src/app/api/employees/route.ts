@@ -3,7 +3,7 @@ import { createClient as createServerClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import logger from '@/lib/logger'
 
-const supabaseAdmin = createClient(
+const getSupabaseAdmin = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         // Crear usuario en Supabase Auth
         // El trigger (SECURITY DEFINER) crea el profile con role='conductor', empresa_id=NULL.
         // Este route asigna role y empresa_id después via service_role.
-        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        const { data: authData, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
             email,
             password,
             email_confirm: false,
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
         // Asignar role y empresa_id directamente en el profile
         // usando service_role (bypasea RLS) — nunca desde metadata del cliente
-        const { data: profile, error: profileError } = await supabaseAdmin
+        const { data: profile, error: profileError } = await getSupabaseAdmin()
             .from('profiles')
             .update({ role, empresa_id: auth.empresa_id })
             .eq('id', authData.user.id)
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
             .single()
 
         if (profileError) {
-            await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+            await getSupabaseAdmin().auth.admin.deleteUser(authData.user.id)
             logger.error({ err: profileError }, 'Error actualizando profile del empleado')
             return NextResponse.json({ error: 'Error al configurar el perfil del empleado' }, { status: 500 })
         }
@@ -122,7 +122,7 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'Falta user_id' }, { status: 400 })
         }
 
-        const { data: targetProfile } = await supabaseAdmin
+        const { data: targetProfile } = await getSupabaseAdmin()
             .from('profiles')
             .select('empresa_id')
             .eq('id', user_id)
@@ -132,7 +132,7 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'Empleado no encontrado' }, { status: 404 })
         }
 
-        const { error } = await supabaseAdmin.auth.admin.deleteUser(user_id)
+        const { error } = await getSupabaseAdmin().auth.admin.deleteUser(user_id)
 
         if (error) {
             logger.error({ err: error }, 'Error eliminando empleado')
@@ -166,7 +166,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         // Verificar que el empleado pertenece a la misma empresa
-        const { data: targetProfile } = await supabaseAdmin
+        const { data: targetProfile } = await getSupabaseAdmin()
             .from('profiles')
             .select('empresa_id')
             .eq('id', user_id)
@@ -177,7 +177,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         // Actualizar rol
-        const { data: updated, error } = await supabaseAdmin
+        const { data: updated, error } = await getSupabaseAdmin()
             .from('profiles')
             .update({ role, updated_at: new Date().toISOString() })
             .eq('id', user_id)

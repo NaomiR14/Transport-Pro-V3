@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseAdmin = createClient(
+const getSupabaseAdmin = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const { data, error } = await supabaseAdmin.rpc('redimir_codigo_descuento', {
+        const { data, error } = await getSupabaseAdmin().rpc('redimir_codigo_descuento', {
             p_codigo:     codigo,
             p_empresa_id: empresa_id,
         })
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Falta parámetro: codigo' }, { status: 400 })
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('codigos_descuento')
         .select('codigo, descripcion, tipo, valor, activo, fecha_expiracion, usos_actuales, max_usos')
         .eq('codigo', codigo.toUpperCase().trim())

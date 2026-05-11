@@ -6,7 +6,7 @@ import logger from '@/lib/logger'
 
 export const runtime = 'nodejs'
 
-const supabaseAdmin = createAdmin(
+const getSupabaseAdmin = () => createAdmin(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -26,7 +26,7 @@ async function updateEmpresaSuscripcion(
     fechaInicio?: Date | null,
     fechaFin?: Date | null,
 ) {
-    const { error } = await supabaseAdmin.rpc('actualizar_suscripcion_empresa', {
+    const { error } = await getSupabaseAdmin().rpc('actualizar_suscripcion_empresa', {
         p_customer_id:     customerId,
         p_subscription_id: subscriptionId,
         p_plan:            plan,

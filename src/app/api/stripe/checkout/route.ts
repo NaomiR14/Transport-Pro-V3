@@ -4,7 +4,7 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { stripe, PLAN_PRICE_IDS, PLAN_NAMES } from '@/lib/stripe/stripe'
 import logger from '@/lib/logger'
 
-const supabaseAdmin = createAdmin(
+const getSupabaseAdmin = () => createAdmin(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Plan inválido' }, { status: 400 })
         }
 
-        const { data: empresa } = await supabaseAdmin
+        const { data: empresa } = await getSupabaseAdmin()
             .from('empresas')
             .select('id, nombre, email_contacto, stripe_customer_id')
             .eq('id', profile.empresa_id)
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
             })
             customerId = customer.id
 
-            await supabaseAdmin
+            await getSupabaseAdmin()
                 .from('empresas')
                 .update({ stripe_customer_id: customerId })
                 .eq('id', empresa.id)

@@ -2,8 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import logger from '@/lib/logger'
 
-// Usar service_role_key para crear usuarios (server-side only)
-const supabaseAdmin = createClient(
+const getSupabaseAdmin = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -39,7 +38,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 1. Crear la empresa
-        const { data: empresa, error: empresaError } = await supabaseAdmin
+        const { data: empresa, error: empresaError } = await getSupabaseAdmin()
             .from('empresas')
             .insert({
                 nombre: empresa_nombre,
@@ -69,7 +68,7 @@ export async function POST(request: NextRequest) {
         // 2. Crear el usuario admin en Supabase Auth
         // El trigger (SECURITY DEFINER) crea el profile con role='conductor', empresa_id=NULL.
         // La API route asigna role='admin' y empresa_id en el paso 3 via service_role.
-        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        const { data: authData, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
             email: admin_email,
             password: admin_password,
             email_confirm: false,
@@ -81,7 +80,7 @@ export async function POST(request: NextRequest) {
 
         if (authError) {
             // Rollback: eliminar la empresa creada
-            await supabaseAdmin.from('empresas').delete().eq('id', empresa.id)
+            await getSupabaseAdmin().from('empresas').delete().eq('id', empresa.id)
 
             if (authError.message.includes('already been registered')) {
                 return NextResponse.json(
@@ -98,15 +97,15 @@ export async function POST(request: NextRequest) {
 
         // 3. Confirmar role='admin' y empresa_id en el profile via service_role (bypasea RLS)
         // El trigger ya los asignó desde metadata, esto es un safety-net por si el trigger falla
-        const { error: profileError } = await supabaseAdmin
+        const { error: profileError } = await getSupabaseAdmin()
             .from('profiles')
             .update({ role: 'admin', empresa_id: empresa.id })
             .eq('id', authData.user.id)
 
         if (profileError) {
             // Rollback: eliminar usuario y empresa
-            await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
-            await supabaseAdmin.from('empresas').delete().eq('id', empresa.id)
+            await getSupabaseAdmin().auth.admin.deleteUser(authData.user.id)
+            await getSupabaseAdmin().from('empresas').delete().eq('id', empresa.id)
             logger.error({ err: profileError }, 'Error actualizando profile admin')
             return NextResponse.json(
                 { error: 'Error al configurar el perfil del administrador' },
