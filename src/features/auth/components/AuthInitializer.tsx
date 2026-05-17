@@ -49,6 +49,11 @@ export default function AuthInitializer() {
                     if (session?.user) {
                         useAuthStore.getState().setUser(session.user)
                         if (isAuthCycle) {
+                            // Yield the event loop so the Supabase auth state machine can
+                            // finish its own processing before we issue DB queries.
+                            // Without this, supabase.from() can deadlock against the internal
+                            // auth lock that the state machine still holds when it fires the event.
+                            await new Promise(resolve => setTimeout(resolve, 0))
                             await loadProfile(supabase, session.user)
                             console.log('[Auth] loadProfile done for event=', event)
                         }
