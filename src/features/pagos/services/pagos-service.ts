@@ -11,13 +11,10 @@ export class PagosService {
     }
 
     static async getEstadoSuscripcion(): Promise<EstadoSuscripcion | null> {
-        console.log('[PagosService.getEstadoSuscripcion] START')
         let empresaId: string
         try {
             empresaId = await getEmpresaId()
-            console.log('[PagosService.getEstadoSuscripcion] empresaId=%s', empresaId)
-        } catch (e: any) {
-            console.error('[PagosService.getEstadoSuscripcion] getEmpresaId FAILED', e.message)
+        } catch {
             return null
         }
 
@@ -28,7 +25,10 @@ export class PagosService {
             .eq('id', empresaId)
             .single()
 
-        console.log('[PagosService.getEstadoSuscripcion] DB result', { data, error: error?.message ?? null })
+        // PGRST116 = no rows (empresa no existe para este usuario — situación inesperada)
+        // Cualquier otro error (auth, red) lanza excepción para que React Query reintente
+        if (error && error.code !== 'PGRST116') throw new Error(error.message)
+
         return data as EstadoSuscripcion | null
     }
 

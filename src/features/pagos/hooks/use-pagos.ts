@@ -8,17 +8,13 @@ import type { PlanLimites } from '../types/pagos.types'
 
 export function useEstadoSuscripcion(options?: { enabled?: boolean }) {
     const enabled = options?.enabled ?? true
-    console.log('[useEstadoSuscripcion] hook rendered, enabled=%s', enabled)
     return useQuery({
         queryKey: ['pagos', 'suscripcion'],
-        queryFn: async () => {
-            console.log('[useEstadoSuscripcion] queryFn CALLED')
-            const result = await PagosService.getEstadoSuscripcion()
-            console.log('[useEstadoSuscripcion] queryFn DONE', result)
-            return result
-        },
+        queryFn: () => PagosService.getEstadoSuscripcion(),
         staleTime: 30 * 1000,
         refetchOnWindowFocus: true,
+        retry: 3,
+        retryDelay: 1000,
         enabled,
     })
 }

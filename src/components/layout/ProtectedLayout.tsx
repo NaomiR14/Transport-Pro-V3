@@ -43,7 +43,9 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
 
     const isSuscripcionLibre = SUSCRIPCION_LIBRE.some(path => pathname?.startsWith(path))
 
-    const suscripcionInactiva = !loadingSub && suscripcion !== null && suscripcion !== undefined && !suscripcion.plan_activo
+    // Bloqueamos cuando: no está cargando Y plan_activo no es explícitamente true.
+    // Incluye null (error de RLS/timing) y false (sin plan). Solo dejamos pasar true.
+    const suscripcionInactiva = !loadingSub && suscripcion?.plan_activo !== true
 
     useEffect(() => {
         if (!isLoading && user && isPublicPath) {
