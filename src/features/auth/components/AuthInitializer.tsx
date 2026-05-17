@@ -23,79 +23,50 @@ export default function AuthInitializer() {
     useEffect(() => {
         const supabase = createClient()
         let mounted = true
-        // Tracks whether a SIGNED_IN auth event is still being processed.
-        // checkSession must not call setLoading(false) while SIGNED_IN is in flight,
-        // otherwise the subscription query starts mid-session-refresh and Supabase
-        // silently kills the in-flight fetch.
+        // Prevents INITIAL_SESSION from releasing isLoading while SIGNED_IN is
+        // still processing its own loadProfile (avoids starting subscription query
+        // while Supabase is mid-token-refresh).
         let signingIn = false
-
-        const checkSession = async () => {
-            if (!mounted) return
-
-            try {
-                console.log('[Auth] checkSession: start, setLoading(true)')
-                useAuthStore.getState().setLoading(true)
-
-                const { data: { session }, error } = await supabase.auth.getSession()
-                console.log('[Auth] checkSession: getSession done, session=', session?.user?.id ?? null, 'error=', error?.message ?? null)
-
-                if (error) {
-                    console.error('Error obteniendo sesión:', error)
-                    return
-                }
-
-                if (session?.user) {
-                    useAuthStore.getState().setUser(session.user)
-                    await loadProfile(supabase, session.user)
-                    console.log('[Auth] checkSession: loadProfile done')
-                } else {
-                    useAuthStore.getState().setUser(null)
-                    useAuthStore.getState().setProfile(null)
-                }
-            } catch (error) {
-                console.error('[Auth] checkSession: caught error', error)
-            } finally {
-                // If a SIGNED_IN event is already being processed, let it call
-                // setLoading(false) when it's done — don't release the lock early.
-                if (mounted && !signingIn) {
-                    console.log('[Auth] checkSession: finally setLoading(false)')
-                    useAuthStore.getState().setLoading(false)
-                } else {
-                    console.log('[Auth] checkSession: finally skipped setLoading(false) — signingIn=', signingIn)
-                }
-            }
-        }
-
-        checkSession()
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 if (!mounted) return
 
-                console.log('[Auth] onAuthStateChange: event=', event, 'user=', session?.user?.id ?? null)
+                console.log('[Auth] event=', event, 'user=', session?.user?.id ?? null)
+
+                // Only INITIAL_SESSION and SIGNED_IN perform a full auth cycle
+                // (set user + load profile + gate isLoading). Other events (TOKEN_REFRESHED,
+                // USER_UPDATED) just update the user object without touching the loading gate.
+                const isAuthCycle = event === 'INITIAL_SESSION' || event === 'SIGNED_IN'
 
                 if (event === 'SIGNED_IN') {
                     signingIn = true
-                    console.log('[Auth] onAuthStateChange: SIGNED_IN → setLoading(true)')
+                    console.log('[Auth] SIGNED_IN → setLoading(true)')
                     useAuthStore.getState().setLoading(true)
                 }
 
                 try {
                     if (session?.user) {
                         useAuthStore.getState().setUser(session.user)
-                        await loadProfile(supabase, session.user)
-                        console.log('[Auth] onAuthStateChange: loadProfile done for event=', event)
+                        if (isAuthCycle) {
+                            await loadProfile(supabase, session.user)
+                            console.log('[Auth] loadProfile done for event=', event)
+                        }
                     } else {
                         useAuthStore.getState().setUser(null)
                         useAuthStore.getState().setProfile(null)
                     }
                 } catch (err) {
-                    console.error('[Auth] onAuthStateChange: loadProfile threw for event=', event, err)
+                    console.error('[Auth] error for event=', event, err)
                 } finally {
                     if (event === 'SIGNED_IN') signingIn = false
-                    if (mounted) {
-                        console.log('[Auth] onAuthStateChange: finally setLoading(false) for event=', event)
+                    // Release isLoading only for auth-cycle events and only when
+                    // no SIGNED_IN is still in progress (signingIn flag).
+                    if (mounted && isAuthCycle && !signingIn) {
+                        console.log('[Auth] setLoading(false) for event=', event)
                         useAuthStore.getState().setLoading(false)
+                    } else if (isAuthCycle) {
+                        console.log('[Auth] skipped setLoading(false) — signingIn=', signingIn, 'event=', event)
                     }
                 }
             }
