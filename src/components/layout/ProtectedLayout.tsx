@@ -35,7 +35,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
 
     const isAdmin = role === 'admin'
     const { data: suscripcion, isLoading: loadingSub } = useEstadoSuscripcion({
-        enabled: !!user && !!profile?.empresa_id,
+        enabled: !isLoading && !!user && !!profile?.empresa_id,
     })
 
     const publicPaths = ['/login', '/registro-empresa', '/auth/callback', '/reset-password', '/terminos', '/privacidad', '/cookies']
