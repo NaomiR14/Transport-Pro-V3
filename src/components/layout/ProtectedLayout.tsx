@@ -59,6 +59,8 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
         }
     }, [user, isLoading, isPublicPath, pathname, router])
 
+    console.log('[Layout] isLoading=', isLoading, 'user=', user?.id ?? null, 'loadingSub=', loadingSub, 'planActivo=', suscripcion?.plan_activo ?? null, 'pathname=', pathname)
+
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">

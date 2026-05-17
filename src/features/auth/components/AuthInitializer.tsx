@@ -28,9 +28,11 @@ export default function AuthInitializer() {
             if (!mounted) return
 
             try {
+                console.log('[Auth] checkSession: start, setLoading(true)')
                 useAuthStore.getState().setLoading(true)
 
                 const { data: { session }, error } = await supabase.auth.getSession()
+                console.log('[Auth] checkSession: getSession done, session=', session?.user?.id ?? null, 'error=', error?.message ?? null)
 
                 if (error) {
                     console.error('Error obteniendo sesión:', error)
@@ -40,14 +42,18 @@ export default function AuthInitializer() {
                 if (session?.user) {
                     useAuthStore.getState().setUser(session.user)
                     await loadProfile(supabase, session.user)
+                    console.log('[Auth] checkSession: loadProfile done')
                 } else {
                     useAuthStore.getState().setUser(null)
                     useAuthStore.getState().setProfile(null)
                 }
             } catch (error) {
-                console.error('Error en verificación de sesión:', error)
+                console.error('[Auth] checkSession: caught error', error)
             } finally {
-                if (mounted) useAuthStore.getState().setLoading(false)
+                if (mounted) {
+                    console.log('[Auth] checkSession: finally setLoading(false)')
+                    useAuthStore.getState().setLoading(false)
+                }
             }
         }
 
@@ -57,19 +63,30 @@ export default function AuthInitializer() {
             async (event, session) => {
                 if (!mounted) return
 
+                console.log('[Auth] onAuthStateChange: event=', event, 'user=', session?.user?.id ?? null)
+
                 if (event === 'SIGNED_IN') {
+                    console.log('[Auth] onAuthStateChange: SIGNED_IN → setLoading(true)')
                     useAuthStore.getState().setLoading(true)
                 }
 
-                if (session?.user) {
-                    useAuthStore.getState().setUser(session.user)
-                    await loadProfile(supabase, session.user)
-                } else {
-                    useAuthStore.getState().setUser(null)
-                    useAuthStore.getState().setProfile(null)
+                try {
+                    if (session?.user) {
+                        useAuthStore.getState().setUser(session.user)
+                        await loadProfile(supabase, session.user)
+                        console.log('[Auth] onAuthStateChange: loadProfile done for event=', event)
+                    } else {
+                        useAuthStore.getState().setUser(null)
+                        useAuthStore.getState().setProfile(null)
+                    }
+                } catch (err) {
+                    console.error('[Auth] onAuthStateChange: loadProfile threw for event=', event, err)
+                } finally {
+                    if (mounted) {
+                        console.log('[Auth] onAuthStateChange: finally setLoading(false) for event=', event)
+                        useAuthStore.getState().setLoading(false)
+                    }
                 }
-
-                if (mounted) useAuthStore.getState().setLoading(false)
             }
         )
 
