@@ -28,14 +28,14 @@ interface ProtectedLayoutProps {
 }
 
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
-    const { user, isLoading } = useAuth()
+    const { user, profile, isLoading } = useAuth()
     const { role } = usePermissions()
     const pathname = usePathname()
     const router = useRouter()
 
     const isAdmin = role === 'admin'
     const { data: suscripcion, isLoading: loadingSub } = useEstadoSuscripcion({
-        enabled: !!user,
+        enabled: !!user && !!profile?.empresa_id,
     })
 
     const publicPaths = ['/login', '/registro-empresa', '/auth/callback', '/reset-password', '/terminos', '/privacidad', '/cookies']
