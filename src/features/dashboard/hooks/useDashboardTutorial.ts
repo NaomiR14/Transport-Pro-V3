@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 
 const TUTORIAL_KEY = 'sgt_dashboard_tutorial_done'
 
-export function useDashboardTutorial() {
+export function useDashboardTutorial(planActivo: boolean) {
   const driverRef = useRef<ReturnType<typeof import('driver.js')['driver']> | null>(null)
 
   const startTutorial = useCallback(async () => {
@@ -76,13 +76,13 @@ export function useDashboardTutorial() {
   }, [])
 
   useEffect(() => {
+    if (!planActivo) return
     const alreadySeen = localStorage.getItem(TUTORIAL_KEY)
     if (!alreadySeen) {
-      // Small delay so the DOM renders before driver.js calculates positions
       const timeout = setTimeout(startTutorial, 800)
       return () => clearTimeout(timeout)
     }
-  }, [startTutorial])
+  }, [planActivo, startTutorial])
 
   const resetAndStart = useCallback(() => {
     localStorage.removeItem(TUTORIAL_KEY)

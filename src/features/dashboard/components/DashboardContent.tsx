@@ -7,13 +7,32 @@ import {
     Receipt, AlertTriangle, TrendingUp, ArrowRight, HelpCircle,
 } from "lucide-react"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect } from "react"
 import { useAuth, usePermissions } from "@/features/auth"
+import { useEstadoSuscripcion } from "@/features/pagos"
 import { useDashboardTutorial } from "../hooks/useDashboardTutorial"
 
 export default function DashboardContent() {
     const { user, profile } = useAuth()
-    const { canAccessModule, getRoleName } = usePermissions()
-    const { startTutorial } = useDashboardTutorial()
+    const { canAccessModule, getRoleName, role } = usePermissions()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
+    const isAdmin = role === 'admin'
+    const { data: suscripcion } = useEstadoSuscripcion({ enabled: isAdmin })
+    const planActivo = suscripcion?.plan_activo ?? false
+
+    const { startTutorial } = useDashboardTutorial(planActivo)
+
+    // Cuando el usuario llega del pago exitoso, limpiar la key para que el
+    // tutorial auto-inicie, luego reemplazar la URL sin el param
+    useEffect(() => {
+        if (searchParams.get('activated') === '1') {
+            localStorage.removeItem('sgt_dashboard_tutorial_done')
+            router.replace('/')
+        }
+    }, [])
 
     const allModules = [
         { title: "Órdenes de Transporte", description: "Gestionar órdenes de transporte y seguimiento", icon: Package, href: "/ordenes", gradient: "from-blue-500 to-blue-600", shadow: "shadow-blue-500/25", module: "ordenes" as const },
