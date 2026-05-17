@@ -3,19 +3,30 @@
 import { useEffect } from 'react'
 import { useAuthStore } from '../store/auth-store'
 import { createClient } from '@/lib/supabase/client'
-import type { SupabaseClient, User } from '@supabase/supabase-js'
+import type { Session } from '@supabase/supabase-js'
 
-async function loadProfile(supabase: SupabaseClient, user: User) {
-    const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
+// Fetches the profile via the PostgREST REST API directly, bypassing the
+// Supabase JS client. This avoids the internal auth-lock deadlock that occurs
+// when supabase.from() is called inside an onAuthStateChange callback while
+// the client is still processing its own SIGNED_IN token refresh.
+async function loadProfileDirect(session: Session) {
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?id=eq.${session.user.id}&select=*`
+    const res = await fetch(url, {
+        headers: {
+            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            Authorization: `Bearer ${session.access_token}`,
+            Accept: 'application/json',
+        },
+    })
 
-    if (error) {
-        console.error('Error obteniendo perfil:', error)
-    } else {
+    if (!res.ok) throw new Error(`loadProfile HTTP ${res.status}`)
+
+    const [profile] = await res.json()
+    if (profile) {
         useAuthStore.getState().setProfile(profile)
+        console.log('[Auth] loadProfileDirect done, empresa_id=', profile.empresa_id)
+    } else {
+        console.warn('[Auth] loadProfileDirect: no profile for user', session.user.id)
     }
 }
 
@@ -24,8 +35,7 @@ export default function AuthInitializer() {
         const supabase = createClient()
         let mounted = true
         // Prevents INITIAL_SESSION from releasing isLoading while SIGNED_IN is
-        // still processing its own loadProfile (avoids starting subscription query
-        // while Supabase is mid-token-refresh).
+        // still processing its own loadProfileDirect.
         let signingIn = false
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -34,9 +44,6 @@ export default function AuthInitializer() {
 
                 console.log('[Auth] event=', event, 'user=', session?.user?.id ?? null)
 
-                // Only INITIAL_SESSION and SIGNED_IN perform a full auth cycle
-                // (set user + load profile + gate isLoading). Other events (TOKEN_REFRESHED,
-                // USER_UPDATED) just update the user object without touching the loading gate.
                 const isAuthCycle = event === 'INITIAL_SESSION' || event === 'SIGNED_IN'
 
                 if (event === 'SIGNED_IN') {
@@ -49,13 +56,7 @@ export default function AuthInitializer() {
                     if (session?.user) {
                         useAuthStore.getState().setUser(session.user)
                         if (isAuthCycle) {
-                            // Yield the event loop so the Supabase auth state machine can
-                            // finish its own processing before we issue DB queries.
-                            // Without this, supabase.from() can deadlock against the internal
-                            // auth lock that the state machine still holds when it fires the event.
-                            await new Promise(resolve => setTimeout(resolve, 0))
-                            await loadProfile(supabase, session.user)
-                            console.log('[Auth] loadProfile done for event=', event)
+                            await loadProfileDirect(session)
                         }
                     } else {
                         useAuthStore.getState().setUser(null)
@@ -65,8 +66,6 @@ export default function AuthInitializer() {
                     console.error('[Auth] error for event=', event, err)
                 } finally {
                     if (event === 'SIGNED_IN') signingIn = false
-                    // Release isLoading only for auth-cycle events and only when
-                    // no SIGNED_IN is still in progress (signingIn flag).
                     if (mounted && isAuthCycle && !signingIn) {
                         console.log('[Auth] setLoading(false) for event=', event)
                         useAuthStore.getState().setLoading(false)
