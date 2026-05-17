@@ -23,6 +23,11 @@ export default function AuthInitializer() {
     useEffect(() => {
         const supabase = createClient()
         let mounted = true
+        // Tracks whether a SIGNED_IN auth event is still being processed.
+        // checkSession must not call setLoading(false) while SIGNED_IN is in flight,
+        // otherwise the subscription query starts mid-session-refresh and Supabase
+        // silently kills the in-flight fetch.
+        let signingIn = false
 
         const checkSession = async () => {
             if (!mounted) return
@@ -50,9 +55,13 @@ export default function AuthInitializer() {
             } catch (error) {
                 console.error('[Auth] checkSession: caught error', error)
             } finally {
-                if (mounted) {
+                // If a SIGNED_IN event is already being processed, let it call
+                // setLoading(false) when it's done — don't release the lock early.
+                if (mounted && !signingIn) {
                     console.log('[Auth] checkSession: finally setLoading(false)')
                     useAuthStore.getState().setLoading(false)
+                } else {
+                    console.log('[Auth] checkSession: finally skipped setLoading(false) — signingIn=', signingIn)
                 }
             }
         }
@@ -66,6 +75,7 @@ export default function AuthInitializer() {
                 console.log('[Auth] onAuthStateChange: event=', event, 'user=', session?.user?.id ?? null)
 
                 if (event === 'SIGNED_IN') {
+                    signingIn = true
                     console.log('[Auth] onAuthStateChange: SIGNED_IN → setLoading(true)')
                     useAuthStore.getState().setLoading(true)
                 }
@@ -82,6 +92,7 @@ export default function AuthInitializer() {
                 } catch (err) {
                     console.error('[Auth] onAuthStateChange: loadProfile threw for event=', event, err)
                 } finally {
+                    if (event === 'SIGNED_IN') signingIn = false
                     if (mounted) {
                         console.log('[Auth] onAuthStateChange: finally setLoading(false) for event=', event)
                         useAuthStore.getState().setLoading(false)
