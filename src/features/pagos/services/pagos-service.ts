@@ -14,21 +14,16 @@ export class PagosService {
         let empresaId: string
         try {
             empresaId = await getEmpresaId()
-        } catch (e) {
-            console.warn('[Pagos] getEmpresaId falló:', e)
+        } catch {
             return null
         }
 
-        console.log('[Pagos] getEstadoSuscripcion: empresaId=', empresaId, 'iniciando query...')
-        const t0 = Date.now()
         const supabase = createClient()
         const { data, error } = await supabase
             .from('empresas')
             .select('plan, plan_activo, plan_cancelado, plan_fecha_inicio, plan_fecha_fin, stripe_subscription_id')
             .eq('id', empresaId)
             .single()
-
-        console.log('[Pagos] query took', Date.now() - t0, 'ms | error=', error?.code ?? null, '| plan_activo=', data?.plan_activo ?? null)
 
         // PGRST116 = no rows (empresa no existe para este usuario — situación inesperada)
         // Cualquier otro error (auth, red) lanza excepción para que React Query reintente

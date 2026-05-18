@@ -24,9 +24,8 @@ async function loadProfileDirect(session: Session) {
     const [profile] = await res.json()
     if (profile) {
         useAuthStore.getState().setProfile(profile)
-        console.log('[Auth] loadProfileDirect done, empresa_id=', profile.empresa_id)
     } else {
-        console.warn('[Auth] loadProfileDirect: no profile for user', session.user.id)
+        console.error('[Auth] No se encontró perfil para el usuario', session.user.id)
     }
 }
 
@@ -42,13 +41,10 @@ export default function AuthInitializer() {
             async (event, session) => {
                 if (!mounted) return
 
-                console.log('[Auth] event=', event, 'user=', session?.user?.id ?? null)
-
                 const isAuthCycle = event === 'INITIAL_SESSION' || event === 'SIGNED_IN'
 
                 if (event === 'SIGNED_IN') {
                     signingIn = true
-                    console.log('[Auth] SIGNED_IN → setLoading(true)')
                     useAuthStore.getState().setLoading(true)
                 }
 
@@ -63,14 +59,11 @@ export default function AuthInitializer() {
                         useAuthStore.getState().setProfile(null)
                     }
                 } catch (err) {
-                    console.error('[Auth] error for event=', event, err)
+                    console.error('[Auth] Error en evento', event, err)
                 } finally {
                     if (event === 'SIGNED_IN') signingIn = false
                     if (mounted && isAuthCycle && !signingIn) {
-                        console.log('[Auth] setLoading(false) for event=', event)
                         useAuthStore.getState().setLoading(false)
-                    } else if (isAuthCycle) {
-                        console.log('[Auth] skipped setLoading(false) — signingIn=', signingIn, 'event=', event)
                     }
                 }
             }
